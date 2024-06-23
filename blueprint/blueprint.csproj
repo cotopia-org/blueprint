@@ -25,7 +25,7 @@
 
   <ItemGroup>
     <Reference Include="srtoolkit">
-      <HintPath>..\..\..\Saeed.r\srtoolkit\srtoolkit\bin\Debug\net6.0\srtoolkit.dll</HintPath>
+      <HintPath>..\dlls\srtoolkit.dll</HintPath>
     </Reference>
   </ItemGroup>
 
