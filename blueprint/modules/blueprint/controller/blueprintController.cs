@@ -65,7 +65,7 @@ namespace blueprint.modules.blueprint.controller
         [ProducesResponseType(200)]
         public async Task<IActionResult> RunWithWebhook([FromQuery] string token)
         {
-            var result = await BlueprintModule.Instance.Exec_token(token);
+            var result = await BlueprintModule.Instance.Exec_webhooktoken(token);
             if (result == null)
                 return NotFound(new { message = "Not found webhook-token." });
             return Ok(result.output);

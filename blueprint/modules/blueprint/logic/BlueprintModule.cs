@@ -7,6 +7,7 @@ using blueprint.modules.blueprint.request;
 using blueprint.modules.blueprint.response;
 using blueprint.modules.database;
 using blueprint.modules.node.logic;
+using blueprint.modules.scheduler.logic;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
@@ -23,7 +24,21 @@ namespace blueprint.modules.blueprint
             await base.RunAsync();
             dbContext = DatabaseModule.Instance.database.GetCollection<database.blueprint>("blueprint");
             Indexing();
+
+            SchedulerModule.Instance.OnAction += Instance_OnAction;
         }
+
+        private void Instance_OnAction(scheduler.database.SchedulerResponse item)
+        {
+            if( item.category == "node:pulse")
+            {
+                var data = item.payload.ToJObject();
+                var blueprint_id = (string)data["blueprint_id"];
+                var node_id = (string)data["node_id"];
+
+            }
+        }
+
         private async void Indexing()
         {
             try
@@ -36,7 +51,7 @@ namespace blueprint.modules.blueprint
                 Debug.Error(e);
             }
         }
-        public async Task<WebhookCallResponse> Exec_token(string token)
+        public async Task<WebhookCallResponse> Exec_webhooktoken(string token)
         {
             var dbItem = await dbContext.AsQueryable().Where(i => i.index_tokens.Contains($"webhook:{token}")).FirstOrDefaultAsync();
 
@@ -97,6 +112,21 @@ namespace blueprint.modules.blueprint
 
             await dbContext.ReplaceOneAsync(i => i._id == item._id, item, new ReplaceOptions() { IsUpsert = true });
 
+            {
+                var pulseCompponnets = mainBlueprint.FindComponents<Pulse>();
+
+
+                foreach (var pulse in pulseCompponnets)
+                {
+                    var payload = new JObject();
+                    payload["blueprint_id"] = id;
+                    payload["node_id"] = pulse.node.id;
+
+                    var _sm_id = $"pulse:{id}_{pulse.node.id}";
+                    var delay = TimeSpan.FromSeconds(pulse.node.GetField(pulse.delayParam).as_int);
+                    SchedulerModule.Instance.Upsert(_sm_id, delay, payload.ToString(), "node:pulse", true);
+                }
+            }
             return await Get(item._id, fromAccountId);
         }
 
@@ -163,7 +193,7 @@ namespace blueprint.modules.blueprint
             {
                 datas.ForEach(item => { item.res.blueprint = item.snapshot.ToJObject(); });
 
-                List<KeyValuePair<string, JObject>> replaceItems = new List<KeyValuePair<string, JObject>>();
+                var ids = new List<string>();
 
                 foreach (var item in datas.Select(i => i.res.blueprint))
                 {
@@ -172,13 +202,13 @@ namespace blueprint.modules.blueprint
                         {
                             if ((string)block["type"] == "node")
                             {
-                                string reference_id = (string)block["reference_id"];
-                                replaceItems.Add(new KeyValuePair<string, JObject>(reference_id, block));
+                                var reference_id = (string)block["reference_id"];
+                                if (!ids.Contains(reference_id))
+                                    ids.Add(reference_id);
                             }
                         }
                 }
 
-                var ids = replaceItems.Select(i => i.Key).OrderedDistinct().ToList();
                 var referenceNodes = await NodeModule.Instance.List(ids, fromAccountId);
                 datas.ForEach(acc => { acc.res.referenceNodes = referenceNodes; });
             }
@@ -303,10 +333,27 @@ namespace blueprint.modules.blueprint
         }
         private static void UpsertNode(Node main, Node edited, Node refrence, bool isAdded)
         {
-            if (refrence != null && refrence.HasComponent<Webhook>() && !main.HasComponent<Webhook>())
+            if (refrence != null)
             {
-                var webhook = main.AddComponent<Webhook>();
-                webhook.token = Utility.CalculateMD5Hash(Guid.NewGuid().ToString()).ToLower();
+                if (refrence.HasComponent<Webhook>() && !main.HasComponent<Webhook>())
+                {
+                    var refComponnet = refrence.GetComponent<Webhook>();
+
+                    var componnet = main.AddComponent<Webhook>();
+                    componnet.name = refComponnet.name;
+                    componnet.token = Utility.CalculateMD5Hash(Guid.NewGuid().ToString()).ToLower();
+                }
+                else
+                if (refrence.HasComponent<Pulse>() && !main.HasComponent<Pulse>())
+                {
+                    var refComponnet = refrence.GetComponent<Pulse>();
+                    var componnet = main.AddComponent<Pulse>();
+                    componnet.name = refComponnet.name;
+                    componnet.delayParam = refComponnet.delayParam;
+                    componnet.callback = refComponnet.callback;
+
+                }
+
             }
         }
 

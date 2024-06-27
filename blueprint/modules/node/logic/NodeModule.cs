@@ -151,7 +151,7 @@ namespace blueprint.modules.node.logic
         }
         public async Task<List<NodeResponse>> List(List<string> ids, string fromAccountId = null)
         {
-            if (ids == null)
+            if (ids == null || ids.Count == 0)
                 return new List<NodeResponse>();
 
             var dbItems = await dbContext.AsQueryable().Where(i => ids.Contains(i._id)).ToListAsync();
