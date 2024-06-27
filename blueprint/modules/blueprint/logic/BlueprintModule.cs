@@ -3,7 +3,6 @@ using blueprint.modules.account;
 using blueprint.modules.blueprint.core;
 using blueprint.modules.blueprint.core.blocks;
 using blueprint.modules.blueprint.core.component;
-using blueprint.modules.blueprint.logic;
 using blueprint.modules.blueprint.request;
 using blueprint.modules.blueprint.response;
 using blueprint.modules.database;
@@ -145,43 +144,39 @@ namespace blueprint.modules.blueprint
                 {
                     id = i._id.ToString(),
                     title = i.title,
-                    blueprint = i.data_snapshot.ToJObject(),
                     description = i.description,
                     createDateTime = i.createDateTime,
                     updateDateTime = i.updateDateTime,
                 },
                 accId = i.account_id,
+                snapshot = i.data_snapshot,
             }).ToList();
-            List<KeyValuePair<string, JObject>> replaceItems = new List<KeyValuePair<string, JObject>>();
 
-            foreach (var item in datas.Select(i => i.res.blueprint))
-            {
-                if (item != null && item["blocks"] != null)
-                    foreach (JObject block in (JArray)item["blocks"])
-                    {
-                        if ((string)block["type"] == "node")
-                        {
-                            string reference_id = (string)block["reference_id"];
-                            replaceItems.Add(new KeyValuePair<string, JObject>(reference_id, block));
-                        }
-                    }
-            }
+
+
 
             var accounts = await AccountModule.Instance.List(datas.Select(i => i.accId).Distinct().ToList());
             //Set Accounts
-            datas.ForEach(acc => { acc.res.creator = accounts.FirstOrDefault(i => i.id == acc.accId); });
+            datas.ForEach(item => { item.res.creator = accounts.FirstOrDefault(i => i.id == item.accId); });
 
             if (dbItems.Count == 1)
             {
-                //if (replaceItems.Count > 0)
-                //{
-                //    foreach (var item in replaceItems)
-                //    {
-                //        string reference_id = (string)item.Value["reference_id"];
-                //        item.Value.Remove("reference_id");
-                //        item.Value["reference"] = referenceNodes.FirstOrDefault(i => i.id == reference_id)?.ToJObject();
-                //    }
-                //}
+                datas.ForEach(item => { item.res.blueprint = item.snapshot.ToJObject(); });
+
+                List<KeyValuePair<string, JObject>> replaceItems = new List<KeyValuePair<string, JObject>>();
+
+                foreach (var item in datas.Select(i => i.res.blueprint))
+                {
+                    if (item != null && item["blocks"] != null)
+                        foreach (JObject block in (JArray)item["blocks"])
+                        {
+                            if ((string)block["type"] == "node")
+                            {
+                                string reference_id = (string)block["reference_id"];
+                                replaceItems.Add(new KeyValuePair<string, JObject>(reference_id, block));
+                            }
+                        }
+                }
 
                 var ids = replaceItems.Select(i => i.Key).OrderedDistinct().ToList();
                 var referenceNodes = await NodeModule.Instance.List(ids, fromAccountId);

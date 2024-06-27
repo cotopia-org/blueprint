@@ -1,4 +1,4 @@
-﻿namespace blueprint.modules.blueprint.logic
+﻿namespace blueprint.modules.blueprint.response
 {
     public class WebhookCallResponse
     {

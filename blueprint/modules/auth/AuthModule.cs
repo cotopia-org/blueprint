@@ -12,6 +12,7 @@ using blueprint.core;
 using blueprint.modules.account.database;
 using blueprint.modules.database;
 using blueprint.modules.account;
+using blueprint.modules.config;
 
 namespace blueprint.modules.auth
 {
@@ -23,7 +24,7 @@ namespace blueprint.modules.auth
 
         public override async Task RunAsync()
         {
-            JWTHandler = new JWTHandler("bQQIECCdo2u0pked63f613odJjLQrofjgp");
+            JWTHandler = new JWTHandler(ConfigModule.GetString("jwt.secret"));
             await base.RunAsync();
             signinSession = DatabaseModule.Instance.database.GetCollection<SigninSession>("signinSession");
         }

@@ -130,7 +130,9 @@ namespace blueprint.modules.blueprint.core
         public static JObject JsonSnapshot(this Field field)
         {
             var result = new JObject();
-            result["id"] = field.id;
+            if (field.id != null)
+                result["id"] = field.id;
+
             result["name"] = field.name;
             result["type"] = field.type.ToString();
             if (field.value == null)
@@ -289,7 +291,9 @@ namespace blueprint.modules.blueprint.core
             var field = new Field();
             field.parent = fromObject;
 
-            field.id = (string)data["id"];
+            if (data["id"] != null)
+                field.id = (string)data["id"];
+
             field.name = (string)data["name"];
             field.type = Enum.Parse<FieldType>((string)data["type"]);
             var valueType = (string)data["value_type"];
@@ -348,7 +352,7 @@ namespace blueprint.modules.blueprint.core
             else
             if (component is Pulse pulse)
             {
-                result["type"] = "webhook";
+                result["type"] = "pulse";
                 result["callback"] = pulse.callback;
                 result["delayParam"] = pulse.delayParam;
             }

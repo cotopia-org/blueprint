@@ -66,6 +66,7 @@ function start()
             });
 
             var webhook = node.AddComponent<Webhook>();
+            webhook.name = "c1";
             webhook.token = token;
             var output = new Field();
             output.name = "next";
@@ -189,6 +190,7 @@ function on_pulse()
             });
 
             var pulse = node.AddComponent<Pulse>();
+            pulse.name = "c1";
             pulse.delayParam = "delay";
             pulse.callback = "on_pulse";
 
