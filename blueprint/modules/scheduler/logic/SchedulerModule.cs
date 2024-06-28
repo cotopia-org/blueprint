@@ -63,12 +63,20 @@ namespace blueprint.modules.scheduler.logic
                             if (schedule.repeat)
                             {
                                 var delay = schedule.invokeTime - schedule.createDateTime;
+                                var createTime = schedule.invokeTime;
+                                var invokeTime = createTime + delay;
+
+                                if( invokeTime < DateTime.UtcNow)
+                                {
+                                    createTime = DateTime.UtcNow;
+                                    invokeTime = createTime + delay;
+                                }
 
                                 await dbContext.UpdateOneAsync(
                                  Builders<schedule>.Filter.Eq(i => i.key, schedule.key),
                                    Builders<schedule>.Update
-                                   .Set(i => i.invokeTime, schedule.invokeTime + delay)
-                                   .Set(i => i.createDateTime, schedule.invokeTime)
+                                   .Set(i => i.invokeTime, invokeTime)
+                                   .Set(i => i.createDateTime, createTime)
                                  );
                             }
 

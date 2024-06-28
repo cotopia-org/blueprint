@@ -30,12 +30,12 @@ namespace blueprint.modules.blueprint
 
         private void Instance_OnAction(scheduler.database.SchedulerResponse item)
         {
-            if( item.category == "node:pulse")
+            if (item.category == "node:pulse")
             {
                 var data = item.payload.ToJObject();
                 var blueprint_id = (string)data["blueprint_id"];
                 var node_id = (string)data["node_id"];
-
+                Exec_pulse(blueprint_id, node_id);
             }
         }
 
@@ -51,6 +51,29 @@ namespace blueprint.modules.blueprint
                 Debug.Error(e);
             }
         }
+        public async void Exec_pulse(string blueprint_id, string node_id)
+        {
+            try
+            {
+                var dbItem = await dbContext.AsQueryable().Where(i => i._id == blueprint_id).FirstOrDefaultAsync();
+
+                var process = await BlueprintProcessModule.Instance.CreateProcess(dbItem.data_snapshot);
+
+                var pulses = process.Blueprint.FindComponents<Pulse>();
+
+                var pulseNode = pulses.FirstOrDefault(i => i.node.id == node_id);
+                if (pulseNode != null)
+                {
+                    pulseNode.node.FunctionInvoke(pulseNode.callback);
+                    IncExecution(dbItem);
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.Error(e);
+            }
+
+        }
         public async Task<WebhookCallResponse> Exec_webhooktoken(string token)
         {
             var dbItem = await dbContext.AsQueryable().Where(i => i.index_tokens.Contains($"webhook:{token}")).FirstOrDefaultAsync();
@@ -62,13 +85,15 @@ namespace blueprint.modules.blueprint
 
             var webhooks = process.Blueprint.FindComponents<Webhook>();
 
-            var webhook = webhooks.FirstOrDefault(i => i.token == token);
+            var webhookNode = webhooks.FirstOrDefault(i => i.token == token);
+            if (webhookNode == null)
+                return null;
 
-            webhook.node.Execute();
+            webhookNode.node.Execute();
             IncExecution(dbItem);
 
             var response = new WebhookCallResponse();
-            response.output = webhook.node.get_output();
+            response.output = webhookNode.node.get_output();
             return response;
         }
 

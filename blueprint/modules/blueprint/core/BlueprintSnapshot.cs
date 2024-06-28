@@ -336,9 +336,10 @@ namespace blueprint.modules.blueprint.core
                     return new Webhook() { name = name, node = node, token = (string)data["token"] };
                 case "pulse":
                     return new Pulse() { name = name, node = node, callback = (string)data["callback"], delayParam = (string)data["delayParam"] };
+                default:
+                    return new ComponentBase() { node = node, name = name };
             }
 
-            return new ComponentBase() { node = node, name = name };
         }
         public static JObject JsonSnapshot(this ComponentBase component)
         {
