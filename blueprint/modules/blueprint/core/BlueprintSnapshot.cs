@@ -66,11 +66,11 @@ namespace blueprint.modules.blueprint.core
                     result["script"] = node.script.code;
             }
 
-            var datas = new JArray();
-            foreach (var d in node.datas)
-                datas.Add(d.Value.JsonSnapshot());
-            if (datas.Count > 0)
-                result["datas"] = datas;
+            var data = new JArray();
+            foreach (var d in node.data)
+                data.Add(d.Value.JsonSnapshot());
+            if (data.Count > 0)
+                result["data"] = data;
 
             var components = new JArray();
             foreach (var c in node.components)
@@ -196,7 +196,7 @@ namespace blueprint.modules.blueprint.core
             result["coordinate"] = item.coordinate.Snapshot();
             return result;
         }
-        public static string Snapshot(this Cordinate item)
+        public static string Snapshot(this Coordinate item)
         {
             return $"{item.x},{item.y},{item.w},{item.h}";
         }
@@ -215,7 +215,7 @@ namespace blueprint.modules.blueprint.core
             }
 
             if (block != null)
-                block.coordinate = LoadCordinate((string)data["coordinate"]);
+                block.coordinate = LoadCoordinate((string)data["coordinate"]);
             block.id = (string)data["id"];
             block.name = (string)data["name"];
             if (data["reference_id"] != null)
@@ -224,13 +224,13 @@ namespace blueprint.modules.blueprint.core
             return block;
         }
 
-        public static Cordinate LoadCordinate(string data)
+        public static Coordinate LoadCoordinate(string data)
         {
             if (data == null)
-                return new Cordinate();
+                return new Coordinate();
 
             var items = data.Split(',').Select(i => float.Parse(i)).ToArray();
-            return new Cordinate() { x = items[0], y = items[1], w = items[2], h = items[3] };
+            return new Coordinate() { x = items[0], y = items[1], w = items[2], h = items[3] };
         }
         public static Expression LoadExpression(JObject data)
         {

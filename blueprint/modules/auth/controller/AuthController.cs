@@ -1,7 +1,7 @@
 ﻿using blueprint.core;
 using blueprint.modules.account;
-using cotopia_server.modules.auth.request;
-using cotopia_server.modules.auth.response;
+using blueprint.modules.auth.request;
+using blueprint.modules.auth.response;
 using Microsoft.AspNetCore.Mvc;
 
 namespace blueprint.modules.auth.controller

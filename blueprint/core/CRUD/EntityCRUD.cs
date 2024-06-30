@@ -36,7 +36,7 @@ namespace blueprint.core.CRUD
                 _dbItem.updateDateTime = DateTime.UtcNow;
             }
 
-            SuperCache.Set<T>(item, new CahceSetting() { timeLife = CacheTime, key = $"{PREFIX_CACHE_KEY}_{_dbItem._id}" });
+            SuperCache.Set<T>(item, new CacheSetting() { timeLife = CacheTime, key = $"{PREFIX_CACHE_KEY}_{_dbItem._id}" });
 
             return item;
         }
@@ -45,7 +45,7 @@ namespace blueprint.core.CRUD
             if (!SuperCache.Exist($"{PREFIX_CACHE_KEY}_{id}"))
             {
                 var item = await DbContext.Find(i => i._id == id).FirstOrDefaultAsync();
-                SuperCache.Set<T>(item, new CahceSetting() { timeLife = CacheTime, key = $"{PREFIX_CACHE_KEY}_{id}" });
+                SuperCache.Set<T>(item, new CacheSetting() { timeLife = CacheTime, key = $"{PREFIX_CACHE_KEY}_{id}" });
                 return item;
             }
             else
@@ -84,7 +84,7 @@ namespace blueprint.core.CRUD
                 foreach (var item in _newItems)
                 {
                     items.Add(item);
-                    SuperCache.Set<T>(item, new CahceSetting() { timeLife = CacheTime, key = $"{PREFIX_CACHE_KEY}_{item._id}" });
+                    SuperCache.Set<T>(item, new CacheSetting() { timeLife = CacheTime, key = $"{PREFIX_CACHE_KEY}_{item._id}" });
                 }
             }
 

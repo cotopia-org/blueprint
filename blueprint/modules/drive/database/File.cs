@@ -14,7 +14,7 @@ namespace blueprint.modules.drive.database
         public string uniqueName { get; set; }
 
         public string title { get; set; }
-        public string extention { get; set; }
+        public string extension { get; set; }
         public long size { get; set; }
         public DateTime createDateTime { get; set; }
     }

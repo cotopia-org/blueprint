@@ -59,7 +59,7 @@ namespace blueprint.modules.blueprint
 
                 var process = await BlueprintProcessModule.Instance.CreateProcess(dbItem.data_snapshot);
 
-                var pulses = process.Blueprint.FindComponents<Pulse>();
+                var pulses = process.blueprint.FindComponents<Pulse>();
 
                 var pulseNode = pulses.FirstOrDefault(i => i.node.id == node_id);
                 if (pulseNode != null)
@@ -83,7 +83,7 @@ namespace blueprint.modules.blueprint
 
             var process = await BlueprintProcessModule.Instance.CreateProcess(dbItem.data_snapshot);
 
-            var webhooks = process.Blueprint.FindComponents<Webhook>();
+            var webhooks = process.blueprint.FindComponents<Webhook>();
 
             var webhookNode = webhooks.FirstOrDefault(i => i.token == token);
             if (webhookNode == null)
@@ -123,7 +123,10 @@ namespace blueprint.modules.blueprint
             var changedBlueprint = await LoadBlueprint(item._id, request.blueprint);
             var mainBlueprint = await LoadBlueprint(item._id, JObject.Parse(item.data_snapshot));
 
-            await ApplyChanges(mainBlueprint, changedBlueprint);
+            List<Block> changedBlocks = new List<Block>();
+            List<Block> removedBlocks = new List<Block>();
+
+            await ApplyChanges(mainBlueprint, changedBlueprint, changedBlocks, removedBlocks);
 
             item.title = request.title;
             item.description = request.description;
@@ -137,22 +140,53 @@ namespace blueprint.modules.blueprint
 
             await dbContext.ReplaceOneAsync(i => i._id == item._id, item, new ReplaceOptions() { IsUpsert = true });
 
+            HandleExternalProcess(id, changedBlocks, removedBlocks);
+
+            return await Get(item._id, fromAccountId);
+        }
+
+        private static void HandleExternalProcess(string id, List<Block> changedBlocks, List<Block> removedBlocks)
+        {
+            foreach (var block in changedBlocks)
             {
-                var pulseCompponnets = mainBlueprint.FindComponents<Pulse>();
-
-
-                foreach (var pulse in pulseCompponnets)
+                if (block is Node node)
                 {
-                    var payload = new JObject();
-                    payload["blueprint_id"] = id;
-                    payload["node_id"] = pulse.node.id;
+                    if (node.HasComponent<Pulse>())
+                    {
+                        var pulseComponents = node.GetComponents<Pulse>();
 
-                    var _sm_id = $"pulse:{id}_{pulse.node.id}";
-                    var delay = TimeSpan.FromSeconds(pulse.node.GetField(pulse.delayParam).as_int);
-                    SchedulerModule.Instance.Upsert(_sm_id, delay, payload.ToString(), "node:pulse", true);
+                        foreach (var pulse in pulseComponents)
+                        {
+                            var payload = new JObject();
+                            payload["name"] = pulse.name;
+                            payload["blueprint_id"] = id;
+                            payload["node_id"] = pulse.node.id;
+
+                            var _sm_id = $"pulse:{id}_{pulse.node.id}_{pulse.name}";
+                            var delay = TimeSpan.FromSeconds(pulse.node.GetField(pulse.delayParam).as_int);
+                            SchedulerModule.Instance.Upsert(_sm_id, delay, payload.ToString(), "node:pulse", true);
+                        }
+                    }
                 }
             }
-            return await Get(item._id, fromAccountId);
+
+            foreach (var block in removedBlocks)
+            {
+                if (block is Node node)
+                {
+                    if (node.HasComponent<Pulse>())
+                    {
+                        var pulseComponents = node.GetComponents<Pulse>();
+
+                        foreach (var pulse in pulseComponents)
+                        {
+                            var _sm_id = $"pulse:{id}_{pulse.node.id}_{pulse.name}";
+
+                            SchedulerModule.Instance.Remove(_sm_id);
+                        }
+                    }
+                }
+            }
         }
 
         public async Task<PaginationResponse<BlueprintResponse>> List(string accountId, Pagination pagination, string search = null, string fromAccountId = null)
@@ -188,12 +222,11 @@ namespace blueprint.modules.blueprint
             var _ids = ids.Distinct().ToList();
 
             var dbItems = await dbContext.AsQueryable().Where(i => _ids.Contains(i._id)).ToListAsync();
-            //   var dbAccounts = await dbContext.Find_Cahce("_id", ids.Select(i => i.ToObjectId()).ToList());
             return await List(dbItems, fromAccountId);
         }
         public async Task<List<BlueprintResponse>> List(List<database.blueprint> dbItems, string fromAccountId = null)
         {
-            var datas = dbItems.Select(i => new
+            var data = dbItems.Select(i => new
             {
                 res = new BlueprintResponse()
                 {
@@ -210,17 +243,17 @@ namespace blueprint.modules.blueprint
 
 
 
-            var accounts = await AccountModule.Instance.List(datas.Select(i => i.accId).Distinct().ToList());
+            var accounts = await AccountModule.Instance.List(data.Select(i => i.accId).Distinct().ToList());
             //Set Accounts
-            datas.ForEach(item => { item.res.creator = accounts.FirstOrDefault(i => i.id == item.accId); });
+            data.ForEach(item => { item.res.creator = accounts.FirstOrDefault(i => i.id == item.accId); });
 
             if (dbItems.Count == 1)
             {
-                datas.ForEach(item => { item.res.blueprint = item.snapshot.ToJObject(); });
+                data.ForEach(item => { item.res.blueprint = item.snapshot.ToJObject(); });
 
                 var ids = new List<string>();
 
-                foreach (var item in datas.Select(i => i.res.blueprint))
+                foreach (var item in data.Select(i => i.res.blueprint))
                 {
                     if (item != null && item["blocks"] != null)
                         foreach (JObject block in (JArray)item["blocks"])
@@ -235,10 +268,10 @@ namespace blueprint.modules.blueprint
                 }
 
                 var referenceNodes = await NodeModule.Instance.List(ids, fromAccountId);
-                datas.ForEach(acc => { acc.res.referenceNodes = referenceNodes; });
+                data.ForEach(acc => { acc.res.referenceNodes = referenceNodes; });
             }
 
-            return datas.Select(i => i.res).ToList();
+            return data.Select(i => i.res).ToList();
         }
         public async Task<BlueprintResponse> Get(string id, string fromAccountId = null)
         {
@@ -252,27 +285,27 @@ namespace blueprint.modules.blueprint
             var blueprint = BlueprintSnapshot.LoadBlueprint(blueprintData);
             blueprint.id = id;
 
-            await FillRefrence(blueprint);
+            await FillReference(blueprint);
 
             return blueprint;
         }
-        public async Task FillRefrence(Blueprint blueprint)
+        public async Task FillReference(Blueprint blueprint)
         {
-            var refrenceIds = blueprint.nodes.Select(i => i.reference_id).OrderedDistinct().ToList();
-            if (refrenceIds.Count > 0)
+            var referenceIds = blueprint.nodes.Select(i => i.reference_id).OrderedDistinct().ToList();
+            if (referenceIds.Count > 0)
             {
-                var refrenceNodes = await NodeModule.Instance.Find_byids(refrenceIds);
+                var referenceNodes = await NodeModule.Instance.Find_by_ids(referenceIds);
 
                 foreach (var n in blueprint.nodes)
                 {
-                    var refrence = refrenceNodes.FirstOrDefault(i => i.id == n.reference_id);
-                    if (refrence != null && refrence.script != null)
-                        n.script = new Script(refrence.script.code);
+                    var reference = referenceNodes.FirstOrDefault(i => i.id == n.reference_id);
+                    if (reference != null && reference.script != null)
+                        n.script = new Script(reference.script.code);
                 }
             }
         }
 
-        private static async Task ApplyChanges(Blueprint mainBlueprint, Blueprint changedBlueprint)
+        private static async Task ApplyChanges(Blueprint mainBlueprint, Blueprint changedBlueprint, List<Block> changedBlocks, List<Block> removedBlocks)
         {
             var addBlockIds = new List<string>();
             var removedBlockIds = new List<string>();
@@ -324,19 +357,20 @@ namespace blueprint.modules.blueprint
 
                 if (block != null)
                 {
+                    removedBlocks.Add(block);
                     mainBlueprint.RemoveBlock(block.id);
                 }
             }
 
-            var refrenceIds = changedBlueprint.nodes.Select(i => i.reference_id).Distinct().ToList();
+            var referenceIds = changedBlueprint.nodes.Select(i => i.reference_id).Distinct().ToList();
 
 
-            var refrenceNodes = await NodeModule.Instance.Find_byids(refrenceIds);
+            var referenceNodes = await NodeModule.Instance.Find_by_ids(referenceIds);
 
             foreach (var changedBlock in changedBlueprint.blocks)
             {
                 var mainBlock = mainBlueprint.blocks.FirstOrDefault(i => i.id == changedBlock.id);
-                var refrenceNode = refrenceNodes.FirstOrDefault(i => i.id == changedBlock.reference_id);
+                var referenceNode = referenceNodes.FirstOrDefault(i => i.id == changedBlock.reference_id);
 
                 mainBlock.name = changedBlock.name;
                 mainBlock.coordinate = changedBlock.coordinate;
@@ -346,41 +380,45 @@ namespace blueprint.modules.blueprint
                 {
                     var mainNode = mainBlock as Node;
                     mainNode.fields = editNode.fields;
-                    UpsertNode(mainNode, editNode, refrenceNode, isAdded);
+                    UpsertNode(mainNode, editNode, referenceNode, isAdded);
+
+                    changedBlocks.Add(mainNode);
+
                 }
                 else
                 if (changedBlock is StickyNote editStickyNote)
                 {
                     var mainStickyNote = mainBlock as StickyNote;
                     mainStickyNote.text = editStickyNote.text;
+
+                    changedBlocks.Add(editStickyNote);
+
                 }
+
             }
         }
-        private static void UpsertNode(Node main, Node edited, Node refrence, bool isAdded)
+        private static void UpsertNode(Node main, Node edited, Node reference, bool isAdded)
         {
-            if (refrence != null)
+            if (reference != null)
             {
-                if (refrence.HasComponent<Webhook>() && !main.HasComponent<Webhook>())
+                if (reference.HasComponent<Webhook>() && !main.HasComponent<Webhook>())
                 {
-                    var refComponnet = refrence.GetComponent<Webhook>();
+                    var refComponent = reference.GetComponent<Webhook>();
 
-                    var componnet = main.AddComponent<Webhook>();
-                    componnet.name = refComponnet.name;
-                    componnet.token = Utility.CalculateMD5Hash(Guid.NewGuid().ToString()).ToLower();
+                    var component = main.AddComponent<Webhook>();
+                    component.name = refComponent.name;
+                    component.token = Utility.CalculateMD5Hash(Guid.NewGuid().ToString()).ToLower();
                 }
                 else
-                if (refrence.HasComponent<Pulse>() && !main.HasComponent<Pulse>())
+                if (reference.HasComponent<Pulse>() && !main.HasComponent<Pulse>())
                 {
-                    var refComponnet = refrence.GetComponent<Pulse>();
-                    var componnet = main.AddComponent<Pulse>();
-                    componnet.name = refComponnet.name;
-                    componnet.delayParam = refComponnet.delayParam;
-                    componnet.callback = refComponnet.callback;
-
+                    var refComponent = reference.GetComponent<Pulse>();
+                    var component = main.AddComponent<Pulse>();
+                    component.name = refComponent.name;
+                    component.delayParam = refComponent.delayParam;
+                    component.callback = refComponent.callback;
                 }
-
             }
         }
-
     }
 }

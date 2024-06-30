@@ -32,14 +32,14 @@ namespace blueprint.modules.drive.logic
 
                 var filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
-                string extention = Path.GetExtension(file.FileName).TrimStart('.');
+                string extension = Path.GetExtension(file.FileName).TrimStart('.');
 
-                using (var fileStream = new FileStream(extention != "" ? $"{filePath}.{extention}" : filePath, FileMode.Create))
+                using (var fileStream = new FileStream(extension != "" ? $"{filePath}.{extension}" : filePath, FileMode.Create))
                     await file.CopyToAsync(fileStream);
 
                 var dbFile = new database.File();
                 dbFile._id = ObjectId.GenerateNewId();
-                dbFile.extention = extention;
+                dbFile.extension = extension;
                 dbFile.name = fileName;
                 dbFile.uniqueName = uniqueFileName;
 
@@ -65,7 +65,7 @@ namespace blueprint.modules.drive.logic
         {
             var _ids = ids.Select(i => i.ToObjectId()).Distinct().ToList();
             //var dbFiles = await file.AsQueryable().Where(i => _ids.Contains(i._id)).ToListAsync();
-            var dbFiles = await file.Find_Cahce("_id", _ids);
+            var dbFiles = await file.Find_Cache("_id", _ids);
 
             var result = dbFiles.Select(i => new
             {
@@ -74,7 +74,7 @@ namespace blueprint.modules.drive.logic
                 {
                     id = i._id.ToString(),
                     name = i.name,
-                    extention = i.extention,
+                    extension = i.extension,
                     title = i.title,
                     dateTime = i.createDateTime,
                 }
@@ -83,8 +83,8 @@ namespace blueprint.modules.drive.logic
             result.ForEach(media =>
             {
                 string e = null;
-                if (media.file.extention != "")
-                    e = "." + media.file.extention;
+                if (media.file.extension != "")
+                    e = "." + media.file.extension;
                 else
                     e = "";
 

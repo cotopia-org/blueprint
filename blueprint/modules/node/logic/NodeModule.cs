@@ -105,7 +105,7 @@ namespace blueprint.modules.node.logic
             if (fromAccountId != null)
             {
                 if (dbItem.account_id != fromAccountId)
-                    throw AppException.ForbidenAccessObject();
+                    throw AppException.ForbiddenAccessObject();
             }
 
             dbItem.updateDateTime = DateTime.UtcNow;
@@ -119,7 +119,7 @@ namespace blueprint.modules.node.logic
             var node = new blueprint.core.blocks.Node();
             node.name = request.name;
             node.script = new Script(request.script);
-            node.coordinate = new blueprint.core.nodes.Cordinate();
+            node.coordinate = new blueprint.core.nodes.Coordinate();
 
             var nodeSnapshot = BlueprintSnapshot.Snapshot(node);
             dbItem.data = nodeSnapshot.ToString(Newtonsoft.Json.Formatting.None);
@@ -199,16 +199,16 @@ namespace blueprint.modules.node.logic
             if (fromAccountId != null)
             {
                 if (dbItem.account_id != fromAccountId)
-                    throw AppException.ForbidenAccessObject();
+                    throw AppException.ForbiddenAccessObject();
             }
 
             await dbContext.DeleteOneAsync(i => i._id == id);
         }
-        public async Task<blueprint.core.blocks.Node> Find_byname(string name)
+        public async Task<blueprint.core.blocks.Node> Find_by_name(string name)
         {
-            return (await Find_byname(new string[] { name })).FirstOrDefault();
+            return (await Find_by_name(new string[] { name })).FirstOrDefault();
         }
-        public async Task<List<blueprint.core.blocks.Node>> Find_byname(string[] names)
+        public async Task<List<blueprint.core.blocks.Node>> Find_by_name(string[] names)
         {
             var dbItems = await dbContext.AsQueryable().Where(i => names.Contains(i.name)).ToListAsync();
 
@@ -223,11 +223,11 @@ namespace blueprint.modules.node.logic
             }
             return result;
         }
-        public async Task<blueprint.core.blocks.Node> Find_byid(string id)
+        public async Task<blueprint.core.blocks.Node> Find_by_id(string id)
         {
-            return (await Find_byids(new List<string>() { id })).FirstOrDefault();
+            return (await Find_by_ids(new List<string>() { id })).FirstOrDefault();
         }
-        public async Task<List<blueprint.core.blocks.Node>> Find_byids(List<string> ids)
+        public async Task<List<blueprint.core.blocks.Node>> Find_by_ids(List<string> ids)
         {
             if (ids.Count == 0)
                 return new List<blueprint.core.blocks.Node>();

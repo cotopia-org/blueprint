@@ -1,5 +1,5 @@
 ﻿
-namespace cotopia_server.modules.auth.response
+namespace blueprint.modules.auth.response
 {
     public class ChangePasswordResponse
     {

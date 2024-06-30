@@ -42,7 +42,7 @@ namespace blueprint.core
 
             //var session = await AuthLogic.Instance.signinSession.AsQueryable()
             //    .Where(i => i._id == _sessionId).FirstOrDefaultAsync(new ExpertQuery() { cacheKey = _sessionId });
-            var session = await AuthModule.Instance.signinSession.Find_Cahce("_id", _sessionId);
+            var session = await AuthModule.Instance.signinSession.Find_Cache("_id", _sessionId);
 
             if (session == null)
             {

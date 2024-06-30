@@ -16,7 +16,7 @@ namespace blueprint.modules.blueprint.core
         }
         public object Value(Field fromField)
         {
-            return script.Expresion("node", fromField.bind_node).FirstOrDefault();
+            return script.Expression("node", fromField.bind_node).FirstOrDefault();
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace blueprint.modules.blueprint.core.nodes
 {
-    public class Cordinate
+    public class Coordinate
     {
         public float x { get; set; }
         public float y { get; set; }

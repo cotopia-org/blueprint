@@ -3,7 +3,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
-namespace cotopia_server.modules.auth.request
+namespace blueprint.modules.auth.request
 {
     public class ResetPasswordRequest
     {

@@ -7,8 +7,8 @@ using blueprint.modules.database;
 using blueprint.modules.drive.logic;
 using blueprint.modules.drive.request;
 using blueprint.modules.drive.response;
-using cotopia_server.modules.auth.request;
-using cotopia_server.modules.auth.response;
+using blueprint.modules.auth.request;
+using blueprint.modules.auth.response;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
@@ -69,7 +69,7 @@ namespace blueprint.modules.account
             var _ids = ids.Select(i => i.ToObjectId()).Distinct().ToList();
 
             //var dbAccounts = await accounts.AsQueryable().Where(i => _ids.Contains(i._id)).ToListAsync();
-            var dbAccounts = await accounts.Find_Cahce("_id", ids.Select(i => i.ToObjectId()).ToList());
+            var dbAccounts = await accounts.Find_Cache("_id", ids.Select(i => i.ToObjectId()).ToList());
             return await List(dbAccounts, fromAccountId);
         }
         public async Task<List<AccountResponse>> List(List<Account> dbAccounts, string fromEntityObjectId = null)
@@ -105,7 +105,7 @@ namespace blueprint.modules.account
             //var acc = await accounts.AsQueryable().Where(i => i._id == _accountId).Select(i => new Account() { roles = i.roles })
             //    .FirstOrDefaultAsync(new ExpertQuery() { cacheKey = _accountId });
 
-            var acc = await accounts.Find_Cahce("_id", _accountId);
+            var acc = await accounts.Find_Cache("_id", _accountId);
             if (acc.roles == null)
                 return false;
             else

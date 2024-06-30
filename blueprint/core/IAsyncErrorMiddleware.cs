@@ -48,7 +48,7 @@ public class AppException : Exception
     public AppException(HttpStatusCode httpStatusCode)
     {
         data = new AppExceptionData();
-        data.type = "cotopia";
+        data.type = "blueprint";
         data.title = "One or more errors have occurred.";
         data.traceId = Utility.CalculateMD5Hash(Guid.NewGuid().ToString()).ToLower();
         data.status = httpStatusCode;
@@ -62,7 +62,7 @@ public class AppException : Exception
     }
 
 
-    public static AppException ForbidenAccessObject()
+    public static AppException ForbiddenAccessObject()
     {
         var appE = new AppException(HttpStatusCode.Forbidden);
         appE.AddHint("access", "You do not have permission to access the requested object.");

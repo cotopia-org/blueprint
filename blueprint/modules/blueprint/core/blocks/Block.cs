@@ -21,7 +21,7 @@ namespace blueprint.modules.blueprint.core.blocks
         public string id { get; set; }
         public string name { get; set; }
         public string icon { get; set; }
-        public Cordinate coordinate { get; set; }
+        public Coordinate coordinate { get; set; }
 
 
         public Block()

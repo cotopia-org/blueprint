@@ -49,7 +49,7 @@ namespace blueprint.modules.blueprint
                 var process = await GetProcessById(processId);
                 if (process != null)
                 {
-                    var node = process.Blueprint.FindNodeWithId(nodeId);
+                    var node = process.blueprint.FindNodeWithId(nodeId);
                     if (node != null)
                     {
                         node.FunctionInvoke(function);
@@ -65,9 +65,9 @@ namespace blueprint.modules.blueprint
         {
             var process = new Process();
             process.id = ObjectId.GenerateNewId().ToString();
-            process.Blueprint = BlueprintSnapshot.LoadBlueprint(snapshot);
-            await BlueprintModule.Instance.FillRefrence(process.Blueprint);
-            process.Blueprint._process = process;
+            process.blueprint = BlueprintSnapshot.LoadBlueprint(snapshot);
+            await BlueprintModule.Instance.FillReference(process.blueprint);
+            process.blueprint._process = process;
             await Task.Yield();
             return process;
         }
@@ -79,10 +79,10 @@ namespace blueprint.modules.blueprint
 
             var process = new Process();
             process.id = dbItem._id;
-            process.Blueprint = BlueprintSnapshot.LoadBlueprint(dbItem.snapshot);
-            await BlueprintModule.Instance.FillRefrence(process.Blueprint);
+            process.blueprint = BlueprintSnapshot.LoadBlueprint(dbItem.snapshot);
+            await BlueprintModule.Instance.FillReference(process.blueprint);
 
-            process.Blueprint._process = process;
+            process.blueprint._process = process;
 
             return process;
         }
@@ -90,9 +90,9 @@ namespace blueprint.modules.blueprint
         {
             var dbProcess = new database.process();
             dbProcess._id = process.id;
-            dbProcess.blueprint_id = process.Blueprint.id;
+            dbProcess.blueprint_id = process.blueprint.id;
             dbProcess.createDateTime = DateTime.UtcNow;
-            dbProcess.snapshot = process.Blueprint.Snapshot();
+            dbProcess.snapshot = process.blueprint.Snapshot();
 
             await dbContext.ReplaceOneAsync(i => i._id == dbProcess._id, dbProcess, new ReplaceOptions() { IsUpsert = true });
         }
@@ -107,7 +107,7 @@ namespace blueprint.modules.blueprint
                 data["nodeId"] = node.id;
                 data["function"] = callBackFunction;
                 data["processId"] = node.bind_blueprint._process.id;
-                data["durration"] = waitTime;
+                data["duration"] = waitTime;
                 SchedulerModule.Instance.Upsert($"process_{node.bind_blueprint._process.id}", TimeSpan.FromSeconds(waitTime), data.ToString(Newtonsoft.Json.Formatting.None), "process", false);
             }
         }

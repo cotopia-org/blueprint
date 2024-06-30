@@ -12,7 +12,7 @@ namespace blueprint.modules.blueprint.core
         {
             this.code = code;
         }
-        public object[] Expresion(string objVarName, object fromObject)
+        public object[] Expression(string objVarName, object fromObject)
         {
             return new object[] { ParseExpressions(objVarName, fromObject, code) };
         }
@@ -56,7 +56,7 @@ namespace blueprint.modules.blueprint.core
             }
         }
 
-        private object[] run_as_java_script(string code, string objectName, object fromObject, bool exprisson, string functionName = null)
+        private object[] run_as_java_script(string code, string objectName, object fromObject, bool expression, string functionName = null)
         {
             var engine = new V8ScriptEngine();
             //{
@@ -65,7 +65,7 @@ namespace blueprint.modules.blueprint.core
                 engine.AddHostObject(objectName, fromObject);
                 engine.AddHostType("devtools", typeof(devtools));
                 // Execute the JavaScript code
-                if (exprisson)
+                if (expression)
                 {
                     var result = engine.Evaluate($"var result = ({code}); result;");
                     return new object[] { result };

@@ -1,5 +1,5 @@
-﻿using cotopia_server.modules.auth.request;
-using cotopia_server.modules.auth.response;
+﻿using blueprint.modules.auth.request;
+using blueprint.modules.auth.response;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
@@ -47,7 +47,7 @@ namespace blueprint.modules.auth
             if (ObjectId.TryParse(request.sessionId, out var _id))
             {
                 //var session = await signinSession.AsQueryable().Where(i => i._id == _id).FirstOrDefaultAsync(new ExpertQuery() { cacheKey = _id });
-                var session = await signinSession.Find_Cahce("_id", _id);
+                var session = await signinSession.Find_Cache("_id", _id);
 
                 await signinSession.DeleteOneAsync(Builders<SigninSession>.Filter.Eq(i => i._id, _id));
                 signinSession.CacheFind_remove("_id", _id);
@@ -157,7 +157,7 @@ namespace blueprint.modules.auth
             var result = new AccessTokenResponse();
 
             //var session = await signinSession.AsQueryable().Where(i => i.refreshToken == refreshToken).FirstOrDefaultAsync(new ExpertQuery() { cacheKey = "refreshToken_" + refreshToken });
-            var session = await signinSession.Find_Cahce("refreshToken", refreshToken);
+            var session = await signinSession.Find_Cache("refreshToken", refreshToken);
 
             if (session == null)
                 return null;
@@ -181,8 +181,7 @@ namespace blueprint.modules.auth
         {
             var _id = ObjectId.Parse(id);
 
-            //var session = await signinSession.AsQueryable().Where(i => i._id == _id).FirstOrDefaultAsync(new ExpertQuery() { cacheKey = _id });
-            var session = await signinSession.Find_Cahce("_id", _id);
+            var session = await signinSession.Find_Cache("_id", _id);
 
             if (session == null)
                 return null;
@@ -191,6 +190,5 @@ namespace blueprint.modules.auth
         }
 
 
-        // public async Permission
     }
 }

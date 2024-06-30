@@ -1,4 +1,4 @@
-﻿namespace cotopia_server.modules.auth.request
+﻿namespace blueprint.modules.auth.request
 {
     public class DeleteAccountRequest
     {

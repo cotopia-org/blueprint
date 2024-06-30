@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
-namespace cotopia_server.modules.auth.request
+namespace blueprint.modules.auth.request
 {
     public class ForgetPasswordRequest
     {

@@ -9,13 +9,13 @@ namespace blueprint.modules.blueprint.core.blocks
         public Script script { get; set; }
         public List<Field> fields { get; set; }
         public List<component.ComponentBase> components { get; set; }
-        public Dictionary<string, object> datas { get; set; }
+        public Dictionary<string, object> data { get; set; }
         public Node() : base()
         {
             fields = new List<Field>();
             components = new List<component.ComponentBase>();
-            datas = new Dictionary<string, object>();
-            coordinate = new nodes.Cordinate() { h = 10, w = 10 };
+            data = new Dictionary<string, object>();
+            coordinate = new nodes.Coordinate() { h = 10, w = 10 };
         }
         public void AddField(Field field)
         {
@@ -72,17 +72,17 @@ namespace blueprint.modules.blueprint.core.blocks
         }
         public object get_data(string name, object alter)
         {
-            if (datas.TryGetValue(name, out var _val))
+            if (data.TryGetValue(name, out var _val))
                 return _val;
             else
                 return alter;
         }
         public void set_data(string name, object value)
         {
-            if (!datas.ContainsKey(name))
-                datas.Add(name, value);
+            if (!data.ContainsKey(name))
+                data.Add(name, value);
             else
-                datas[name] = value;
+                data[name] = value;
         }
         public void BindNode(Node node)
         {
@@ -125,6 +125,16 @@ namespace blueprint.modules.blueprint.core.blocks
                     return t;
             }
             return default;
+        }
+        public List<T> GetComponents<T>() where T : ComponentBase
+        {
+            List<T> result = new List<T>();
+            foreach (var c in components)
+            {
+                if (c is T t)
+                    result.Add(t);
+            }
+            return result;
         }
         public bool HasComponent<T>() where T : ComponentBase
         {

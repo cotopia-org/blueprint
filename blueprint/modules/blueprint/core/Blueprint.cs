@@ -40,9 +40,9 @@ namespace blueprint.modules.blueprint.core
         }
         public void RemoveBlock(string id)
         {
-            var blcok = blocks.FirstOrDefault(i => i.id == id);
-            if (blcok != null)
-                blocks.Remove(blcok);
+            var block = blocks.FirstOrDefault(i => i.id == id);
+            if (block != null)
+                blocks.Remove(block);
         }
         public void AddEnvField(Field field)
         {
