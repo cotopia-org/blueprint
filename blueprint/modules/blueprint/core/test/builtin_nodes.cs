@@ -27,7 +27,7 @@ function start()
             node.AddField(new Field()
             {
                 name = "text",
-                type = FieldType.@string,
+                type = DataType.@string,
                 value = "test log"
                 //value = new Expression() { active = true, script = new Script(ScriptType.javascript, "{{5*5}}") }
                 //value = new Expression() { active = true, script = new Script(ScriptType.lua, "{{5*5*2}}") }
@@ -35,7 +35,7 @@ function start()
 
             var output = new Field();
             output.name = "next";
-            output.type = FieldType.node;
+            output.type = DataType.node;
             node.AddField(output);
 
             return node;
@@ -59,7 +59,7 @@ function start()
             node.AddField(new Field()
             {
                 name = "output",
-                type = FieldType.@string,
+                type = DataType.@string,
                 value = "OK"
                 //value = new Expression() { active = true, script = new Script(ScriptType.javascript, "{{5*5}}") }
                 //value = new Expression() { active = true, script = new Script(ScriptType.lua, "{{5*5*2}}") }
@@ -70,7 +70,7 @@ function start()
             webhook.token = token;
             var output = new Field();
             output.name = "next";
-            output.type = FieldType.node;
+            output.type = DataType.node;
             node.AddField(output);
 
             return node;
@@ -93,7 +93,7 @@ function start()
 
             var output = new Field();
             output.name = "next";
-            output.type = FieldType.node;
+            output.type = DataType.node;
 
             node.AddField(output);
 
@@ -122,7 +122,7 @@ function func1()
             node.AddField(new Field()
             {
                 name = "delay",
-                type = FieldType.@double,
+                type = DataType.@double,
                 value = 1
                 //expression = new Expression() { active = true, script = new Script(ScriptType.javascript, "{{5*5}}") }
                 //expression = new Expression() { active = true, script = new Script(ScriptType.lua, "{{5*5*2}}") }
@@ -130,7 +130,7 @@ function func1()
 
             var output = new Field();
             output.name = "next";
-            output.type = FieldType.node;
+            output.type = DataType.node;
             node.AddField(output);
 
             return node;
@@ -159,7 +159,7 @@ function start()
 
             var output = new Field();
             output.name = "next";
-            output.type = FieldType.node;
+            output.type = DataType.node;
             node.AddField(output);
 
             return node;
@@ -183,7 +183,7 @@ function on_pulse()
             node.AddField(new Field()
             {
                 name = "delay",
-                type = FieldType.@double,
+                type = DataType.@double,
                 value = 10
                 //expression = new Expression() { active = true, script = new Script(ScriptType.javascript, "{{5*5}}") }
                 //expression = new Expression() { active = true, script = new Script(ScriptType.lua, "{{5*5*2}}") }
@@ -196,7 +196,7 @@ function on_pulse()
 
             var output = new Field();
             output.name = "next";
-            output.type = FieldType.node;
+            output.type = DataType.node;
             node.AddField(output);
 
             return node;

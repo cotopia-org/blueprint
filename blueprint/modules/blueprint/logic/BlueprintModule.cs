@@ -5,7 +5,7 @@ using blueprint.modules.blueprint.core.blocks;
 using blueprint.modules.blueprint.core.component;
 using blueprint.modules.blueprint.request;
 using blueprint.modules.blueprint.response;
-using blueprint.modules.database;
+using blueprint.modules.database.logic;
 using blueprint.modules.node.logic;
 using blueprint.modules.scheduler.logic;
 using MongoDB.Bson;

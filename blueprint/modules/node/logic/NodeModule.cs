@@ -4,7 +4,7 @@ using blueprint.modules.blueprint.core;
 using blueprint.modules.blueprint.core.component;
 using blueprint.modules.blueprint.core.test;
 using blueprint.modules.blueprint.request;
-using blueprint.modules.database;
+using blueprint.modules.database.logic;
 using blueprint.modules.drive.logic;
 using blueprint.modules.node.database;
 using blueprint.modules.node.request;
@@ -31,7 +31,7 @@ namespace blueprint.modules.node.logic
                 dbItem._id = "65c4115a0111a5ca6bd473c6";
                 dbItem.title = "log";
                 dbItem.name = node.name;
-                dbItem.data = BlueprintSnapshot.Snapshot(node).ToString(Newtonsoft.Json.Formatting.None);
+                dbItem.data = BlueprintSnapshot.JsonSnapshot(node).ToString(Newtonsoft.Json.Formatting.None);
                 dbItem.script = node.script.code;
                 dbItem.updateDateTime = DateTime.UtcNow;
                 dbItem.createDateTime = DateTime.UtcNow;
@@ -45,7 +45,7 @@ namespace blueprint.modules.node.logic
                 dbItem.title = "delay";
 
                 dbItem.name = node.name;
-                dbItem.data = BlueprintSnapshot.Snapshot(node).ToString(Newtonsoft.Json.Formatting.None);
+                dbItem.data = BlueprintSnapshot.JsonSnapshot(node).ToString(Newtonsoft.Json.Formatting.None);
                 dbItem.script = node.script.code;
                 dbItem.updateDateTime = DateTime.UtcNow;
                 dbItem.createDateTime = DateTime.UtcNow;
@@ -59,7 +59,7 @@ namespace blueprint.modules.node.logic
                 dbItem.title = "web hook";
 
                 dbItem.name = node.name;
-                dbItem.data = BlueprintSnapshot.Snapshot(node).ToString(Newtonsoft.Json.Formatting.None);
+                dbItem.data = BlueprintSnapshot.JsonSnapshot(node).ToString(Newtonsoft.Json.Formatting.None);
                 dbItem.script = node.script.code;
 
                 dbItem.updateDateTime = DateTime.UtcNow;
@@ -75,7 +75,7 @@ namespace blueprint.modules.node.logic
                 dbItem.title = "pulse";
 
                 dbItem.name = node.name;
-                dbItem.data = BlueprintSnapshot.Snapshot(node).ToString(Newtonsoft.Json.Formatting.None);
+                dbItem.data = BlueprintSnapshot.JsonSnapshot(node).ToString(Newtonsoft.Json.Formatting.None);
                 dbItem.script = node.script.code;
 
                 dbItem.updateDateTime = DateTime.UtcNow;
@@ -121,7 +121,7 @@ namespace blueprint.modules.node.logic
             node.script = new Script(request.script);
             node.coordinate = new blueprint.core.nodes.Coordinate();
 
-            var nodeSnapshot = BlueprintSnapshot.Snapshot(node);
+            var nodeSnapshot = BlueprintSnapshot.JsonSnapshot(node);
             dbItem.data = nodeSnapshot.ToString(Newtonsoft.Json.Formatting.None);
 
             await dbContext.ReplaceOneAsync(i => i._id == dbItem._id, dbItem, new ReplaceOptions() { IsUpsert = true });

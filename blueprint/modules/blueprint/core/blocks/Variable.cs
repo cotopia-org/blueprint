@@ -4,6 +4,8 @@ namespace blueprint.modules.blueprint.core.blocks
 {
     public class Variable : Block
     {
-        public Field value { get; set; }
+        public DataType type { get; set; }
+        public string value { get; set; }
     }
+
 }

@@ -3,7 +3,7 @@ using blueprint.modules.account;
 using blueprint.modules.auth;
 using blueprint.modules.blueprint;
 using blueprint.modules.config;
-using blueprint.modules.database;
+using blueprint.modules.database.logic;
 using blueprint.modules.drive.logic;
 using blueprint.modules.node.logic;
 using blueprint.modules.scheduler.logic;

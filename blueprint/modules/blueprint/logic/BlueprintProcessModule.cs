@@ -2,7 +2,7 @@
 using blueprint.modules.blueprint.core;
 using blueprint.modules.blueprint.core.blocks;
 using blueprint.modules.blueprint.core.component;
-using blueprint.modules.database;
+using blueprint.modules.database.logic;
 using blueprint.modules.scheduler.logic;
 using MongoDB.Bson;
 using MongoDB.Driver;

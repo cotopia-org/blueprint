@@ -86,14 +86,14 @@ namespace blueprint.modules.auth.controller
             var result = await AccountModule.Instance.ChangePassword(accountId, data);
             return Ok();
         }
-        [Route("delete-account")]
-        [HttpDelete]
-        [ProducesResponseType(typeof(DeleteAccountRequest), 200)]
-        public async Task<IActionResult> DeleteAccount([FromBody] DeleteAccountRequest data)
-        {
-            var accountId = await this.GetAccountId();
-            await AccountModule.Instance.DeleteAccount(accountId, data);
-            return Ok();
-        }
+        //[Route("delete-account")]
+        //[HttpDelete]
+        //[ProducesResponseType(typeof(DeleteAccountRequest), 200)]
+        //public async Task<IActionResult> DeleteAccount([FromBody] DeleteAccountRequest data)
+        //{
+        //    var accountId = await this.GetAccountId();
+        //    await AccountModule.Instance.DeleteAccount(accountId, data);
+        //    return Ok();
+        //}
     }
 }

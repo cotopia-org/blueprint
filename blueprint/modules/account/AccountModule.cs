@@ -3,7 +3,6 @@ using blueprint.core.CRUD;
 using blueprint.modules.account.database;
 using blueprint.modules.account.response;
 using blueprint.modules.auth;
-using blueprint.modules.database;
 using blueprint.modules.drive.logic;
 using blueprint.modules.drive.request;
 using blueprint.modules.drive.response;
@@ -13,6 +12,7 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 using srtool;
+using blueprint.modules.database.logic;
 
 namespace blueprint.modules.account
 {
@@ -204,36 +204,6 @@ namespace blueprint.modules.account
         public async Task DeleteAccount(string accountId, DeleteAccountRequest request)
         {
             accounts.CacheFind_remove("_id", accountId);
-
-            //var _accountId = accountId.ToObjectId();
-
-            //var acc = await DBManager.Instance.accounts.AsQueryable().Where(i => i._id == _accountId).FirstOrDefaultAsync();
-            //if (acc == null)
-            //    throw new Exception("Not found account!");
-
-            //if (acc.passwordMd5 == Utility.CalculateMD5Hash(request.password))
-            //{
-            //    await DBManager.Instance.accounts.DeleteManyAsync(Builders<Account>.Filter.Eq(i => i._id, _accountId));
-            //    await DBManager.Instance.timeline.DeleteManyAsync(Builders<Timeline>.Filter.Eq(i => i.account_id, _accountId));
-            //    await DBManager.Instance.posts.DeleteManyAsync(Builders<Post>.Filter.Eq(i => i.ownerAccount_id, _accountId));
-            //    await DBManager.Instance.accountSubscribe.DeleteManyAsync(Builders<AccountSubscribe>.Filter.Eq(i => i.from_account_id, _accountId));
-            //    await DBManager.Instance.bookmark.DeleteManyAsync(Builders<Bookmark>.Filter.Eq(i => i.account_id, _accountId));
-            //    await DBManager.Instance.postLike.DeleteManyAsync(Builders<PostAction>.Filter.Eq(i => i.account_id, _accountId));
-            //    await DBManager.Instance.postMeToo.DeleteManyAsync(Builders<PostAction>.Filter.Eq(i => i.account_id, _accountId));
-            //    await DBManager.Instance.postUsefull.DeleteManyAsync(Builders<PostAction>.Filter.Eq(i => i.account_id, _accountId));
-            //    await DBManager.Instance.postUseless.DeleteManyAsync(Builders<PostAction>.Filter.Eq(i => i.account_id, _accountId));
-            //    await DBManager.Instance.medias.DeleteManyAsync(Builders<Media>.Filter.Eq(i => i.account_id, _accountId));
-            //    await DBManager.Instance.signinSession.DeleteManyAsync(Builders<SigninSession>.Filter.Eq(i => i.account_id, _accountId));
-
-            //    await DBManager.Instance.commentDislike.DeleteManyAsync(Builders<CommentAction>.Filter.Eq(i => i.account_id, _accountId));
-            //    await DBManager.Instance.commentLike.DeleteManyAsync(Builders<CommentAction>.Filter.Eq(i => i.account_id, _accountId));
-            //    await DBManager.Instance.commentMeToo.DeleteManyAsync(Builders<CommentAction>.Filter.Eq(i => i.account_id, _accountId));
-            //    await DBManager.Instance.comments.DeleteManyAsync(Builders<Comment>.Filter.Eq(i => i.ownerAccount_id, _accountId));
-            //}
-            //else
-            //{
-            //    throw new Exception("Password is not correct!");
-            //}
         }
 
     }

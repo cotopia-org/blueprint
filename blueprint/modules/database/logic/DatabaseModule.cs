@@ -2,7 +2,7 @@
 using blueprint.modules.config;
 using MongoDB.Driver;
 
-namespace blueprint.modules.database
+namespace blueprint.modules.database.logic
 {
     public class DatabaseModule : Module<DatabaseModule>
     {

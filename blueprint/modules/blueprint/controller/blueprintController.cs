@@ -55,6 +55,7 @@ namespace blueprint.modules.blueprint.controller
         [ProducesResponseType(200)]
         public async Task<IActionResult> Delete([FromRoute] string id)
         {
+            await Task.Yield();
             return Ok();
         }
 

@@ -10,9 +10,9 @@ using srtool;
 using blueprint.srtool;
 using blueprint.core;
 using blueprint.modules.account.database;
-using blueprint.modules.database;
 using blueprint.modules.account;
 using blueprint.modules.config;
+using blueprint.modules.database.logic;
 
 namespace blueprint.modules.auth
 {

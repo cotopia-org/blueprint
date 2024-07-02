@@ -38,10 +38,13 @@ namespace blueprint.modules.blueprint.core
         {
             JObject result;
             if (item is blocks.Node node)
-                result = Snapshot(node);
+                result = JsonSnapshot(node);
             else
             if (item is blocks.StickyNote note)
                 result = JsonSnapshot(note);
+            else
+            if (item is blocks.Variable variable)
+                result = JsonSnapshot(variable);
             else
             {
                 result = new JObject();
@@ -55,7 +58,7 @@ namespace blueprint.modules.blueprint.core
 
             return result;
         }
-        public static JObject Snapshot(this blocks.Node node)
+        public static JObject JsonSnapshot(this blocks.Node node)
         {
             var result = new JObject();
             result["type"] = "node";
@@ -147,7 +150,7 @@ namespace blueprint.modules.blueprint.core
                 result["value"] = expression.JsonSnapshot();
             }
             else
-            if (field.type == FieldType.node)
+            if (field.type == DataType.node)
             {
                 result["value_type"] = "nodes";
                 var ids = new JArray();
@@ -196,6 +199,14 @@ namespace blueprint.modules.blueprint.core
             result["coordinate"] = item.coordinate.Snapshot();
             return result;
         }
+        public static JObject JsonSnapshot(this blocks.Variable item)
+        {
+            var result = new JObject();
+            result["id"] = item.id;
+            result["type"] = "variable";
+            result["coordinate"] = item.coordinate.Snapshot();
+            return result;
+        }
         public static string Snapshot(this Coordinate item)
         {
             return $"{item.x},{item.y},{item.w},{item.h}";
@@ -210,7 +221,10 @@ namespace blueprint.modules.blueprint.core
                 case "node":
                     block = LoadNode(fromObject, data);
                     break;
-                case "sticky-node":
+                case "variable":
+                    block = LoadVariable(fromObject, data);
+                    break;
+                case "sticky-note":
                     break;
             }
 
@@ -238,6 +252,15 @@ namespace blueprint.modules.blueprint.core
             var res = new Expression(expression);
 
             return res;
+        }
+        public static blocks.Variable LoadVariable(object fromObject, JObject data)
+        {
+            var variable = new blocks.Variable();
+            variable.parent = fromObject;
+            variable.type = Enum.Parse<DataType>((string)data["type"]);
+            variable.value = (string)data["value"];
+
+            return variable;
         }
         public static blocks.Node LoadNode(object fromObject, JObject data)
         {
@@ -295,7 +318,7 @@ namespace blueprint.modules.blueprint.core
                 field.id = (string)data["id"];
 
             field.name = (string)data["name"];
-            field.type = Enum.Parse<FieldType>((string)data["type"]);
+            field.type = Enum.Parse<DataType>((string)data["type"]);
             var valueType = (string)data["value_type"];
             switch (valueType)
             {

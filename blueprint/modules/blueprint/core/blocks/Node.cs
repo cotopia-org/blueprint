@@ -55,7 +55,7 @@ namespace blueprint.modules.blueprint.core.blocks
         }
         public void ExecuteNode(string name)
         {
-            var field = fields.Where(i => i.type == FieldType.node && i.name == name).FirstOrDefault();
+            var field = fields.Where(i => i.type == DataType.node && i.name == name).FirstOrDefault();
             if (field != null)
             {
                 foreach (var n in field.nodes_value)

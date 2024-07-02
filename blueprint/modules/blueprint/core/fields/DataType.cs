@@ -1,6 +1,6 @@
 ﻿namespace blueprint.modules.blueprint.core.fields
 {
-    public enum FieldType
+    public enum DataType
     {
         @string,
         @int,

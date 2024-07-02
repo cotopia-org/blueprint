@@ -1,5 +1,5 @@
 ﻿using blueprint.core;
-using blueprint.modules.database;
+using blueprint.modules.database.logic;
 using blueprint.modules.scheduler.database;
 using Microsoft.AspNetCore.DataProtection.KeyManagement;
 using MongoDB.Bson;

@@ -27,7 +27,7 @@ namespace blueprint.modules.blueprint.core.fields
 
         public string id { get; set; }
         public string name { get; set; }
-        public FieldType type { get; set; }
+        public DataType type { get; set; }
         //public Expression expression { get; set; }
         public object value { get; set; }
 
@@ -54,7 +54,7 @@ namespace blueprint.modules.blueprint.core.fields
         {
             get
             {
-                type = FieldType.node;
+                type = DataType.node;
                 if (value == null || value is not List<string>)
                     value = new List<string>();
                 return (List<string>)value;
