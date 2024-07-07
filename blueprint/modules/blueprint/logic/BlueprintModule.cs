@@ -56,16 +56,18 @@ namespace blueprint.modules.blueprint
             try
             {
                 var dbItem = await dbContext.AsQueryable().Where(i => i._id == blueprint_id).FirstOrDefaultAsync();
-
-                var process = await BlueprintProcessModule.Instance.CreateProcess(dbItem.data_snapshot);
-
-                var pulses = process.blueprint.FindComponents<Pulse>();
-
-                var pulseNode = pulses.FirstOrDefault(i => i.node.id == node_id);
-                if (pulseNode != null)
+                if (dbItem != null)
                 {
-                    pulseNode.node.FunctionInvoke(pulseNode.callback);
-                    IncExecution(dbItem);
+                    var process = await BlueprintProcessModule.Instance.CreateProcess(dbItem.data_snapshot);
+
+                    var pulses = process.blueprint.FindComponents<Pulse>();
+
+                    var pulseNode = pulses.FirstOrDefault(i => i.node.id == node_id);
+                    if (pulseNode != null)
+                    {
+                        pulseNode.node.FunctionInvoke(pulseNode.callback);
+                        IncExecution(dbItem);
+                    }
                 }
             }
             catch (Exception e)
@@ -109,6 +111,9 @@ namespace blueprint.modules.blueprint
             if (id != null)
             {
                 item = await dbContext.AsQueryable().FirstOrDefaultAsync(i => i._id == id);
+
+                if (item == null)
+                    throw new AppException(System.Net.HttpStatusCode.NotFound);
             }
             else
             {
@@ -123,8 +128,8 @@ namespace blueprint.modules.blueprint
             var changedBlueprint = await LoadBlueprint(item._id, request.blueprint);
             var mainBlueprint = await LoadBlueprint(item._id, JObject.Parse(item.data_snapshot));
 
-            List<Block> changedBlocks = new List<Block>();
-            List<Block> removedBlocks = new List<Block>();
+            var changedBlocks = new List<Block>();
+            var removedBlocks = new List<Block>();
 
             await ApplyChanges(mainBlueprint, changedBlueprint, changedBlocks, removedBlocks);
 

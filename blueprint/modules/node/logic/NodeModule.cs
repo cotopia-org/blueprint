@@ -83,6 +83,22 @@ namespace blueprint.modules.node.logic
 
                 await dbContext.ReplaceOneAsync(i => i._id == dbItem._id, dbItem, new ReplaceOptions() { IsUpsert = true });
             }
+
+            {
+                var node = builtin_nodes._condition_node();
+                var dbItem = new database.node();
+                dbItem._id = "65c4115a0111a5ca6bd021c7";
+                dbItem.title = "condition";
+
+                dbItem.name = node.name;
+                dbItem.data = BlueprintSnapshot.JsonSnapshot(node).ToString(Newtonsoft.Json.Formatting.None);
+                dbItem.script = node.script.code;
+
+                dbItem.updateDateTime = DateTime.UtcNow;
+                dbItem.createDateTime = DateTime.UtcNow;
+
+                await dbContext.ReplaceOneAsync(i => i._id == dbItem._id, dbItem, new ReplaceOptions() { IsUpsert = true });
+            }
         }
         public async Task<NodeResponse> Upsert(string id, NodeRequest request, string fromAccountId)
         {

@@ -54,8 +54,8 @@ function start()
     node.execnode(""next"");
     node.set_output(node.field(""output"")); 
 }
-"               
-);              
+"
+);
             node.AddField(new Field()
             {
                 name = "output",
@@ -193,6 +193,97 @@ function on_pulse()
             pulse.name = "c1";
             pulse.delayParam = "delay";
             pulse.callback = "on_pulse";
+
+            var output = new Field();
+            output.name = "next";
+            output.type = DataType.node;
+            node.AddField(output);
+
+            return node;
+        }
+
+        public static Node _condition_node()
+        {
+            var node = new Node();
+
+            node.id = util.GenerateId();
+            node.name = "condition-node";
+            node.script =
+                new Script(
+@"
+function start()
+{
+    var operator = node.field(""operator"");
+    var valueA = node.field(""valueA"");
+    var valueB = node.field(""valueB"");
+
+    var comparisonResult = false;
+
+    switch (operator) {
+        case '>':
+            comparisonResult = valueA > valueB;
+            break;
+        case '<':
+            comparisonResult = valueA < valueB;
+            break;
+        case '>=':
+            comparisonResult = valueA >= valueB;
+            break;
+        case '<=':
+            comparisonResult = valueA <= valueB;
+            break;
+        case '=':
+            comparisonResult = valueA == valueB;
+            break;
+        case '!=':
+            comparisonResult = valueA != valueB;
+            break;
+        default:
+            node.print(""Invalid operator"");
+            node.execnode(""next_false"");
+            return;
+    }
+
+    if (comparisonResult) {
+        node.execnode(""next_true"");
+    } else {
+        node.execnode(""next_false"");
+    }
+}
+"
+);
+
+            node.AddField(new Field()
+            {
+                name = "operator",
+                type = DataType.@string,
+                value = "="
+            });
+
+            node.AddField(new Field()
+            {
+                name = "valueA",
+                type = DataType.@object,
+                value = "test"
+            });
+            node.AddField(new Field()
+            {
+                name = "valueB",
+                type = DataType.@object,
+                value = "test"
+            });
+
+
+            var outputTrue = new Field();
+            outputTrue.name = "next_true";
+            outputTrue.type = DataType.node;
+            node.AddField(outputTrue);
+
+            var outputFalse = new Field();
+            outputTrue.name = "next_false";
+            outputTrue.type = DataType.node;
+            node.AddField(outputFalse);
+
 
             var output = new Field();
             output.name = "next";

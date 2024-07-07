@@ -358,7 +358,10 @@ namespace blueprint.modules.blueprint.core
                 case "webhook":
                     return new Webhook() { name = name, node = node, token = (string)data["token"] };
                 case "pulse":
-                    return new Pulse() { name = name, node = node, callback = (string)data["callback"], delayParam = (string)data["delayParam"] };
+                    {
+                        Enum.TryParse<origin>((string)data["origin"], out origin origin);
+                        return new Pulse() { name = name, node = node, callback = (string)data["callback"], delayParam = (string)data["delayParam"], origin = origin };
+                    }
                 default:
                     return new ComponentBase() { node = node, name = name };
             }
@@ -379,6 +382,8 @@ namespace blueprint.modules.blueprint.core
                 result["type"] = "pulse";
                 result["callback"] = pulse.callback;
                 result["delayParam"] = pulse.delayParam;
+                result["origin"] = pulse.origin.ToString();
+
             }
             else
             {

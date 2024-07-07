@@ -1,7 +1,11 @@
 ﻿using blueprint.core;
-
+using blueprint.modules.account;
+using blueprint.modules.auth;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using MongoDB.Driver;
+using MongoDB.Driver.Linq;
+using srtool;
 
 namespace blueprint.core
 {
@@ -24,25 +28,24 @@ namespace blueprint.core
                 return;
             }
 
-            //if (!AuthLogic.Instance.JWTHandler.ValidateCurrentToken(myToken))
-            //{
-            //    context.Result = new UnauthorizedResult();
-            //    return;
-            //}
-            //var session = await AuthLogic.Instance.GetSession(AuthLogic.Instance.JWTHandler.GetClaim(myToken, "session_id"));
+            if (!AuthModule.Instance.JWTHandler.ValidateCurrentToken(myToken))
+            {
+                context.Result = new UnauthorizedResult();
+                return;
+            }
+            var session = await AuthModule.Instance.GetSession(AuthModule.Instance.JWTHandler.GetClaim(myToken, "session_id"));
 
-            //if (session == null)
-            //{
-            //    context.Result = new UnauthorizedResult();
-            //    return;
-            //}
+            if (session == null)
+            {
+                context.Result = new UnauthorizedResult();
+                return;
+            }
 
-            //if (subrole != null)
-            //{
-            //    var sDb = await AuthLogic.Instance.signinSession.AsQueryable().Where(i => i._id == session.id.ToObjectId())
-            //        .FirstOrDefaultAsync(new ExpertQuery() { cacheKey = session.id });
-            //    await AccountLogic.Instance.CheckPermision(sDb.account_id.ToString(), subrole);
-            //}
+            if (subrole != null)
+            {
+                var sDb = await AuthModule.Instance.signinSession.AsQueryable().Where(i => i._id == session.id.ToObjectId()).FirstOrDefaultAsync();
+                await AccountModule.Instance.CheckPermision(sDb.account_id.ToString(), subrole);
+            }
             var result = await next();
 
         }

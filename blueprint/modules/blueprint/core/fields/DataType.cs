@@ -9,5 +9,7 @@
         @dropdown,
         @node,
         @variable,
+        @object,
+
     }
 }

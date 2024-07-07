@@ -9,12 +9,13 @@ await SystemModule.Instance.RunAsync();
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers()
     .AddJsonOptions(
-    jsonOptions => jsonOptions.JsonSerializerOptions.PropertyNamingPolicy = null
-    ).AddJsonOptions(options =>
+    jsonOptions => jsonOptions.JsonSerializerOptions.PropertyNamingPolicy = null)
+    .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.Converters.
                Add(new JsonStringEnumConverter());
-    }).AddNewtonsoftJson();
+    })
+    .AddNewtonsoftJson();
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(builder =>
@@ -25,7 +26,6 @@ builder.Services.AddCors(options =>
     });
 });
 builder.Services.AddRazorPages();
-
 #region Suagger
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
