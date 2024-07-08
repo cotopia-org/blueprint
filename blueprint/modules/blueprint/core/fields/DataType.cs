@@ -10,6 +10,6 @@
         @node,
         @variable,
         @object,
-
+        @array
     }
 }

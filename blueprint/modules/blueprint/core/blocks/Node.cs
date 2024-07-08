@@ -15,7 +15,7 @@ namespace blueprint.modules.blueprint.core.blocks
             fields = new List<Field>();
             components = new List<component.ComponentBase>();
             data = new Dictionary<string, object>();
-            coordinate = new nodes.Coordinate() { h = 10, w = 10 };
+            coordinate = new Coordinate() { h = 10, w = 10 };
         }
         public void AddField(Field field)
         {
@@ -61,6 +61,23 @@ namespace blueprint.modules.blueprint.core.blocks
                 foreach (var n in field.nodes_value)
                     n.Execute(this);
             }
+        }
+        public void ExecuteNode(string name, int position)
+        {
+            var field = fields.Where(i => i.type == DataType.node && i.name == name).FirstOrDefault();
+            if (field != null)
+            {
+                var node = field.nodes_value[position];
+                node.Execute(this);
+            }
+        }
+        public int GetFieldArrayCount(string name)
+        {
+            var item = fields.FirstOrDefault(i => i.type == DataType.node && i.name == name);
+            if (item != null)
+                return item.nodes_ids_value.Count;
+            else
+                return 0;
         }
         public void set_output(object value)
         {

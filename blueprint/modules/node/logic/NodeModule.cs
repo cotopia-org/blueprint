@@ -38,6 +38,7 @@ namespace blueprint.modules.node.logic
 
                 await dbContext.ReplaceOneAsync(i => i._id == dbItem._id, dbItem, new ReplaceOptions() { IsUpsert = true });
             }
+            ////////////////////////////////////////
             {
                 var node = builtin_nodes._delay_node();
                 var dbItem = new database.node();
@@ -52,6 +53,7 @@ namespace blueprint.modules.node.logic
 
                 await dbContext.ReplaceOneAsync(i => i._id == dbItem._id, dbItem, new ReplaceOptions() { IsUpsert = true });
             }
+            /////////////////////////////////////////
             {
                 var node = builtin_nodes._webhook_node(null);
                 var dbItem = new database.node();
@@ -67,7 +69,7 @@ namespace blueprint.modules.node.logic
 
                 await dbContext.ReplaceOneAsync(i => i._id == dbItem._id, dbItem, new ReplaceOptions() { IsUpsert = true });
             }
-
+            ///////////////////////////////////////////
             {
                 var node = builtin_nodes._pulse_node();
                 var dbItem = new database.node();
@@ -83,12 +85,28 @@ namespace blueprint.modules.node.logic
 
                 await dbContext.ReplaceOneAsync(i => i._id == dbItem._id, dbItem, new ReplaceOptions() { IsUpsert = true });
             }
-
+            /////////////////////////////////////////
             {
                 var node = builtin_nodes._condition_node();
                 var dbItem = new database.node();
                 dbItem._id = "65c4115a0111a5ca6bd021c7";
                 dbItem.title = "condition";
+
+                dbItem.name = node.name;
+                dbItem.data = BlueprintSnapshot.JsonSnapshot(node).ToString(Newtonsoft.Json.Formatting.None);
+                dbItem.script = node.script.code;
+
+                dbItem.updateDateTime = DateTime.UtcNow;
+                dbItem.createDateTime = DateTime.UtcNow;
+
+                await dbContext.ReplaceOneAsync(i => i._id == dbItem._id, dbItem, new ReplaceOptions() { IsUpsert = true });
+            }
+            //////////////////////////////////////////
+            {
+                var node = builtin_nodes._branch_node();
+                var dbItem = new database.node();
+                dbItem._id = "65c4115a0111a2ca6cd021a9";
+                dbItem.title = "branch";
 
                 dbItem.name = node.name;
                 dbItem.data = BlueprintSnapshot.JsonSnapshot(node).ToString(Newtonsoft.Json.Formatting.None);
@@ -135,7 +153,7 @@ namespace blueprint.modules.node.logic
             var node = new blueprint.core.blocks.Node();
             node.name = request.name;
             node.script = new Script(request.script);
-            node.coordinate = new blueprint.core.nodes.Coordinate();
+            node.coordinate = new blueprint.core.Coordinate();
 
             var nodeSnapshot = BlueprintSnapshot.JsonSnapshot(node);
             dbItem.data = nodeSnapshot.ToString(Newtonsoft.Json.Formatting.None);

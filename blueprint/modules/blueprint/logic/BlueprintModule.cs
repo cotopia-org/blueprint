@@ -27,18 +27,6 @@ namespace blueprint.modules.blueprint
 
             SchedulerModule.Instance.OnAction += Instance_OnAction;
         }
-
-        private void Instance_OnAction(scheduler.database.SchedulerResponse item)
-        {
-            if (item.category == "node:pulse")
-            {
-                var data = item.payload.ToJObject();
-                var blueprint_id = (string)data["blueprint_id"];
-                var node_id = (string)data["node_id"];
-                Exec_pulse(blueprint_id, node_id);
-            }
-        }
-
         private async void Indexing()
         {
             try
@@ -51,6 +39,18 @@ namespace blueprint.modules.blueprint
                 Debug.Error(e);
             }
         }
+
+        private void Instance_OnAction(scheduler.database.SchedulerResponse item)
+        {
+            if (item.category == "node:pulse")
+            {
+                var data = item.payload.ToJObject();
+                var blueprint_id = (string)data["blueprint_id"];
+                var node_id = (string)data["node_id"];
+                Exec_pulse(blueprint_id, node_id);
+            }
+        }
+
         public async void Exec_pulse(string blueprint_id, string node_id)
         {
             try
@@ -65,7 +65,10 @@ namespace blueprint.modules.blueprint
                     var pulseNode = pulses.FirstOrDefault(i => i.node.id == node_id);
                     if (pulseNode != null)
                     {
-                        pulseNode.node.FunctionInvoke(pulseNode.callback);
+                        await SafeloopThreadPool.ExecuteAsync(() =>
+                        {
+                            pulseNode.node.FunctionInvoke(pulseNode.callback);
+                        }, 2000);
                         IncExecution(dbItem);
                     }
                 }
@@ -91,7 +94,12 @@ namespace blueprint.modules.blueprint
             if (webhookNode == null)
                 return null;
 
-            webhookNode.node.Execute();
+            await SafeloopThreadPool.ExecuteAsync(() =>
+            {
+                webhookNode.node.Execute();
+            }, 200);
+
+
             IncExecution(dbItem);
 
             var response = new WebhookCallResponse();
@@ -103,7 +111,6 @@ namespace blueprint.modules.blueprint
         {
             await dbContext.UpdateOneAsync(i => i._id == dbItem._id, Builders<database.blueprint>.Update.Inc(j => j.exec_counter, 1));
         }
-
         public async Task<BlueprintResponse> Upsert(string id, BlueprintRequest request, string fromAccountId)
         {
             database.blueprint item;
@@ -149,7 +156,6 @@ namespace blueprint.modules.blueprint
 
             return await Get(item._id, fromAccountId);
         }
-
         private static void HandleExternalProcess(string id, List<Block> changedBlocks, List<Block> removedBlocks)
         {
             foreach (var block in changedBlocks)
@@ -193,7 +199,6 @@ namespace blueprint.modules.blueprint
                 }
             }
         }
-
         public async Task<PaginationResponse<BlueprintResponse>> List(string accountId, Pagination pagination, string search = null, string fromAccountId = null)
         {
             var q1 = dbContext.AsQueryable();
@@ -244,9 +249,6 @@ namespace blueprint.modules.blueprint
                 accId = i.account_id,
                 snapshot = i.data_snapshot,
             }).ToList();
-
-
-
 
             var accounts = await AccountModule.Instance.List(data.Select(i => i.accId).Distinct().ToList());
             //Set Accounts

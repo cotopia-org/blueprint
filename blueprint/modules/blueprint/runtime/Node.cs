@@ -29,7 +29,14 @@ namespace blueprint.modules.blueprint.runtime
         {
             node.ExecuteNode(name);
         }
-
+        public void execnodeposition(string name, int position)
+        {
+            node.ExecuteNode(name, position);
+        }
+        public int getfieldarraycount(string name)
+        {
+            return node.GetFieldArrayCount(name);
+        }
         public object field(string name)
         {
             return node.GetField(name)?.Value();

@@ -1,4 +1,4 @@
-﻿namespace blueprint.modules.blueprint.core.nodes
+﻿namespace blueprint.modules.blueprint.core
 {
     public class Coordinate
     {

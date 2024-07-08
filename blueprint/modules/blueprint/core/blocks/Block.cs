@@ -1,5 +1,4 @@
-﻿using blueprint.modules.blueprint.core.nodes;
-using Microsoft.AspNetCore.Components;
+﻿using Microsoft.AspNetCore.Components;
 using System.ComponentModel;
 
 namespace blueprint.modules.blueprint.core.blocks

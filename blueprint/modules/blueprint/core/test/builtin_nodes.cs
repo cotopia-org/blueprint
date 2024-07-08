@@ -218,7 +218,7 @@ function start()
     var valueB = node.field(""valueB"");
 
     var comparisonResult = false;
-
+    var output_name = ""next_false"";
     switch (operator) {
         case '>':
             comparisonResult = valueA > valueB;
@@ -240,15 +240,16 @@ function start()
             break;
         default:
             node.print(""Invalid operator"");
-            node.execnode(""next_false"");
+            output_name = ""next_false"";
             return;
     }
 
-    if (comparisonResult) {
-        node.execnode(""next_true"");
-    } else {
-        node.execnode(""next_false"");
-    }
+    if (comparisonResult) 
+        output_name = ""next_true"";
+    else
+        output_name = ""next_false"";
+
+    node.execnode(output_name);
 }
 "
 );
@@ -284,6 +285,46 @@ function start()
             outputTrue.type = DataType.node;
             node.AddField(outputFalse);
 
+            return node;
+        }
+
+
+
+        public static Node _branch_node()
+        {
+            var node = new Node();
+
+            node.id = util.GenerateId();
+            node.name = "branch-node";
+            node.script =
+                new Script(
+@"
+function start()
+{
+    var type = node.field(""type"");
+    switch (type) {
+        case 'all':
+            node.execnode(""next"");
+            break;
+        case 'random':
+        {
+            var count = node.getfieldarraycount(""next"");
+            var position = Math.floor(Math.random() * count);
+            node.execnodeposition(""next"",position);
+        }
+        break;
+    }
+}
+"
+);
+            node.AddField(new Field()
+            {
+                name = "type",
+                type = DataType.@string,
+                value = "all"//all,randrobin,random,sudorandom
+                //expression = new Expression() { active = true, script = new Script(ScriptType.javascript, "{{5*5}}") }
+                //expression = new Expression() { active = true, script = new Script(ScriptType.lua, "{{5*5*2}}") }
+            });
 
             var output = new Field();
             output.name = "next";
