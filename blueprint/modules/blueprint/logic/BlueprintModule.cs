@@ -65,10 +65,7 @@ namespace blueprint.modules.blueprint
                     var pulseNode = pulses.FirstOrDefault(i => i.node.id == node_id);
                     if (pulseNode != null)
                     {
-                        await SafeloopThreadPool.ExecuteAsync(() =>
-                        {
-                            pulseNode.node.FunctionInvoke(pulseNode.callback);
-                        }, 2000);
+                        pulseNode.node.InvokeFunction(pulseNode.callback);
                         IncExecution(dbItem);
                     }
                 }
@@ -77,11 +74,11 @@ namespace blueprint.modules.blueprint
             {
                 Debug.Error(e);
             }
-
         }
         public async Task<WebhookCallResponse> Exec_webhooktoken(string token)
         {
-            var dbItem = await dbContext.AsQueryable().Where(i => i.index_tokens.Contains($"webhook:{token}")).FirstOrDefaultAsync();
+            var index_token = $"webhook:{token}";
+            var dbItem = await dbContext.AsQueryable().Where(i => i.index_tokens.Contains(index_token)).FirstOrDefaultAsync();
 
             if (dbItem == null)
                 return null;
@@ -94,11 +91,7 @@ namespace blueprint.modules.blueprint
             if (webhookNode == null)
                 return null;
 
-            await SafeloopThreadPool.ExecuteAsync(() =>
-            {
-                webhookNode.node.Execute();
-            }, 200);
-
+            webhookNode.node.Execute();
 
             IncExecution(dbItem);
 
@@ -109,7 +102,14 @@ namespace blueprint.modules.blueprint
 
         private async void IncExecution(database.blueprint dbItem)
         {
-            await dbContext.UpdateOneAsync(i => i._id == dbItem._id, Builders<database.blueprint>.Update.Inc(j => j.exec_counter, 1));
+            try
+            {
+                await dbContext.UpdateOneAsync(i => i._id == dbItem._id, Builders<database.blueprint>.Update.Inc(j => j.exec_counter, 1));
+            }
+            catch (Exception e)
+            {
+                Debug.Error(e);
+            }
         }
         public async Task<BlueprintResponse> Upsert(string id, BlueprintRequest request, string fromAccountId)
         {
@@ -370,7 +370,6 @@ namespace blueprint.modules.blueprint
             }
 
             var referenceIds = changedBlueprint.nodes.Select(i => i.reference_id).Distinct().ToList();
-
 
             var referenceNodes = await NodeModule.Instance.Find_by_ids(referenceIds);
 

@@ -52,7 +52,7 @@ namespace blueprint.modules.blueprint
                     var node = process.blueprint.FindNodeWithId(nodeId);
                     if (node != null)
                     {
-                        node.FunctionInvoke(function);
+                        node.InvokeFunction(function);
                     }
                 }
             }

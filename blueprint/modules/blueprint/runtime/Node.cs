@@ -23,7 +23,7 @@ namespace blueprint.modules.blueprint.runtime
         }
         public void print(object log)
         {
-            Console.WriteLine("Print :" + log);
+            Console.WriteLine($"Print :{log}");
         }
         public void execnode(string name)
         {

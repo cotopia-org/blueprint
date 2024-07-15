@@ -1,5 +1,6 @@
 ﻿using blueprint.modules.blueprint.runtime;
 using Microsoft.ClearScript.V8;
+using System.Diagnostics;
 using System.Text.RegularExpressions;
 
 namespace blueprint.modules.blueprint.core
@@ -55,47 +56,52 @@ namespace blueprint.modules.blueprint.core
                 return run_as_java_script(items[0], objVarName, fromObject, true)?.FirstOrDefault();
             }
         }
-
         private object[] run_as_java_script(string code, string objectName, object fromObject, bool expression, string functionName = null)
         {
-            var engine = new V8ScriptEngine();
-            //{
-            try
+            // V8ScriptEngine.Current.Execute
+          //  var stopwatch = new Stopwatch();
+          //  stopwatch.Start();
+            using (var engine = new V8ScriptEngine())
             {
-                engine.AddHostObject(objectName, fromObject);
-                engine.AddHostType("devtools", typeof(devtools));
-                // Execute the JavaScript code
-                if (expression)
+                try
                 {
-                    var result = engine.Evaluate($"var result = ({code}); result;");
-                    return new object[] { result };
-                }
-                else
-                {
-                    if (functionName != null)
+                    engine.AddHostObject(objectName, fromObject);
+                    engine.AddHostType("devtools", typeof(devtools));
+                    // Execute the JavaScript code
+                    if (expression)
                     {
-                        engine.Execute(code);
-                        engine.Invoke(functionName);
-                        return null;
+                        var result = engine.Evaluate($"var result = ({code}); result;");
+                      //  Console.WriteLine(stopwatch.ElapsedMilliseconds.ToString());
+                        return new object[] { result };
                     }
                     else
                     {
-                        var result = engine.Evaluate(code);
-                        return new object[] { result };
+                        if (functionName != null)
+                        {
+                            engine.Execute(code);
+                            engine.Invoke(functionName);
+                          //  Console.WriteLine(stopwatch.ElapsedMilliseconds.ToString());
+
+                            return null;
+                        }
+                        else
+                        {
+                            var result = engine.Evaluate(code);
+                          //  Console.WriteLine(stopwatch.ElapsedMilliseconds.ToString());
+                            return new object[] { result };
+                        }
                     }
                 }
+                catch (Exception ex)
+                {
+                    // Handle any JavaScript execution errors
+                    Console.WriteLine("JavaScript Error: " + ex.Message);
+                }
+                //}
+                //Console.WriteLine(stopwatch.ElapsedMilliseconds.ToString());
+
+                return null;
             }
-            catch (Exception ex)
-            {
-                // Handle any JavaScript execution errors
-                Console.WriteLine("JavaScript Error: " + ex.Message);
-            }
-            //}
-            return null;
         }
-    }
-    public enum ScriptType
-    {
-        javascript, lua
     }
 }

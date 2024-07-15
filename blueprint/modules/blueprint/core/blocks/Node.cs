@@ -49,7 +49,7 @@ namespace blueprint.modules.blueprint.core.blocks
             script?.Invoke("node", new runtime.Node(this), "start");
 
         }
-        public void FunctionInvoke(string function)
+        public void InvokeFunction(string function)
         {
             script?.Invoke("node", new runtime.Node(this), function);
         }

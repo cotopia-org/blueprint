@@ -116,8 +116,7 @@ function func1()
 {
    node.execnode(""next"");
 }
-"
-                );
+");
 
             node.AddField(new Field()
             {
@@ -164,7 +163,6 @@ function start()
 
             return node;
         }
-
         public static Node _pulse_node()
         {
             var node = new Node();
@@ -288,8 +286,6 @@ function start()
             return node;
         }
 
-
-
         public static Node _branch_node()
         {
             var node = new Node();
@@ -333,6 +329,7 @@ function start()
 
             return node;
         }
+
     }
 
 }
