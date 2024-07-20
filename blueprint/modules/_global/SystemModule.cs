@@ -1,13 +1,14 @@
-﻿using blueprint.core;
+﻿using srtool;
+using blueprint.core;
 using blueprint.modules.account;
 using blueprint.modules.auth;
 using blueprint.modules.blueprint;
+using blueprint.modules.blueprint.core;
 using blueprint.modules.config;
 using blueprint.modules.database.logic;
 using blueprint.modules.drive.logic;
 using blueprint.modules.node.logic;
 using blueprint.modules.scheduler.logic;
-using srtool;
 
 namespace blueprint.modules._global
 {
@@ -16,7 +17,7 @@ namespace blueprint.modules._global
         public override async Task RunAsync()
         {
             Debug.InitConsoleSetup();
-
+            Script.Init();
             await base.RunAsync();
             await ConfigModule.Instance.RunAsync();
             await DatabaseModule.Instance.RunAsync();
@@ -27,7 +28,6 @@ namespace blueprint.modules._global
             await AccountModule.Instance.RunAsync();
             await BlueprintModule.Instance.RunAsync();
             await BlueprintProcessModule.Instance.RunAsync();
-
         }
     }
 }

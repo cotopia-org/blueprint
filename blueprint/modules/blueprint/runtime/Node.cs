@@ -66,39 +66,7 @@ namespace blueprint.modules.blueprint.runtime
             BlueprintProcessModule.Instance.Wait(node, sec, function);
         }
 
-        public async Task rest_get(string url, ScriptObject callback)
-        {
-            var result = new response();
-            using (HttpClient client = new HttpClient())
-            {
-                try
-                {
-                    var res = await client.GetAsync(url);
-                    result.statusCode = (int)res.StatusCode;
-                    res.EnsureSuccessStatusCode(); // Ensure success status code (200-299)
 
-                    string responseBody = await res.Content.ReadAsStringAsync();
-
-                    // Output the HTML content of Google's homepage
-                    //Console.WriteLine(responseBody);
-                    result.success = true;
-                    result.body = responseBody;
-
-                }
-                catch (HttpRequestException e)
-                {
-                    Console.WriteLine($"Error: {e.Message}");
-                    result.success = false;
-                }
-
-                callback.InvokeAsFunction(new object[] { result });
-            }
-        }
     }
-    public class response
-    {
-        public bool success;
-        public string body;
-        public int statusCode;
-    }
+
 }

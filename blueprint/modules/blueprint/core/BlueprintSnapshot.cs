@@ -181,7 +181,12 @@ namespace blueprint.modules.blueprint.core
                 result["value_type"] = "string";
                 result["value"] = @string;
             }
-
+            else
+            if (field.value is JArray @jarray)
+            {
+                result["value_type"] = "array";
+                result["value"] = @jarray;
+            }
             return result;
         }
         public static JObject JsonSnapshot(this Expression expression)
@@ -342,6 +347,9 @@ namespace blueprint.modules.blueprint.core
                     break;
                 case "bool":
                     field.value = (bool)data["value"];
+                    break;
+                case "datetime":
+                    field.value = (DateTime)data["value"];
                     break;
             }
             return field;

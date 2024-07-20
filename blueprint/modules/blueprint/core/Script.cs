@@ -1,12 +1,34 @@
 ﻿using blueprint.modules.blueprint.runtime;
 using Microsoft.ClearScript.V8;
-using System.Diagnostics;
+using srtool;
 using System.Text.RegularExpressions;
 
 namespace blueprint.modules.blueprint.core
 {
     public class Script
     {
+        static rest_api restapi;
+        static V8ScriptEngine engine;
+        public static void Init()
+        {
+            restapi = new rest_api();
+            engine = new V8ScriptEngine();
+            engine.AddHostObject("rest", restapi);
+            foreach (var p in Directory.GetFiles("jslibs"))
+            {
+                try
+                {
+                    var data = File.ReadAllText(p);
+                    engine.Execute(data);
+                }
+                catch (Exception e)
+                {
+
+                }
+                Debug.Log("Imported :" + p);
+            }
+
+        }
         public string code { get; set; }
 
         public Script(string code)
@@ -42,13 +64,9 @@ namespace blueprint.modules.blueprint.core
             {
                 var output = regex.Replace(input, match =>
                 {
-                    // Extract the JavaScript code between {{ and }}
-                    string expressionCode = match.Groups[1].Value;
-
+                    var expressionCode = match.Groups[1].Value;
                     return run_as_java_script(expressionCode, objVarName, fromObject, true)?.FirstOrDefault()?.ToString();
-
                 });
-
                 return output;
             }
             else
@@ -56,52 +74,39 @@ namespace blueprint.modules.blueprint.core
                 return run_as_java_script(items[0], objVarName, fromObject, true)?.FirstOrDefault();
             }
         }
+
+
         private object[] run_as_java_script(string code, string objectName, object fromObject, bool expression, string functionName = null)
         {
-            // V8ScriptEngine.Current.Execute
-          //  var stopwatch = new Stopwatch();
-          //  stopwatch.Start();
-            using (var engine = new V8ScriptEngine())
+            try
             {
-                try
+                engine.AddHostObject(objectName, fromObject);
+                // Execute the JavaScript code
+                if (expression)
                 {
-                    engine.AddHostObject(objectName, fromObject);
-                    engine.AddHostType("devtools", typeof(devtools));
-                    // Execute the JavaScript code
-                    if (expression)
+                    var result = engine.Evaluate($"var result = ({code}); result;");
+                    return new object[] { result };
+                }
+                else
+                {
+                    if (functionName != null)
                     {
-                        var result = engine.Evaluate($"var result = ({code}); result;");
-                      //  Console.WriteLine(stopwatch.ElapsedMilliseconds.ToString());
-                        return new object[] { result };
+                        engine.Execute(code);
+                        engine.Invoke(functionName);
+                        return null;
                     }
                     else
                     {
-                        if (functionName != null)
-                        {
-                            engine.Execute(code);
-                            engine.Invoke(functionName);
-                          //  Console.WriteLine(stopwatch.ElapsedMilliseconds.ToString());
-
-                            return null;
-                        }
-                        else
-                        {
-                            var result = engine.Evaluate(code);
-                          //  Console.WriteLine(stopwatch.ElapsedMilliseconds.ToString());
-                            return new object[] { result };
-                        }
+                        var result = engine.Evaluate(code);
+                        return new object[] { result };
                     }
                 }
-                catch (Exception ex)
-                {
-                    // Handle any JavaScript execution errors
-                    Console.WriteLine("JavaScript Error: " + ex.Message);
-                }
-                //}
-                //Console.WriteLine(stopwatch.ElapsedMilliseconds.ToString());
-
-                return null;
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine("JavaScript Error: " + ex.Message);
+            }
+            return null;
         }
     }
 }

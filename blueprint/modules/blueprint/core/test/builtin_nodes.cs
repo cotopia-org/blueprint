@@ -126,7 +126,6 @@ function func1()
                 //expression = new Expression() { active = true, script = new Script(ScriptType.javascript, "{{5*5}}") }
                 //expression = new Expression() { active = true, script = new Script(ScriptType.lua, "{{5*5*2}}") }
             });
-
             var output = new Field();
             output.name = "next";
             output.type = DataType.node;
@@ -135,27 +134,34 @@ function func1()
             return node;
         }
 
-        public static Node _online_smartphones()
+        public static Node _test_node()
         {
             var node = new Node();
             node.id = util.GenerateId();
-            node.name = "smartphones-node";
+            node.name = "test_node";
 
             node.script =
             new Script(
             @"
 function start()
 {
-    node.rest_get(""https://filesamples.com/samples/code/json/sample1.json"",
-    function(result)
+/*
+    rest.get('https://filesamples.com/samples/code/json/sample1.json',
+    response=>
     {
-        node.print(result.body); 
-        node.execnode(""next""); 
+        node.print(response.data); 
+        node.execnode('next'); 
     }
     );
+*/
+   axios
+      .get(""https://jsonplaceholder.typicode.com/users/1"")
+      .then((response) => {
+        node.print(response.data); 
+      })
+      .catch((err) => node.print(err.message));
 }"
 );
-
             var output = new Field();
             output.name = "next";
             output.type = DataType.node;
@@ -183,8 +189,6 @@ function on_pulse()
                 name = "delay",
                 type = DataType.@double,
                 value = 10
-                //expression = new Expression() { active = true, script = new Script(ScriptType.javascript, "{{5*5}}") }
-                //expression = new Expression() { active = true, script = new Script(ScriptType.lua, "{{5*5*2}}") }
             });
 
             var pulse = node.AddComponent<Pulse>();
