@@ -1,4 +1,6 @@
-﻿using System.Security.Cryptography;
+﻿using Newtonsoft.Json.Linq;
+using System;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace blueprint.modules.blueprint.core

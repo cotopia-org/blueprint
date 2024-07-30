@@ -8,6 +8,7 @@
         @bool,
         @dropdown,
         @node,
+        @expression,
         @variable,
         @object,
         @array

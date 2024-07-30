@@ -14,9 +14,9 @@ namespace blueprint.modules.blueprint.core
             this.expression = expression;
             script = new Script(this.expression);
         }
-        public object Value(Field fromField)
+        public object Value(Field fromField, Node node)
         {
-            return script.Expression("node", fromField.bind_node).FirstOrDefault();
+            return script.Expression("node", node).FirstOrDefault();
         }
     }
 }

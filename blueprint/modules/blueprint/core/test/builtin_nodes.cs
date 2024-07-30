@@ -24,19 +24,10 @@ function start()
 "
                 );
 
-            node.AddField(new Field()
-            {
-                name = "text",
-                type = DataType.@string,
-                value = "test log"
-                //value = new Expression() { active = true, script = new Script(ScriptType.javascript, "{{5*5}}") }
-                //value = new Expression() { active = true, script = new Script(ScriptType.lua, "{{5*5*2}}") }
-            });
+            node.SetField("text", "test log");
 
-            var output = new Field();
-            output.name = "next";
-            output.type = DataType.node;
-            node.AddField(output);
+            node.SetField("next", new List<Field>());
+
 
             return node;
         }
@@ -56,22 +47,13 @@ function start()
 }
 "
 );
-            node.AddField(new Field()
-            {
-                name = "output",
-                type = DataType.@string,
-                value = "OK"
-                //value = new Expression() { active = true, script = new Script(ScriptType.javascript, "{{5*5}}") }
-                //value = new Expression() { active = true, script = new Script(ScriptType.lua, "{{5*5*2}}") }
-            });
+
+            node.SetField("output", "OK");
+            node.SetField("next", new List<Field>());
 
             var webhook = node.AddComponent<Webhook>();
             webhook.name = "c1";
             webhook.token = token;
-            var output = new Field();
-            output.name = "next";
-            output.type = DataType.node;
-            node.AddField(output);
 
             return node;
         }
@@ -91,11 +73,7 @@ function start()
 "
             );
 
-            var output = new Field();
-            output.name = "next";
-            output.type = DataType.node;
-
-            node.AddField(output);
+            node.SetField("next", new List<Field>());
 
             return node;
         }
@@ -118,18 +96,9 @@ function func1()
 }
 ");
 
-            node.AddField(new Field()
-            {
-                name = "delay",
-                type = DataType.@double,
-                value = 1
-                //expression = new Expression() { active = true, script = new Script(ScriptType.javascript, "{{5*5}}") }
-                //expression = new Expression() { active = true, script = new Script(ScriptType.lua, "{{5*5*2}}") }
-            });
-            var output = new Field();
-            output.name = "next";
-            output.type = DataType.node;
-            node.AddField(output);
+            node.SetField("delay", 1);
+            node.SetField("next", new List<Field>());
+
 
             return node;
         }
@@ -162,10 +131,7 @@ function start()
       .catch((err) => node.print(err.message));
 }"
 );
-            var output = new Field();
-            output.name = "next";
-            output.type = DataType.node;
-            node.AddField(output);
+            node.SetField("next", new List<Field>());
 
             return node;
         }
@@ -184,22 +150,13 @@ function on_pulse()
 }
 "
 );
-            node.AddField(new Field()
-            {
-                name = "delay",
-                type = DataType.@double,
-                value = 10
-            });
+            node.SetField("delay", 10);
+            node.SetField("next", new List<Field>());
 
             var pulse = node.AddComponent<Pulse>();
             pulse.name = "c1";
             pulse.delayParam = "delay";
             pulse.callback = "on_pulse";
-
-            var output = new Field();
-            output.name = "next";
-            output.type = DataType.node;
-            node.AddField(output);
 
             return node;
         }
@@ -255,37 +212,12 @@ function start()
 }
 "
 );
+            node.SetField("operator", "=");
+            node.SetField("valueA", "test");
+            node.SetField("valueB", "test");
 
-            node.AddField(new Field()
-            {
-                name = "operator",
-                type = DataType.@string,
-                value = "="
-            });
-
-            node.AddField(new Field()
-            {
-                name = "valueA",
-                type = DataType.@object,
-                value = "test"
-            });
-            node.AddField(new Field()
-            {
-                name = "valueB",
-                type = DataType.@object,
-                value = "test"
-            });
-
-
-            var outputTrue = new Field();
-            outputTrue.name = "next_true";
-            outputTrue.type = DataType.node;
-            node.AddField(outputTrue);
-
-            var outputFalse = new Field();
-            outputTrue.name = "next_false";
-            outputTrue.type = DataType.node;
-            node.AddField(outputFalse);
+            node.SetField("next_true", new List<Field>());
+            node.SetField("next_false", new List<Field>());
 
             return node;
         }
@@ -308,7 +240,7 @@ function start()
             break;
         case 'random':
         {
-            var count = node.getfieldarraycount(""next"");
+            var count = node.fieldarraycount(""next"");
             var position = Math.floor(Math.random() * count);
             node.execnodeposition(""next"",position);
         }
@@ -317,19 +249,9 @@ function start()
 }
 "
 );
-            node.AddField(new Field()
-            {
-                name = "type",
-                type = DataType.@string,
-                value = "all"//all,randrobin,random,sudorandom
-                //expression = new Expression() { active = true, script = new Script(ScriptType.javascript, "{{5*5}}") }
-                //expression = new Expression() { active = true, script = new Script(ScriptType.lua, "{{5*5*2}}") }
-            });
 
-            var output = new Field();
-            output.name = "next";
-            output.type = DataType.node;
-            node.AddField(output);
+            node.SetField("type", "all");
+            node.SetField("next", new List<Field>());
 
             return node;
         }

@@ -3,6 +3,7 @@ using blueprint.modules.blueprint.core.component;
 using blueprint.modules.blueprint.core.fields;
 using Newtonsoft.Json.Linq;
 using srtool;
+using System;
 
 namespace blueprint.modules.blueprint.core
 {
@@ -129,65 +130,84 @@ namespace blueprint.modules.blueprint.core
 
             return data;
         }
-        public static JObject JsonSnapshot(this Field field)
+        public static JToken JsonSnapshot(this Field field)
         {
-            var result = new JObject();
-            if (field.id != null)
-                result["id"] = field.id;
-
-            result["name"] = field.name;
-            result["type"] = field.type.ToString();
+            //result["name"] = field.name;
             if (field.value == null)
             {
-                result["value_type"] = "null";
-                result["value"] = null;
+                return JToken.FromObject(null);
+                //result["type"] = "null";
+                //result["value"] = null;
+            }
+            else
+            if (field.value is List<Field> @jarray)
+            {
+                var resultJArray = new JArray();
+                foreach (var j in @jarray)
+                {
+                    resultJArray.Add(JsonSnapshot(j));
+                }
+                return resultJArray;
+            }
+            else
+            if (field.value is Dictionary<string, Field> @object)
+            {
+                var resultObject = new JObject();
+                foreach (var item in @object)
+                    resultObject[item.Key] = JsonSnapshot(item.Value);
+
+                return resultObject;
             }
             else
             if (field.value is Expression expression)
             {
-                result["value_type"] = "expression";
-                result["value"] = expression.JsonSnapshot();
+                var result = new JObject();
+                result["type"] = "expression";
+                result["value"] = expression.expression;
+                return result;
             }
             else
-            if (field.type == DataType.node)
+            if (field.value is Node node)
             {
-                result["value_type"] = "nodes";
-                var ids = new JArray();
-                foreach (var i in field.nodes_value)
-                    ids.Add(i.id);
-                result["value"] = ids;
+                var result = new JObject();
+                result["type"] = "node";
+                result["value"] = node.id;
+                return result;
+
             }
             else
             if (field.value is double @double)
             {
-                result["value_type"] = "double";
-                result["value"] = @double;
+                return JToken.FromObject(field.value);
+            }
+            else
+            if (field.value is DateTime dateTime)
+            {
+                return JToken.FromObject(field.value);
             }
             else
             if (field.value is int @int)
             {
-                result["value_type"] = "int";
-                result["value"] = @int;
+                return JToken.FromObject(field.value);
             }
             else
             if (field.value is bool boolean)
             {
-                result["value_type"] = "bool";
-                result["value"] = boolean;
+                return JToken.FromObject(field.value);
             }
             else
             if (field.value is string @string)
             {
-                result["value_type"] = "string";
-                result["value"] = @string;
+                return JToken.FromObject(field.value);
             }
             else
-            if (field.value is JArray @jarray)
             {
-                result["value_type"] = "array";
-                result["value"] = @jarray;
+                var result = new JObject();
+                result["type"] = "none";
+                return result;
             }
-            return result;
+
+
         }
         public static JObject JsonSnapshot(this Expression expression)
         {
@@ -250,9 +270,8 @@ namespace blueprint.modules.blueprint.core
             var items = data.Split(',').Select(i => float.Parse(i)).ToArray();
             return new Coordinate() { x = items[0], y = items[1], w = items[2], h = items[3] };
         }
-        public static Expression LoadExpression(JObject data)
+        public static Expression LoadExpression(string expression)
         {
-            var expression = (string)data["expression"];
             var res = new Expression(expression);
 
             return res;
@@ -281,10 +300,15 @@ namespace blueprint.modules.blueprint.core
             }
 
             if (data["fields"] != null)
-                foreach (JObject fieldData in (JArray)data["fields"])
+            {
+                var fieldsObject = (JObject)data["fields"];
+
+                foreach (var fieldname in fieldsObject.Properties().Select(i => i.Name).ToList())
                 {
-                    node.fields.Add(LoadField(node, fieldData));
+                    var jObject = (JObject)fieldsObject[fieldname];
+                    node.fields.Add(fieldname, LoadField(node, jObject));
                 }
+            }
 
             if (data["components"] != null)
                 foreach (JObject componentData in (JArray)data["components"])
@@ -316,27 +340,22 @@ namespace blueprint.modules.blueprint.core
         public static Field LoadField(object fromObject, JObject data)
         {
             var field = new Field();
-            field.parent = fromObject;
-
-            if (data["id"] != null)
-                field.id = (string)data["id"];
-
-            field.name = (string)data["name"];
-            field.type = Enum.Parse<DataType>((string)data["type"]);
-            var valueType = (string)data["value_type"];
-            switch (valueType)
+            var type = (string)data["type"];
+            switch (type)
             {
                 case "null":
                     field.value = null;
                     break;
                 case "expression":
-                    field.value = LoadExpression((JObject)data["value"]);
+                    field.type = DataType.expression;
+                    field.value = LoadExpression((string)data["value"]);
                     break;
-                case "nodes":
-                    foreach (string id in (JArray)data["value"])
-                        field.nodes_ids_value.Add(id);
+                case "node":
+                    field.type = DataType.node;
+                    field.value = (string)data["value"];
                     break;
                 case "string":
+                    field.type = DataType.@string;
                     field.value = (string)data["value"];
                     break;
                 case "double":

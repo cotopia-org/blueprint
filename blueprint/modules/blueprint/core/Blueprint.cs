@@ -2,15 +2,16 @@
 using blueprint.modules.blueprint.core.component;
 using blueprint.modules.blueprint.core.fields;
 using blueprint.modules.blueprint.runtime;
+using blueprint.modules.node.types;
 using MongoDB.Driver.GeoJsonObjectModel;
-
+using Swashbuckle.AspNetCore.SwaggerGen;
 namespace blueprint.modules.blueprint.core
 {
     public class Blueprint
     {
         public string id { get; set; }
         public Process _process { get; set; }
-        public List<Field> fields { get; private set; }
+        public Dictionary<string, Field> fields { get; private set; }
         public List<Block> blocks { get; private set; }
         public IEnumerable<blocks.Node> nodes
         {
@@ -21,7 +22,7 @@ namespace blueprint.modules.blueprint.core
         }
         public Blueprint()
         {
-            fields = new List<Field>();
+            fields = new Dictionary<string, Field>();
             blocks = new List<Block>();
         }
         public blocks.Node FindNodeWithName(string name)
@@ -44,10 +45,9 @@ namespace blueprint.modules.blueprint.core
             if (block != null)
                 blocks.Remove(block);
         }
-        public void AddEnvField(Field field)
+        public void AddEnvField(string name, Field field)
         {
-            field.parent = this;
-            fields.Add(field);
+            fields.Add(name,field);
         }
 
         public T FindComponent<T>() where T : ComponentBase

@@ -9,13 +9,22 @@ using blueprint.modules.database.logic;
 using blueprint.modules.drive.logic;
 using blueprint.modules.node.logic;
 using blueprint.modules.scheduler.logic;
-
+using Newtonsoft.Json.Linq;
+using blueprint.modules.blueprint.core.fields;
 namespace blueprint.modules._global
 {
     public class SystemModule : Module<SystemModule>
     {
         public override async Task RunAsync()
         {
+
+            var jj = new JObject();
+            var field = new Field();
+            var cc = field.JsonSnapshot();
+            Console.WriteLine(cc);
+
+
+
             Debug.InitConsoleSetup();
             Script.Init();
             await base.RunAsync();

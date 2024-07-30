@@ -1,5 +1,9 @@
 ﻿using blueprint.modules.blueprint.core.component;
 using blueprint.modules.blueprint.core.fields;
+using blueprint.modules.node.types;
+using Newtonsoft.Json.Linq;
+using Swashbuckle.AspNetCore.SwaggerGen;
+using System.Linq;
 
 namespace blueprint.modules.blueprint.core.blocks
 {
@@ -7,36 +11,56 @@ namespace blueprint.modules.blueprint.core.blocks
     {
         public Node caller { get; set; }
         public Script script { get; set; }
-        public List<Field> fields { get; set; }
+        public Dictionary<string, Field> fields { get; set; }
         public List<component.ComponentBase> components { get; set; }
         public Dictionary<string, object> data { get; set; }
         public Node() : base()
         {
-            fields = new List<Field>();
+            fields = new Dictionary<string, Field>();
             components = new List<component.ComponentBase>();
             data = new Dictionary<string, object>();
             coordinate = new Coordinate() { h = 10, w = 10 };
         }
-        public void AddField(Field field)
+        public object field(string address)
         {
-            if (!fields.Contains(field))
+            //  var item = fields.Explore(address);
+
+            return null;
+        }
+        public object setfield(string address, object value)
+        {
+            return null;
+        }
+        public object field_push(string address, object value)
+        {
+            return null;
+        }
+
+        public void AddField_old(string name, Field field)
+        {
+            if (!fields.ContainsKey(name))
             {
-                field.parent = this;
-                fields.Add(field);
+                fields.Add(name, field);
             }
         }
 
-        public void SetField(string name, object value)
+        public void SetField(string address, object value)
         {
-            var field = GetField(name);
+            var field = GetField(address);
             if (field != null)
             {
                 field.value = value;
             }
+            else
+            {
+
+            }
         }
-        public Field GetField(string name)
+        public Field GetField(string address)
         {
-            return fields.FirstOrDefault(i => i.name == name);
+            var split = address.Split('.');
+            fields.TryGetValue(split[0], out Field value);
+            return value;
         }
         public void Execute()
         {
@@ -53,29 +77,39 @@ namespace blueprint.modules.blueprint.core.blocks
         {
             script?.Invoke("node", new runtime.Node(this), function);
         }
-        public void ExecuteNode(string name)
+        public void ExecuteNode(string address)
         {
-            var field = fields.Where(i => i.type == DataType.node && i.name == name).FirstOrDefault();
+            var field = GetField(address);
+
             if (field != null)
             {
-                foreach (var n in field.nodes_value)
-                    n.Execute(this);
+                foreach (var subField in field.AsArrayList)
+                {
+                    // subField.as
+                }
             }
+
+            //var field = fields.Where(i => i.type == DataType.node && i.name == address).FirstOrDefault();
+            //if (field != null)
+            //{
+            //    foreach (var n in field.nodes_value)
+            //        n.Execute(this);
+            //}
         }
         public void ExecuteNode(string name, int position)
         {
-            var field = fields.Where(i => i.type == DataType.node && i.name == name).FirstOrDefault();
+            var field = GetField(name);
             if (field != null)
             {
-                var node = field.nodes_value[position];
+                var node = field.nodes_value(this)[position];
                 node.Execute(this);
             }
         }
         public int GetFieldArrayCount(string name)
         {
-            var item = fields.FirstOrDefault(i => i.type == DataType.node && i.name == name);
-            if (item != null)
-                return item.nodes_ids_value.Count;
+            var field = GetField(name);
+            if (field != null)
+                return field.nodes_ids_value.Count;
             else
                 return 0;
         }

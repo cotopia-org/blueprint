@@ -38,6 +38,14 @@ namespace blueprint.modules.blueprint.runtime
             public int statusCode;
         }
     }
+
+    public class log
+    {
+        public void add(object item)
+        {
+            Debug.Log(item);
+        }
+    }
     //public async Task delay(double sec, ScriptObject action)
     //{
     //    try

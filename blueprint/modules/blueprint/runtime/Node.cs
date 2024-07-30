@@ -33,14 +33,15 @@ namespace blueprint.modules.blueprint.runtime
         {
             node.ExecuteNode(name, position);
         }
-        public int getfieldarraycount(string name)
+        public int fieldarraycount(string name)
         {
             return node.GetFieldArrayCount(name);
         }
         public object field(string name)
         {
-            return node.GetField(name)?.Value();
+            return node.GetField(name)?.Value(node);
         }
+
         public object get_data(string name, object alter = null)
         {
             return node.get_data(name, alter);

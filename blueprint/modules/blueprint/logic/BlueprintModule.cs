@@ -174,7 +174,7 @@ namespace blueprint.modules.blueprint
                             payload["node_id"] = pulse.node.id;
 
                             var _sm_id = $"pulse:{id}_{pulse.node.id}_{pulse.name}";
-                            var delay = TimeSpan.FromSeconds(pulse.node.GetField(pulse.delayParam).as_int);
+                            var delay = TimeSpan.FromSeconds(pulse.node.GetField(pulse.delayParam).AsInt(node));
                             SchedulerModule.Instance.Upsert(_sm_id, delay, payload.ToString(), "node:pulse", true);
                         }
                     }

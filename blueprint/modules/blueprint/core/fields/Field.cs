@@ -1,43 +1,130 @@
 ﻿using blueprint.modules.blueprint.core.blocks;
 using blueprint.modules.blueprint.core;
+using MongoDB.Bson;
 
 namespace blueprint.modules.blueprint.core.fields
 {
     public class Field
     {
-        public object parent { get; set; }
-        public Blueprint bind_blueprint
-        {
-            get
-            {
-                if (parent == null)
-                    return null;
-                return parent as Blueprint;
-            }
-        }
-        public Node bind_node
-        {
-            get
-            {
-                if (parent == null)
-                    return null;
-                return parent as Node;
-            }
-        }
-
-        public string id { get; set; }
-        public string name { get; set; }
         public DataType type { get; set; }
-        //public Expression expression { get; set; }
         public object value { get; set; }
 
-        public object Value()
+        public List<Field> AsArrayList
+        {
+            get
+            {
+                if (value is List<Field> _x)
+                    return _x;
+                else
+                    return null;
+            }
+            set
+            {
+                this.value = value;
+            }
+        }
+        public Dictionary<string, Field> AsSubField
+        {
+            get
+            {
+                if (value is Dictionary<string, Field> _x)
+                    return _x;
+                else
+                    return null;
+            }
+            set
+            {
+                this.value = value;
+            }
+        }
+        public string AsString(Node node)
+        {
+            return (string)Value(node);
+        }
+        public int AsInt(Node node)
+        {
+            return (int)Value(node);
+        }
+        public object GetValue(string address)
+        {
+            return null;
+        }
+        public void SetValue(string address, object value)
+        {
+
+            var splitItems = address.Split('.');
+            var splitCount = splitItems.Length;
+            var splitItem = splitItems[0];
+
+            if (int.TryParse(splitItem, out int index))
+            {
+                if (AsArrayList == null)
+                    AsArrayList = new List<Field>();
+
+                while (AsArrayList.Count <= index)
+                {
+                    AsArrayList.Add(new Field());
+                }
+
+                if (splitCount == 1)
+                {
+                    AsArrayList[index].value = value;
+                }
+                else
+                {
+                    Field field;
+                    var cValue = AsArrayList[index];
+                    if (cValue == null || !(cValue is Field))
+                    {
+                        field = new Field();
+                        AsArrayList[index] = field;
+                    }
+                    else
+                    {
+                        field = (Field)cValue;
+                    }
+
+                    field.SetValue(string.Join('.', splitItems.Skip(1)), value);
+                }
+            }
+            else
+            {
+                if (AsSubField == null)
+                    AsSubField = new Dictionary<string, Field>();
+
+                if (splitCount == 1)
+                {
+                    if (AsSubField.ContainsKey(splitItem))
+                        AsSubField[splitItem].value = value;
+                    else
+                        AsSubField.Add(splitItem, new Field());
+                }
+                else
+                {
+
+                    if (!AsSubField.ContainsKey(splitItem))
+                        AsSubField.Add(splitItem, null);
+
+                    Field field;
+                    var cValue = AsSubField[splitItem];
+                    if (cValue == null || !(cValue is Field))
+                    {
+                        field = new Field();
+                        AsSubField[splitItem] = field;
+                    }
+                    else
+                    {
+                        field = (Field)cValue;
+                    }
+
+                    field.SetValue(string.Join('.', splitItems.Skip(1)), value);
+                }
+            }
+        }
+        public object Value(Node fromNode)
         {
             if (value is Expression expression)
-                return expression.Value(this);
-            else
-            if (value is Field field)
-                return field.Value();
+                return expression.Value(this, fromNode);
             else
                 return value;
         }
@@ -60,39 +147,10 @@ namespace blueprint.modules.blueprint.core.fields
                 return (List<string>)value;
             }
         }
-        public List<Node> nodes_value
+        public List<Node> nodes_value(Node node)
         {
-            get
-            {
-                var ids = nodes_ids_value;
-                Blueprint blueprint = null;
-
-                if (bind_blueprint != null)
-                    blueprint = bind_blueprint;
-                else
-                if (bind_node != null && bind_node.bind_blueprint != null)
-                    blueprint = bind_node.bind_blueprint;
-                else
-                    return new List<Node>();
-
-                return blueprint.blocks.Where(i => ids.Contains(i.id)).Where(i => i is Node).Select(i => (Node)i).ToList();
-
-
-            }
-        }
-        public string as_string
-        {
-            get
-            {
-                return (string)Value();
-            }
-        }
-        public int as_int
-        {
-            get
-            {
-                return (int)Value();
-            }
+            var ids = AsArrayList.Select(i => i.AsString(node));
+            return node.bind_blueprint.blocks.Where(i => ids.Contains(i.id)).Where(i => i is Node).Select(i => (Node)i).ToList();
         }
         #endregion
     }
