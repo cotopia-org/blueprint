@@ -1,6 +1,7 @@
 ﻿using blueprint.modules.blueprint.core.blocks;
 using blueprint.modules.blueprint.core;
 using MongoDB.Bson;
+using System.Dynamic;
 
 namespace blueprint.modules.blueprint.core.fields
 {
@@ -45,10 +46,43 @@ namespace blueprint.modules.blueprint.core.fields
         {
             return (int)Value(node);
         }
-        public object GetValue(string address)
+
+
+        public int GetArraySize(string address)
         {
-            return null;
+            var splitItems = address.Split('.');
+            var splitCount = splitItems.Length;
+            var splitItem = splitItems[0];
+
+
+            if (int.TryParse(splitItem, out int index))
+            {
+                if (AsArrayList != null)
+                {
+                    var x = AsArrayList[index];
+                    if (x != null)
+                    {
+                        if (splitCount == 1)
+                            return x.AsArrayList.Count;
+                        else
+                            return x.GetArraySize(string.Join('.', splitItems.Skip(1)));
+                    }
+                }
+            }
+            else
+            {
+                if (AsSubField != null)
+                {
+                    var x = AsSubField[splitItem];
+                    if (splitCount == 1)
+                        return x.AsArrayList.Count;
+                    else
+                        return x.GetArraySize(string.Join('.', splitItems.Skip(1)));
+                }
+            }
+            return 0;
         }
+
         public void SetValue(string address, object value)
         {
 
@@ -97,7 +131,7 @@ namespace blueprint.modules.blueprint.core.fields
                     if (AsSubField.ContainsKey(splitItem))
                         AsSubField[splitItem].value = value;
                     else
-                        AsSubField.Add(splitItem, new Field());
+                        AsSubField.Add(splitItem, new Field() { value = value });
                 }
                 else
                 {
@@ -109,7 +143,7 @@ namespace blueprint.modules.blueprint.core.fields
                     var cValue = AsSubField[splitItem];
                     if (cValue == null || !(cValue is Field))
                     {
-                        field = new Field();
+                        field = new Field() { value = value };
                         AsSubField[splitItem] = field;
                     }
                     else
@@ -120,6 +154,106 @@ namespace blueprint.modules.blueprint.core.fields
                     field.SetValue(string.Join('.', splitItems.Skip(1)), value);
                 }
             }
+        }
+
+
+        public void PushValue(string address, object value)
+        {
+            var field = GetField(address);
+            if (field.AsArrayList == null)
+                field.AsArrayList = new List<Field>();
+
+            field.AsArrayList.Add(new Field() { value = value });
+        }
+        public object Value(string address)
+        {
+            return Value(address, null);
+        }
+        public Field GetField(string address)
+        {
+            var splitItems = address.Split('.');
+            var splitCount = splitItems.Length;
+            var splitItem = splitItems[0];
+
+            if (int.TryParse(splitItem, out int index))
+            {
+                if (AsArrayList != null)
+                {
+                    if (splitCount == 1)
+                    {
+                        if (!(AsArrayList[index].value is Field field))
+                        {
+                            field = new Field();
+                            AsArrayList[index].value = field;
+                        }
+                        return field;
+                    }
+                    else
+                    {
+                        return AsArrayList[index].GetField(string.Join('.', splitItems.Skip(1)));
+                    }
+                }
+            }
+            else
+            {
+                if (AsSubField != null)
+                {
+                    if (splitCount == 1)
+                    {
+                        if (!(AsSubField[splitItem].value is Field field))
+                        {
+                            field = new Field();
+                            AsSubField[splitItem].value = field;
+                        }
+                        return field;
+                    }
+                    else
+                    {
+
+                        return AsSubField[splitItem].GetField(string.Join('.', splitItems.Skip(1)));
+                    }
+                }
+            }
+            return null;
+        }
+        public object Value(string address, Node node)
+        {
+            var splitItems = address.Split('.');
+            var splitCount = splitItems.Length;
+            var splitItem = splitItems[0];
+
+            if (int.TryParse(splitItem, out int index))
+            {
+                if (AsArrayList != null)
+                {
+                    if (splitCount == 1)
+                    {
+                        var val = AsArrayList[index].Value(node);
+                        return val;
+                    }
+                    else
+                    {
+                        return AsArrayList[index].Value(string.Join('.', splitItems.Skip(1)), node);
+                    }
+                }
+            }
+            else
+            {
+                if (AsSubField != null)
+                {
+                    if (splitCount == 1)
+                    {
+                        var val = AsSubField[splitItem].Value(node);
+                        return val;
+                    }
+                    else
+                    {
+
+                        return AsSubField[splitItem].Value(string.Join('.', splitItems.Skip(1)), node);
+                    }
+                }
+            }
+            return null;
         }
         public object Value(Node fromNode)
         {

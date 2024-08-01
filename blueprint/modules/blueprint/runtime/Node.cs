@@ -35,11 +35,11 @@ namespace blueprint.modules.blueprint.runtime
         }
         public int fieldarraycount(string name)
         {
-            return node.GetFieldArrayCount(name);
+            return node.GetFieldArraySize(name);
         }
-        public object field(string name)
+        public object field(string address)
         {
-            return node.GetField(name)?.Value(node);
+            return node.GetField(address);
         }
 
         public object get_data(string name, object alter = null)

@@ -4,6 +4,7 @@ using blueprint.modules.node.types;
 using Newtonsoft.Json.Linq;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Linq;
+using System.Net;
 
 namespace blueprint.modules.blueprint.core.blocks
 {
@@ -11,63 +12,36 @@ namespace blueprint.modules.blueprint.core.blocks
     {
         public Node caller { get; set; }
         public Script script { get; set; }
-        public Dictionary<string, Field> fields { get; set; }
+        // public Dictionary<string, Field> fields { get; set; }
+        public Field fields { get; set; }
         public List<component.ComponentBase> components { get; set; }
         public Dictionary<string, object> data { get; set; }
         public Node() : base()
         {
-            fields = new Dictionary<string, Field>();
+            // fields = new Dictionary<string, Field>();
+            fields = new Field();
             components = new List<component.ComponentBase>();
             data = new Dictionary<string, object>();
             coordinate = new Coordinate() { h = 10, w = 10 };
         }
-        public object field(string address)
+        public object GetField(string address)
         {
-            //  var item = fields.Explore(address);
-
-            return null;
+            return fields.Value(address, this);
         }
-        public object setfield(string address, object value)
-        {
-            return null;
-        }
-        public object field_push(string address, object value)
-        {
-            return null;
-        }
-
-        public void AddField_old(string name, Field field)
-        {
-            if (!fields.ContainsKey(name))
-            {
-                fields.Add(name, field);
-            }
-        }
-
         public void SetField(string address, object value)
         {
-            var field = GetField(address);
-            if (field != null)
-            {
-                field.value = value;
-            }
-            else
-            {
-
-            }
+            fields.SetValue(address, value);
         }
-        public Field GetField(string address)
+        public void FieldPush(string address, object value)
         {
-            var split = address.Split('.');
-            fields.TryGetValue(split[0], out Field value);
-            return value;
+            fields.PushValue(address, value);
         }
-        public void Execute()
+        public void CallStart()
         {
-            Execute(null);
+            CallStart(null);
         }
 
-        public void Execute(Node fromNode)
+        public void CallStart(Node fromNode)
         {
             caller = fromNode;
             script?.Invoke("node", new runtime.Node(this), "start");
@@ -79,39 +53,27 @@ namespace blueprint.modules.blueprint.core.blocks
         }
         public void ExecuteNode(string address)
         {
+            var field = GetField(name);
+            if (field != null && field is List<Field> f)
+            {
+                foreach (var i in f)
+                    if (i.Value(this) is Node node)
+                        node.CallStart(this);
+            }
+        }
+        public void ExecuteNode(string address, int position)
+        {
             var field = GetField(address);
-
-            if (field != null)
+            if (field != null && field is List<Field> f)
             {
-                foreach (var subField in field.AsArrayList)
-                {
-                    // subField.as
-                }
-            }
-
-            //var field = fields.Where(i => i.type == DataType.node && i.name == address).FirstOrDefault();
-            //if (field != null)
-            //{
-            //    foreach (var n in field.nodes_value)
-            //        n.Execute(this);
-            //}
-        }
-        public void ExecuteNode(string name, int position)
-        {
-            var field = GetField(name);
-            if (field != null)
-            {
-                var node = field.nodes_value(this)[position];
-                node.Execute(this);
+                var item = f[position].Value(this);
+                if (item is Node node)
+                    node.CallStart(this);
             }
         }
-        public int GetFieldArrayCount(string name)
+        public int GetFieldArraySize(string address)
         {
-            var field = GetField(name);
-            if (field != null)
-                return field.nodes_ids_value.Count;
-            else
-                return 0;
+            return fields.GetArraySize(address);
         }
         public void set_output(object value)
         {
@@ -140,21 +102,21 @@ namespace blueprint.modules.blueprint.core.blocks
             BindNode("next", node);
         }
 
-        public void BindNode(string fieldName, Node node)
+        public void BindNode(string address, Node node)
         {
-            var field = GetField(fieldName);
-            if (!field.nodes_ids_value.Contains(node.id))
-                field.nodes_ids_value.Add(node.id);
+            var field = fields.GetField(address);
+            if (field.AsArrayList == null)
+                field.AsArrayList = new List<Field>();
+            field.AsArrayList.Add(new Field() { value = node });
         }
         public void UnBindNode(Node node)
         {
             UnBindNode("next", node);
         }
-        public void UnBindNode(string fieldName, Node node)
+        public void UnBindNode(string address, Node node)
         {
-            var field = GetField(fieldName);
-            if (field.nodes_ids_value.Contains(node.id))
-                field.nodes_ids_value.Remove(node.id);
+            var field = fields.GetField(address);
+            field.AsArrayList.RemoveAll(i => i.value == node);
         }
         public T AddComponent<T>() where T : ComponentBase
         {

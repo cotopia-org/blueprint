@@ -91,7 +91,7 @@ namespace blueprint.modules.blueprint
             if (webhookNode == null)
                 return null;
 
-            webhookNode.node.Execute();
+            webhookNode.node.CallStart();
 
             IncExecution(dbItem);
 
@@ -174,7 +174,7 @@ namespace blueprint.modules.blueprint
                             payload["node_id"] = pulse.node.id;
 
                             var _sm_id = $"pulse:{id}_{pulse.node.id}_{pulse.name}";
-                            var delay = TimeSpan.FromSeconds(pulse.node.GetField(pulse.delayParam).AsInt(node));
+                            var delay = TimeSpan.FromSeconds((int)pulse.node.GetField(pulse.delayParam));
                             SchedulerModule.Instance.Upsert(_sm_id, delay, payload.ToString(), "node:pulse", true);
                         }
                     }

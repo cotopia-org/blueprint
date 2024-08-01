@@ -81,11 +81,7 @@ namespace blueprint.modules.blueprint.core
             if (components.Count > 0)
                 result["components"] = components;
 
-            var fields = new JArray();
-            foreach (var f in node.fields)
-                fields.Add(f.JsonSnapshot());
-            if (fields.Count > 0)
-                result["fields"] = fields;
+            result["fields"] = node.fields.JsonSnapshot();
 
             return result;
         }
@@ -135,7 +131,7 @@ namespace blueprint.modules.blueprint.core
             //result["name"] = field.name;
             if (field.value == null)
             {
-                return JToken.FromObject(null);
+                return null;
                 //result["type"] = "null";
                 //result["value"] = null;
             }
@@ -301,13 +297,7 @@ namespace blueprint.modules.blueprint.core
 
             if (data["fields"] != null)
             {
-                var fieldsObject = (JObject)data["fields"];
-
-                foreach (var fieldname in fieldsObject.Properties().Select(i => i.Name).ToList())
-                {
-                    var jObject = (JObject)fieldsObject[fieldname];
-                    node.fields.Add(fieldname, LoadField(node, jObject));
-                }
+                node.fields = LoadField(node, (JObject)data["fields"]);
             }
 
             if (data["components"] != null)

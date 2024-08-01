@@ -18,12 +18,18 @@ namespace blueprint.modules._global
         public override async Task RunAsync()
         {
 
-            var jj = new JObject();
-            var field = new Field();
-            var cc = field.JsonSnapshot();
-            Console.WriteLine(cc);
+            //var field = new Field();
+            //field.SetValue("a", new Expression("{{2}}"));
+            //field.SetValue("b", 22);
+            //field.SetValue("c", 22);
+            //field.SetValue("c", 44);
+            //field.SetValue("u.b2", "saeed");
+            //field.SetValue("c.102.a.2", "1");
 
+            //Console.WriteLine(field.GetValue("c.102.a.2"));
+            //Console.WriteLine(field.GetArraySize("c"));
 
+            //return;
 
             Debug.InitConsoleSetup();
             Script.Init();

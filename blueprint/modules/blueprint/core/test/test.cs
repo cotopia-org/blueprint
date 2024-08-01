@@ -33,7 +33,7 @@ namespace blueprint.modules.blueprint.core.test
 
             var blueprint2 = BlueprintSnapshot.LoadBlueprint(snapshot_data);
 
-            blueprint2.FindNodeWithName("start-node").Execute();
+            blueprint2.FindNodeWithName("start-node").CallStart();
 
             Console.WriteLine(blueprint.Snapshot());
         }
