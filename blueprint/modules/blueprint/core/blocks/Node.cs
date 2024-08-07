@@ -68,10 +68,12 @@ namespace blueprint.modules.blueprint.core.blocks
         public void ExecuteNode(string address, int position)
         {
             var field = GetField(address);
-            if (field != null && field is List<Field> f)
+            if (field != null && field is List<Field> fieldArray)
             {
-                var item = f[position].Value(this);
-                if (item is Node node)
+                var nodeId = fieldArray[position].AsString(this);
+
+                var node = this.bind_blueprint.nodes.FirstOrDefault(i => i.id == nodeId);
+                if (node != null)
                     node.CallStart(this);
             }
         }
