@@ -243,13 +243,26 @@ namespace blueprint.modules.blueprint.core.fields
                 {
                     if (splitCount == 1)
                     {
-                        var val = AsSubField[splitItem].Value(node);
-                        return val;
+                        if (AsSubField.TryGetValue(splitItem, out Field _x))
+                        {
+                            var val = _x.Value(node);
+                            return val;
+                        }
+                        else
+                        {
+                            return null;
+                        }
                     }
                     else
                     {
-
-                        return AsSubField[splitItem].Value(string.Join('.', splitItems.Skip(1)), node);
+                        if (AsSubField.TryGetValue(splitItem, out Field _x))
+                        {
+                            return _x.Value(string.Join('.', splitItems.Skip(1)), node);
+                        }
+                        else
+                        {
+                            return null;
+                        }
                     }
                 }
             }
@@ -262,30 +275,6 @@ namespace blueprint.modules.blueprint.core.fields
             else
                 return value;
         }
-        #region Util
-        public void AddNode(Node node)
-        {
-            nodes_ids_value.Add(node.id);
-        }
-        public void RemoveNode(Node node)
-        {
-            nodes_ids_value.Remove(node.id);
-        }
-        public List<string> nodes_ids_value
-        {
-            get
-            {
-                type = DataType.node;
-                if (value == null || value is not List<string>)
-                    value = new List<string>();
-                return (List<string>)value;
-            }
-        }
-        public List<Node> nodes_value(Node node)
-        {
-            var ids = AsArrayList.Select(i => i.AsString(node));
-            return node.bind_blueprint.blocks.Where(i => ids.Contains(i.id)).Where(i => i is Node).Select(i => (Node)i).ToList();
-        }
-        #endregion
+
     }
 }

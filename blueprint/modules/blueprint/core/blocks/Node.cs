@@ -53,12 +53,16 @@ namespace blueprint.modules.blueprint.core.blocks
         }
         public void ExecuteNode(string address)
         {
-            var field = GetField(name);
-            if (field != null && field is List<Field> f)
+            var field = GetField(address);
+            if (field != null && field is List<Field> fieldArray)
             {
-                foreach (var i in f)
-                    if (i.Value(this) is Node node)
+                foreach (var item in fieldArray)
+                {
+                    var nodeId = item.AsString(this);
+                    var node = this.bind_blueprint.nodes.FirstOrDefault(i => i.id == nodeId);
+                    if (node != null)
                         node.CallStart(this);
+                }
             }
         }
         public void ExecuteNode(string address, int position)

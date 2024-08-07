@@ -5,12 +5,12 @@
         @string,
         @int,
         @double,
+        @null,
+        @datetime,
         @bool,
-        @dropdown,
-        @node,
         @expression,
         @variable,
         @object,
-        @array
+        array
     }
 }

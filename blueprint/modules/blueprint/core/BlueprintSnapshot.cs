@@ -4,6 +4,7 @@ using blueprint.modules.blueprint.core.fields;
 using Newtonsoft.Json.Linq;
 using srtool;
 using System;
+using ThirdParty.BouncyCastle.Asn1;
 
 namespace blueprint.modules.blueprint.core
 {
@@ -294,10 +295,9 @@ namespace blueprint.modules.blueprint.core
                 if (data["script"] != null)
                     node.script = new Script((string)data["script"]);
             }
-
             if (data["fields"] != null)
             {
-                node.fields = LoadField(node, (JObject)data["fields"]);
+                node.fields = LoadField(node, data["fields"]);
             }
 
             if (data["components"] != null)
@@ -327,40 +327,107 @@ namespace blueprint.modules.blueprint.core
 
             return blueprint;
         }
-        public static Field LoadField(object fromObject, JObject data)
+        public static Field LoadField(object fromObject, JToken data)
         {
             var field = new Field();
-            var type = (string)data["type"];
-            switch (type)
+
+            switch (data.Type)
             {
-                case "null":
-                    field.value = null;
+                case JTokenType.Object:
+                    {
+                        var asJObject = (JObject)data;
+                        field.type = DataType.@object;
+
+                        if ((string)asJObject["type"] == "expression")
+                        {
+                            field.type = DataType.expression;
+                            field.value = new Expression((string)asJObject["value"]);
+                        }
+                        else
+                        {
+                            field.AsSubField = new Dictionary<string, Field>();
+                            foreach (var subItem in asJObject)
+                            {
+                                field.AsSubField.Add(subItem.Key, LoadField(fromObject, subItem.Value));
+                            }
+                        }
+                    }
                     break;
-                case "expression":
-                    field.type = DataType.expression;
-                    field.value = LoadExpression((string)data["value"]);
+                case JTokenType.Array:
+                    {
+                        field.AsArrayList = new List<Field>();
+                        var asJArray = (JArray)data;
+                        field.type = DataType.array;
+                        foreach (var subItem in asJArray)
+                        {
+                            field.AsArrayList.Add(LoadField(fromObject, subItem));
+                        }
+                    }
                     break;
-                case "node":
-                    field.type = DataType.node;
-                    field.value = (string)data["value"];
+                case JTokenType.String:
+                    {
+                        field.type = DataType.@string;
+                        field.value = (string)data;
+                    }
                     break;
-                case "string":
-                    field.type = DataType.@string;
-                    field.value = (string)data["value"];
+                case JTokenType.Integer:
+                    {
+                        field.type = DataType.@int;
+                        field.value = (int)data;
+                    }
                     break;
-                case "double":
-                    field.value = (double)data["value"];
+                case JTokenType.Boolean:
+                    {
+                        field.type = DataType.@string;
+                        field.value = (bool)data;
+                    }
                     break;
-                case "int":
-                    field.value = (int)data["value"];
+                case JTokenType.Date:
+                    {
+                        field.type = DataType.datetime;
+                        field.value = (DateTime)data;
+                    }
                     break;
-                case "bool":
-                    field.value = (bool)data["value"];
+                case JTokenType.Float:
+                    {
+                        field.type = DataType.@double;
+                        field.value = (float)data;
+                    }
                     break;
-                case "datetime":
-                    field.value = (DateTime)data["value"];
+                case JTokenType.Null:
+                    {
+                        field.type = DataType.@null;
+                        field.value = null;
+                    }
                     break;
             }
+
+            //switch (type)
+            //{
+            //    case "null":
+            //        field.value = null;
+            //        break;
+            //    case "expression":
+            //        field.type = DataType.expression;
+            //        field.value = LoadExpression((string)data["value"]);
+            //        break;
+            //    case "string":
+            //        field.type = DataType.@string;
+            //        field.value = (string)data["value"];
+            //        break;
+            //    case "double":
+            //        field.value = (double)data["value"];
+            //        break;
+            //    case "int":
+            //        field.value = (int)data["value"];
+            //        break;
+            //    case "bool":
+            //        field.value = (bool)data["value"];
+            //        break;
+            //    case "datetime":
+            //        field.value = (DateTime)data["value"];
+            //        break;
+            //}
             return field;
         }
 

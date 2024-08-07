@@ -24,10 +24,15 @@ namespace blueprint.modules._global
             //field.SetValue("c", 22);
             //field.SetValue("c", 44);
             //field.SetValue("u.b2", "saeed");
-            //field.SetValue("c.102.a.2", "1");
+            //field.SetValue("c.3.a.2", "1");
 
-            //Console.WriteLine(field.GetValue("c.102.a.2"));
-            //Console.WriteLine(field.GetArraySize("c"));
+            //var json = BlueprintSnapshot.JsonSnapshot(field);
+
+            //var field2 = BlueprintSnapshot.LoadField(null, json);
+            //var json2 = BlueprintSnapshot.JsonSnapshot(field2);
+
+            //Console.WriteLine(json2);
+            //Console.WriteLine(json);
 
             //return;
 
