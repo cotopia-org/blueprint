@@ -1,5 +1,4 @@
-﻿
-namespace blueprint.modules.blueprint.core.test
+﻿namespace blueprint.modules.blueprint.core.test
 {
     public class test
     {

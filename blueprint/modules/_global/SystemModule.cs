@@ -11,31 +11,13 @@ using blueprint.modules.node.logic;
 using blueprint.modules.scheduler.logic;
 using Newtonsoft.Json.Linq;
 using blueprint.modules.blueprint.core.fields;
+using blueprint.modules.processlog.logic;
 namespace blueprint.modules._global
 {
     public class SystemModule : Module<SystemModule>
     {
         public override async Task RunAsync()
         {
-
-            //var field = new Field();
-            //field.SetValue("a", new Expression("{{2}}"));
-            //field.SetValue("b", 22);
-            //field.SetValue("c", 22);
-            //field.SetValue("c", 44);
-            //field.SetValue("u.b2", "saeed");
-            //field.SetValue("c.3.a.2", "1");
-
-            //var json = BlueprintSnapshot.JsonSnapshot(field);
-
-            //var field2 = BlueprintSnapshot.LoadField(null, json);
-            //var json2 = BlueprintSnapshot.JsonSnapshot(field2);
-
-            //Console.WriteLine(json2);
-            //Console.WriteLine(json);
-
-            //return;
-
             Debug.InitConsoleSetup();
             Script.Init();
             await base.RunAsync();
@@ -46,6 +28,7 @@ namespace blueprint.modules._global
             await DriveModule.Instance.RunAsync();
             await NodeModule.Instance.RunAsync();
             await AccountModule.Instance.RunAsync();
+            await ProcessLogLogic.Instance.RunAsync();
             await BlueprintModule.Instance.RunAsync();
             await BlueprintProcessModule.Instance.RunAsync();
         }

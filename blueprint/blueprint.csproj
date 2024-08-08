@@ -27,6 +27,7 @@
 
   <ItemGroup>
     <Folder Include="modules\account\request\" />
+    <Folder Include="modules\processlog\request\" />
     <Folder Include="modules\process\" />
   </ItemGroup>
 

@@ -3,7 +3,7 @@ using blueprint.modules.blueprint.core.component;
 using blueprint.modules.blueprint.core.fields;
 using Newtonsoft.Json.Linq;
 
-namespace blueprint.modules.blueprint.core.test
+namespace blueprint.modules.blueprint.core
 {
     public static class builtin_nodes
     {
@@ -19,13 +19,13 @@ namespace blueprint.modules.blueprint.core.test
 function start()
 {
     node.print(node.field(""text""));
-    node.execnode(""next"");
+    node.log(node.field(""text""));
+    node.next();
 }
 "
-                );
+);
 
             node.SetField("text", "test log");
-
             node.SetField("next", new List<Field>());
 
 
@@ -42,8 +42,8 @@ function start()
 @"
 function start()
 {
-    node.execnode(""next"");
     node.set_output(node.field(""output"")); 
+    node.next();
 }
 "
 );
@@ -68,7 +68,7 @@ function start()
                 @"
 function start()
 {
-    node.execnode(""next"");
+    node.next();
 }
 "
             );
@@ -92,7 +92,7 @@ function start()
 }
 function func1()
 {
-   node.execnode(""next"");
+   node.next();
 }
 ");
 
@@ -119,7 +119,7 @@ function start()
     response=>
     {
         node.print(response.data); 
-        node.execnode('next'); 
+        node.next(); 
     }
     );
 */
@@ -146,7 +146,7 @@ function start()
 @"
 function on_pulse()
 {
-    node.execnode(""next"");
+    node.next();
 }
 "
 );
@@ -236,7 +236,7 @@ function start()
     var type = node.field(""type"");
     switch (type) {
         case 'all':
-            node.execnode(""next"");
+            node.next();
             break;
         case 'random':
         {
@@ -249,7 +249,6 @@ function start()
 }
 "
 );
-
             node.SetField("type", "all");
             node.SetField("next", new List<Field>());
 

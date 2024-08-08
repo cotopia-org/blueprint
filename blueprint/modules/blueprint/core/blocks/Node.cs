@@ -10,7 +10,7 @@ namespace blueprint.modules.blueprint.core.blocks
 {
     public class Node : Block
     {
-        public Node caller { get; set; }
+        public Node from { get; set; }
         public Script script { get; set; }
         // public Dictionary<string, Field> fields { get; set; }
         public Field fields { get; set; }
@@ -40,12 +40,10 @@ namespace blueprint.modules.blueprint.core.blocks
         {
             CallStart(null);
         }
-
         public void CallStart(Node fromNode)
         {
-            caller = fromNode;
+            from = fromNode;
             script?.Invoke("node", new runtime.Node(this), "start");
-
         }
         public void InvokeFunction(string function)
         {
@@ -107,7 +105,6 @@ namespace blueprint.modules.blueprint.core.blocks
         {
             BindNode("next", node);
         }
-
         public void BindNode(string address, Node node)
         {
             var field = fields.GetField(address);

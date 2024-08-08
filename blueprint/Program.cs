@@ -33,7 +33,7 @@ builder.Services.AddSwaggerGen((c) =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo
     {
-        Title = "automation",
+        Title = "blueprint",
         Version = "v1"
     });
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
@@ -59,9 +59,7 @@ builder.Services.AddSwaggerGen((c) =>
 
 });
 #endregion
-
 builder.Services.AddScoped<AuthRequire>();
-
 builder.WebHost.UseUrls(ConfigModule.GetString("net.host"));
 var app = builder.Build();
 app.UseMiddleware<IAsyncErrorMiddleware>();

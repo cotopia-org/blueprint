@@ -32,7 +32,7 @@ namespace blueprint.modules.drive.logic
 
                 var filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
-                string extension = Path.GetExtension(file.FileName).TrimStart('.');
+                var extension = Path.GetExtension(file.FileName).TrimStart('.');
 
                 using (var fileStream = new FileStream(extension != "" ? $"{filePath}.{extension}" : filePath, FileMode.Create))
                     await file.CopyToAsync(fileStream);

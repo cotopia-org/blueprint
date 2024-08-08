@@ -1,4 +1,6 @@
-﻿using Microsoft.ClearScript;
+﻿using blueprint.modules.processlog.logic;
+using Microsoft.ClearScript;
+using System.Net;
 
 namespace blueprint.modules.blueprint.runtime
 {
@@ -13,9 +15,9 @@ namespace blueprint.modules.blueprint.runtime
         {
             get { return node.name; }
         }
-        public Node back
+        public Node from
         {
-            get { return new Node(node.caller); }
+            get { return new Node(node.from); }
         }
         public Node(core.blocks.Node node)
         {
@@ -25,17 +27,21 @@ namespace blueprint.modules.blueprint.runtime
         {
             Console.WriteLine($"Print :{log}");
         }
-        public void execnode(string name)
+        public void next()
         {
-            node.ExecuteNode(name);
+            node.ExecuteNode("next");
         }
-        public void execnodeposition(string name, int position)
+        public void execnode(string address)
         {
-            node.ExecuteNode(name, position);
+            node.ExecuteNode(address);
         }
-        public int fieldarraycount(string name)
+        public void execnodeposition(string address, int position)
         {
-            return node.GetFieldArraySize(name);
+            node.ExecuteNode(address, position);
+        }
+        public int fieldarraycount(string address)
+        {
+            return node.GetFieldArraySize(address);
         }
         public object field(string address)
         {
@@ -66,8 +72,20 @@ namespace blueprint.modules.blueprint.runtime
         {
             BlueprintProcessModule.Instance.Wait(node, sec, function);
         }
-
-
+        public void log(string message)
+        {
+            if (node.bind_blueprint != null && node.bind_blueprint._process != null)
+                ProcessLogLogic.Instance.AddLog(node.bind_blueprint.id, node.bind_blueprint._process.id, "log", message);
+        }
+        public void warning(string message)
+        {
+            if (node.bind_blueprint != null && node.bind_blueprint._process != null)
+                ProcessLogLogic.Instance.AddLog(node.bind_blueprint.id, node.bind_blueprint._process.id, "warning", message);
+        }
+        public void error(string message)
+        {
+            if (node.bind_blueprint != null && node.bind_blueprint._process != null)
+                ProcessLogLogic.Instance.AddLog(node.bind_blueprint.id, node.bind_blueprint._process.id, "error", message);
+        }
     }
-
 }
