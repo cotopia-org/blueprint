@@ -27,8 +27,14 @@
 
   <ItemGroup>
     <Folder Include="modules\account\request\" />
+    <Folder Include="modules\blueprintProcess\controller\" />
+    <Folder Include="modules\blueprintProcess\response\" />
+    <Folder Include="modules\blueprintProcess\request\" />
     <Folder Include="modules\processlog\request\" />
-    <Folder Include="modules\process\" />
+    <Folder Include="modules\process\controller\" />
+    <Folder Include="modules\process\logic\" />
+    <Folder Include="modules\process\response\" />
+    <Folder Include="modules\process\request\" />
   </ItemGroup>
 
   <ItemGroup>

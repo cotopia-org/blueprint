@@ -44,7 +44,7 @@ namespace blueprint.core
             if (subrole != null)
             {
                 var sDb = await AuthModule.Instance.signinSession.AsQueryable().Where(i => i._id == session.id.ToObjectId()).FirstOrDefaultAsync();
-                await AccountModule.Instance.CheckPermision(sDb.account_id.ToString(), subrole);
+                await AccountModule.Instance.CheckPermission(sDb.account_id.ToString(), subrole);
             }
             var result = await next();
 

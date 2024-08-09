@@ -21,7 +21,7 @@ namespace blueprint.modules.blueprint.core
                     var data = File.ReadAllText(p);
                     engine.Execute(data);
                 }
-                catch (Exception e)
+                catch 
                 {
 
                 }

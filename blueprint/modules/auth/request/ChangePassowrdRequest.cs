@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace blueprint.modules.auth.request
 {
-    public class ChangePassowrdRequest
+    public class ChangePasswordRequest
     {
         [Required]
         [DefaultValue("")]
@@ -11,6 +11,6 @@ namespace blueprint.modules.auth.request
         //[Password]
         [Required]
         [DefaultValue("")]
-        public string newPassowrd { get; set; }
+        public string newPassword { get; set; }
     }
 }

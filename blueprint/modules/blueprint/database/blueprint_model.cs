@@ -5,7 +5,7 @@ using MongoDB.Bson.Serialization.Attributes;
 namespace blueprint.modules.blueprint.database
 {
     [BsonIgnoreExtraElements]
-    public class blueprint
+    public class blueprint_model
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]

@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using blueprint.modules.blueprint;
+using Microsoft.AspNetCore.Mvc;
 
-namespace blueprint.modules.blueprint.controller
+namespace blueprint.modules.webhook.controller
 {
+    [Tags("webhook")]
     public class webhookController : ControllerBase
     {
-        [Route("v1/webhook/{token}")]
+        [Route("v1/webhooks/{token}")]
         [HttpGet]
         [ProducesResponseType(200)]
         public async Task<IActionResult> Get([FromRoute] string token)

@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace blueprint.core.DataAnotations
+namespace blueprint.core.DataAnnotations
 {
     public class Password : ValidationAttribute
     {

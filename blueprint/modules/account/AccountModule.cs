@@ -99,7 +99,7 @@ namespace blueprint.modules.account
             var result = await List(new List<string>() { _id.ToString() }, fromAccountId);
             return result.FirstOrDefault();
         }
-        public async Task<bool> HasPermision(string accountId, string subrole)
+        public async Task<bool> HasPermission(string accountId, string subrole)
         {
             var _accountId = accountId.ToObjectId();
             //var acc = await accounts.AsQueryable().Where(i => i._id == _accountId).Select(i => new Account() { roles = i.roles })
@@ -111,14 +111,14 @@ namespace blueprint.modules.account
             else
                 return acc.roles.Contains("super-root") || acc.roles.Contains(subrole);
         }
-        public async Task CheckPermision(string accountId, string subrole)
+        public async Task CheckPermission(string accountId, string subrole)
         {
-            var state = await HasPermision(accountId, subrole);
+            var state = await HasPermission(accountId, subrole);
 
             if (!state)
             {
                 var appException = new AppException(System.Net.HttpStatusCode.Forbidden);
-                appException.AddHint("subrole", $"You have not {subrole} subrole permision.", new { subrole });
+                appException.AddHint("subrole", $"You have not {subrole} subrole permission.", new { subrole });
                 throw appException;
             }
         }
@@ -134,7 +134,7 @@ namespace blueprint.modules.account
 
             return await Get(accountId);
         }
-        //public async Task<ProfileRespone> UpdateProfile(string accountId, ChangeProfileRequest request)
+        //public async Task<ProfileRespond> UpdateProfile(string accountId, ChangeProfileRequest request)
         //{
         //    var _accountId = accountId.ToObjectId();
         //    var currentAccount = await DBManager.Instance.accounts.AsQueryable().Where(i => i._id == _accountId).FirstOrDefaultAsync();
@@ -170,18 +170,18 @@ namespace blueprint.modules.account
             Builders<Account>.Filter.Eq(i => i._id, _accountId),
 
              Builders<Account>.Update
-             .Set(i => i.passwordMd5, Utility.CalculateMD5Hash(request.newPassowrd)));
+             .Set(i => i.passwordMd5, Utility.CalculateMD5Hash(request.newPassword)));
             ResetPasswordResponse resetPasswordResponse = new ResetPasswordResponse();
             resetPasswordResponse.signouts = await AuthModule.Instance.Signout(accountId);
             //MongoCacheExtensions.Remove(_accountId);
             accounts.CacheFind_remove("_id", accountId);
             return resetPasswordResponse;
         }
-        public async Task<ChangePasswordResponse> ChangePassword(string accountId, ChangePassowrdRequest request)
+        public async Task<ChangePasswordResponse> ChangePassword(string accountId, ChangePasswordRequest request)
         {
             var _accountId = accountId.ToObjectId();
 
-            if (request.newPassowrd == request.currentPassword)
+            if (request.newPassword == request.currentPassword)
             {
                 var appE = new AppException(System.Net.HttpStatusCode.Forbidden);
                 appE.AddHint("password", "The password is the same as the previous password.");
@@ -192,7 +192,7 @@ namespace blueprint.modules.account
             Builders<Account>.Filter.Eq(i => i._id, _accountId),
 
              Builders<Account>.Update
-             .Set(i => i.passwordMd5, Utility.CalculateMD5Hash(request.newPassowrd)));
+             .Set(i => i.passwordMd5, Utility.CalculateMD5Hash(request.newPassword)));
             var result = new ChangePasswordResponse();
             result.signouts = await AuthModule.Instance.Signout(accountId);
             //MongoCacheExtensions.Remove(_accountId);
@@ -201,7 +201,7 @@ namespace blueprint.modules.account
             return result;
         }
 
-        public async Task DeleteAccount(string accountId, DeleteAccountRequest request)
+        public void DeleteAccount(string accountId, DeleteAccountRequest request)
         {
             accounts.CacheFind_remove("_id", accountId);
         }

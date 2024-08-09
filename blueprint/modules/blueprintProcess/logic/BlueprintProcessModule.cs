@@ -1,8 +1,10 @@
 ﻿using blueprint.core;
+using blueprint.modules.blueprint;
 using blueprint.modules.blueprint.core;
 using blueprint.modules.blueprint.core.blocks;
 using blueprint.modules.blueprint.core.component;
 using blueprint.modules.database.logic;
+using blueprint.modules.process.database;
 using blueprint.modules.scheduler.logic;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -10,17 +12,17 @@ using MongoDB.Driver.Linq;
 using Newtonsoft.Json.Linq;
 using srtool;
 
-namespace blueprint.modules.blueprint
+namespace blueprint.modules.blueprintProcess.logic
 {
     public class BlueprintProcessModule : Module<BlueprintProcessModule>
     {
-        public IMongoCollection<database.process> dbContext { get; private set; }
+        public IMongoCollection<process.database.process_model> dbContext { get; private set; }
 
 
         public override async Task RunAsync()
         {
             await base.RunAsync();
-            dbContext = DatabaseModule.Instance.database.GetCollection<database.process>("process");
+            dbContext = DatabaseModule.Instance.database.GetCollection<process_model>("process");
             SchedulerModule.Instance.OnAction += Instance_OnAction;
         }
 
@@ -88,7 +90,7 @@ namespace blueprint.modules.blueprint
         }
         public async Task SaveProcess(Process process)
         {
-            var dbProcess = new database.process();
+            var dbProcess = new process_model();
             dbProcess._id = process.id;
             dbProcess.blueprint_id = process.blueprint.id;
             dbProcess.createDateTime = DateTime.UtcNow;

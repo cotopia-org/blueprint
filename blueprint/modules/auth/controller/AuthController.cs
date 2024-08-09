@@ -80,7 +80,7 @@ namespace blueprint.modules.auth.controller
         [HttpPost]
         [AuthRequire]
         [ProducesResponseType(typeof(ResetPasswordResponse), 200)]
-        public async Task<IActionResult> ChangePassword([FromBody] ChangePassowrdRequest data)
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest data)
         {
             var accountId = await this.GetAccountId();
             var result = await AccountModule.Instance.ChangePassword(accountId, data);

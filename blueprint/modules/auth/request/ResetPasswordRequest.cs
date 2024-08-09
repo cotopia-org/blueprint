@@ -1,4 +1,4 @@
-﻿using blueprint.core.DataAnotations;
+﻿using blueprint.core.DataAnnotations;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
@@ -13,6 +13,6 @@ namespace blueprint.modules.auth.request
         [Password]
         [Required]
         [DefaultValue("")]
-        public string newPassowrd { get; set; }
+        public string newPassword { get; set; }
     }
 }

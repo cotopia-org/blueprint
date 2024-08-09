@@ -1,6 +1,6 @@
-﻿namespace blueprint.modules.processlog.response
+﻿namespace blueprint.modules.log.response
 {
-    public class Log
+    public class LogResponse
     {
         public string id { get; set; }
         public string process_id { get; set; }

@@ -11,6 +11,7 @@ using blueprint.modules.node.logic;
 using blueprint.modules.scheduler.logic;
 using Newtonsoft.Json.Linq;
 using blueprint.modules.blueprint.core.fields;
+using blueprint.modules.blueprintProcess.logic;
 using blueprint.modules.processlog.logic;
 namespace blueprint.modules._global
 {

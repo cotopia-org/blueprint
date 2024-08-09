@@ -5,6 +5,7 @@ using blueprint.modules.blueprint.core.blocks;
 using blueprint.modules.blueprint.core.component;
 using blueprint.modules.blueprint.request;
 using blueprint.modules.blueprint.response;
+using blueprint.modules.blueprintProcess.logic;
 using blueprint.modules.database.logic;
 using blueprint.modules.node.logic;
 using blueprint.modules.scheduler.logic;
@@ -18,11 +19,11 @@ namespace blueprint.modules.blueprint
 {
     public class BlueprintModule : Module<BlueprintModule>
     {
-        public IMongoCollection<database.blueprint> dbContext { get; private set; }
+        public IMongoCollection<database.blueprint_model> dbContext { get; private set; }
         public override async Task RunAsync()
         {
             await base.RunAsync();
-            dbContext = DatabaseModule.Instance.database.GetCollection<database.blueprint>("blueprint");
+            dbContext = DatabaseModule.Instance.database.GetCollection<database.blueprint_model>("blueprint");
             Indexing();
 
             SchedulerModule.Instance.OnAction += Instance_OnAction;
@@ -31,8 +32,8 @@ namespace blueprint.modules.blueprint
         {
             try
             {
-                var builder = Builders<database.blueprint>.IndexKeys.Ascending(i => i.index_tokens);
-                await dbContext.Indexes.CreateOneAsync(new CreateIndexModel<database.blueprint>(builder, new CreateIndexOptions() { Background = true }));
+                var builder = Builders<database.blueprint_model>.IndexKeys.Ascending(i => i.index_tokens);
+                await dbContext.Indexes.CreateOneAsync(new CreateIndexModel<database.blueprint_model>(builder, new CreateIndexOptions() { Background = true }));
             }
             catch (Exception e)
             {
@@ -100,11 +101,11 @@ namespace blueprint.modules.blueprint
             return response;
         }
 
-        private async void IncExecution(database.blueprint dbItem)
+        private async void IncExecution(database.blueprint_model dbItem)
         {
             try
             {
-                await dbContext.UpdateOneAsync(i => i._id == dbItem._id, Builders<database.blueprint>.Update.Inc(j => j.exec_counter, 1));
+                await dbContext.UpdateOneAsync(i => i._id == dbItem._id, Builders<database.blueprint_model>.Update.Inc(j => j.exec_counter, 1));
             }
             catch (Exception e)
             {
@@ -113,7 +114,7 @@ namespace blueprint.modules.blueprint
         }
         public async Task<BlueprintResponse> Upsert(string id, BlueprintRequest request, string fromAccountId)
         {
-            database.blueprint item;
+            database.blueprint_model item;
 
             if (id != null)
             {
@@ -124,7 +125,7 @@ namespace blueprint.modules.blueprint
             }
             else
             {
-                item = new database.blueprint();
+                item = new database.blueprint_model();
                 item._id = ObjectId.GenerateNewId().ToString();
                 item.createDateTime = DateTime.UtcNow;
                 item.data_snapshot = new Blueprint().Snapshot();
@@ -234,7 +235,7 @@ namespace blueprint.modules.blueprint
             var dbItems = await dbContext.AsQueryable().Where(i => _ids.Contains(i._id)).ToListAsync();
             return await List(dbItems, fromAccountId);
         }
-        public async Task<List<BlueprintResponse>> List(List<database.blueprint> dbItems, string fromAccountId = null)
+        public async Task<List<BlueprintResponse>> List(List<database.blueprint_model> dbItems, string fromAccountId = null)
         {
             var data = dbItems.Select(i => new
             {
