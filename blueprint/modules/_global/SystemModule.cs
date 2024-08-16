@@ -20,7 +20,6 @@ namespace blueprint.modules._global
         public override async Task RunAsync()
         {
             Debug.InitConsoleSetup();
-            Script.Init();
             await base.RunAsync();
             await ConfigModule.Instance.RunAsync();
             await DatabaseModule.Instance.RunAsync();

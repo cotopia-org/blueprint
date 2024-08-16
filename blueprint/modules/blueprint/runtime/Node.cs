@@ -73,20 +73,20 @@ namespace blueprint.modules.blueprint.runtime
         {
             BlueprintProcessModule.Instance.Wait(node, sec, function);
         }
-        public void log(string message)
+        public void log(object message)
         {
             if (node.bind_blueprint != null && node.bind_blueprint._process != null)
-                ProcessLogLogic.Instance.AddLog(node.bind_blueprint.id, node.bind_blueprint._process.id, "log", message);
+                ProcessLogLogic.Instance.AddLog(node.bind_blueprint.id, node.bind_blueprint._process.id, "log", message.ToString());
         }
-        public void warning(string message)
+        public void warning(object message)
         {
             if (node.bind_blueprint != null && node.bind_blueprint._process != null)
-                ProcessLogLogic.Instance.AddLog(node.bind_blueprint.id, node.bind_blueprint._process.id, "warning", message);
+                ProcessLogLogic.Instance.AddLog(node.bind_blueprint.id, node.bind_blueprint._process.id, "warning", message.ToString());
         }
-        public void error(string message)
+        public void error(object message)
         {
             if (node.bind_blueprint != null && node.bind_blueprint._process != null)
-                ProcessLogLogic.Instance.AddLog(node.bind_blueprint.id, node.bind_blueprint._process.id, "error", message);
+                ProcessLogLogic.Instance.AddLog(node.bind_blueprint.id, node.bind_blueprint._process.id, "error", message.ToString());
         }
     }
 }

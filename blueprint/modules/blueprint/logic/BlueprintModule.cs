@@ -119,7 +119,6 @@ namespace blueprint.modules.blueprint
             if (id != null)
             {
                 item = await dbContext.AsQueryable().FirstOrDefaultAsync(i => i._id == id);
-
                 if (item == null)
                     throw new AppException(System.Net.HttpStatusCode.NotFound);
             }

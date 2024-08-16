@@ -1,13 +1,12 @@
 ﻿using Microsoft.ClearScript;
-using srtool;
 
-namespace blueprint.modules.blueprint.runtime
+namespace blueprint.modules.blueprint.runtime.tools
 {
-    public class rest_api
+    public class rest
     {
         public async Task get(string url, ScriptObject callback)
         {
-            var result = new response();
+            var result = new rest_response();
             using (HttpClient client = new HttpClient())
             {
                 try
@@ -31,31 +30,12 @@ namespace blueprint.modules.blueprint.runtime
                 callback.InvokeAsFunction(new object[] { result });
             }
         }
-        public class response
-        {
-            public string data;
-            public bool success;
-            public int statusCode;
-        }
-    }
 
-    public class log
-    {
-        public void add(object item)
-        {
-            Debug.Log(item);
-        }
     }
-    //public async Task delay(double sec, ScriptObject action)
-    //{
-    //    try
-    //    {
-    //        await Task.Delay(TimeSpan.FromSeconds(sec));
-    //        action.InvokeAsFunction(new object[] { });
-    //    }
-    //    catch (Exception ex)
-    //    {
-    //        Debug.Error(ex);
-    //    }
-    //}
+    public class rest_response
+    {
+        public string data;
+        public bool success;
+        public int statusCode;
+    }
 }

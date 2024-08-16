@@ -1,34 +1,11 @@
 ﻿using blueprint.modules.blueprint.runtime;
 using Microsoft.ClearScript.V8;
-using srtool;
 using System.Text.RegularExpressions;
 
 namespace blueprint.modules.blueprint.core
 {
     public class Script
     {
-        static rest_api restapi;
-        static V8ScriptEngine engine;
-        public static void Init()
-        {
-            restapi = new rest_api();
-            engine = new V8ScriptEngine();
-            engine.AddHostObject("rest", restapi);
-            foreach (var p in Directory.GetFiles("jslibs"))
-            {
-                try
-                {
-                    var data = File.ReadAllText(p);
-                    engine.Execute(data);
-                }
-                catch 
-                {
-
-                }
-                Debug.Log("Imported :" + p);
-            }
-
-        }
         public string code { get; set; }
 
         public Script(string code)
@@ -64,23 +41,29 @@ namespace blueprint.modules.blueprint.core
             {
                 var output = regex.Replace(input, match =>
                 {
-                    var expressionCode = match.Groups[1].Value;
+                    // Extract the JavaScript code between {{ and }}
+                    string expressionCode = match.Groups[1].Value;
+
                     return run_as_java_script(expressionCode, objVarName, fromObject, true)?.FirstOrDefault()?.ToString();
+
                 });
+
                 return output;
             }
             else
             {
-                return run_as_java_script(items[0], objVarName, fromObject, true)?.FirstOrDefault();
+                return input;
             }
         }
 
-
         private object[] run_as_java_script(string code, string objectName, object fromObject, bool expression, string functionName = null)
         {
+            var engine = new V8ScriptEngine();
+            //{
             try
             {
                 engine.AddHostObject(objectName, fromObject);
+                //engine.AddHostType("devtools", typeof(devtools));
                 // Execute the JavaScript code
                 if (expression)
                 {
@@ -104,9 +87,12 @@ namespace blueprint.modules.blueprint.core
             }
             catch (Exception ex)
             {
+                // Handle any JavaScript execution errors
                 Console.WriteLine("JavaScript Error: " + ex.Message);
             }
+            //}
             return null;
         }
     }
+
 }

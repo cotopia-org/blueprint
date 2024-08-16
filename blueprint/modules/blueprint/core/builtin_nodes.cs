@@ -18,8 +18,9 @@ namespace blueprint.modules.blueprint.core
                 @"
 function start()
 {
+    var ff = node.field(""text"");
     node.print(node.field(""text""));
-    node.log(node.field(""text""));
+    //node.log(node.field(""text""));
     node.next();
 }
 "
@@ -114,7 +115,6 @@ function func1()
             @"
 function start()
 {
-/*
     rest.get('https://filesamples.com/samples/code/json/sample1.json',
     response=>
     {
@@ -122,13 +122,6 @@ function start()
         node.next(); 
     }
     );
-*/
-   axios
-      .get(""https://jsonplaceholder.typicode.com/users/1"")
-      .then((response) => {
-        node.print(response.data); 
-      })
-      .catch((err) => node.print(err.message));
 }"
 );
             node.SetField("next", new List<Field>());
