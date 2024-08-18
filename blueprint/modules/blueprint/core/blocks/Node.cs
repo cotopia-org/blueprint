@@ -16,12 +16,16 @@ namespace blueprint.modules.blueprint.core.blocks
         public Field fields { get; set; }
         public List<component.ComponentBase> components { get; set; }
         public Dictionary<string, object> data { get; set; }
+        public Dictionary<string, object> persistent_data { get; set; }
+
         public Node() : base()
         {
             // fields = new Dictionary<string, Field>();
             fields = new Field();
             components = new List<component.ComponentBase>();
             data = new Dictionary<string, object>();
+            persistent_data = new Dictionary<string, object>();
+
             coordinate = new Coordinate() { h = 10, w = 10 };
         }
         public object GetField(string address)
@@ -100,6 +104,20 @@ namespace blueprint.modules.blueprint.core.blocks
                 data.Add(name, value);
             else
                 data[name] = value;
+        }
+        public object get_persistent_data(string name, object alter)
+        {
+            if (persistent_data.TryGetValue(name, out var _val))
+                return _val;
+            else
+                return alter;
+        }
+        public void set_persistent_data(string name, object value)
+        {
+            if (!persistent_data.ContainsKey(name))
+                persistent_data.Add(name, value);
+            else
+                persistent_data[name] = value;
         }
         public void BindNode(Node node)
         {

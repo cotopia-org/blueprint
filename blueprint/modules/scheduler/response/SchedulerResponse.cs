@@ -6,7 +6,7 @@ namespace blueprint.modules.scheduler.database
     public class SchedulerResponse
     {
         public string id { get; set; }
-        public string? key { get; set; }
+        public string key { get; set; }
         public string category { get; set; }
         public string payload { get; set; }
         public bool repeat { get; set; }

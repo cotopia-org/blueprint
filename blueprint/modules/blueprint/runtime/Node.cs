@@ -53,9 +53,18 @@ namespace blueprint.modules.blueprint.runtime
         {
             return node.get_data(name, alter);
         }
+
         public void set_data(string name, object value)
         {
             node.set_data(name, value);
+        }
+        public object get_persistent_data(string name, object alter = null)
+        {
+            return node.get_persistent_data(name, alter);
+        }
+        public void set_persistent_data(string name, object value)
+        {
+            node.set_persistent_data(name, value);
         }
         public void set_output(object value)
         {
