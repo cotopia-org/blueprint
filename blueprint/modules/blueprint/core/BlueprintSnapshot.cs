@@ -23,7 +23,7 @@ namespace blueprint.modules.blueprint.core
             var envFields = new JArray();
             if (item.fields != null)
                 foreach (var eField in item.fields)
-                    envFields.Add(eField.JsonSnapshot());
+                    envFields.Add(eField.ObjectToJson());
             if (envFields.Count > 0)
                 result["fields"] = envFields;
             var jBlocks = new JArray();
@@ -70,11 +70,15 @@ namespace blueprint.modules.blueprint.core
                     result["script"] = node.script.code;
             }
 
-            var data = new JArray();
-            foreach (var d in node.data)
-                data.Add(d.Value.JsonSnapshot());
-            if (data.Count > 0)
-                result["data"] = data;
+            if (node.data.Count > 0)
+            {
+                var dataJObject = new JObject();
+
+                foreach (var d in node.data)
+                    dataJObject[d.Key] = d.Value.ObjectToJson();
+
+                result["data"] = dataJObject;
+            }
 
             var components = new JArray();
             foreach (var c in node.components)
@@ -87,36 +91,56 @@ namespace blueprint.modules.blueprint.core
             return result;
         }
 
-        public static JObject JsonSnapshot(this object obj)
+        public static object JsonToObject_data(JObject jObject)
+        {
+            var type = (string)jObject["type"];
+            switch (type)
+            {
+                case "null":
+                    return null;
+                case "int":
+                    return (int)jObject["value"];
+                case "double":
+                    return (double)jObject["value"];
+                case "bool":
+                    return (bool)jObject["value"];
+                case "string":
+                    return (string)jObject["value"];
+                default:
+                    return null;
+            }
+
+        }
+        public static JObject ObjectToJson(this object obj)
         {
             var data = new JObject();
             if (obj == null)
             {
-                data["value"] = "null";
+                data["type"] = "null";
                 data["value"] = null;
             }
             else
             if (obj is int @int)
             {
-                data["value"] = "int";
+                data["type"] = "int";
                 data["value"] = @int;
             }
             else
             if (obj is double @double)
             {
-                data["value"] = "double";
+                data["type"] = "double";
                 data["value"] = @double;
             }
             else
             if (obj is bool boolean)
             {
-                data["value"] = "bool";
+                data["type"] = "bool";
                 data["value"] = boolean;
             }
             else
             if (obj is string @string)
             {
-                data["value"] = "string";
+                data["type"] = "string";
                 data["value"] = @string;
             }
             else
@@ -298,6 +322,13 @@ namespace blueprint.modules.blueprint.core
             if (data["fields"] != null)
             {
                 node.fields = LoadField(node, data["fields"]);
+            }
+            if (data["data"] != null)
+            {
+                foreach (var item in ((JObject)data["data"]).Properties())
+                {
+                    node.data.Add(item.Name, BlueprintSnapshot.JsonToObject_data((JObject)item.Value));
+                }
             }
 
             if (data["components"] != null)

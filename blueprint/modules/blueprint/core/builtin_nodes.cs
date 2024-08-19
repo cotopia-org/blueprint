@@ -48,7 +48,6 @@ function start()
 }
 "
 );
-
             node.SetField("output", "OK");
             node.SetField("next", new List<Field>());
 
