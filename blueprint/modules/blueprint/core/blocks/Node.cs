@@ -3,6 +3,7 @@ using blueprint.modules.blueprint.core.fields;
 using blueprint.modules.node.types;
 using Newtonsoft.Json.Linq;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using System.Diagnostics.Metrics;
 using System.Linq;
 using System.Net;
 
@@ -104,9 +105,19 @@ namespace blueprint.modules.blueprint.core.blocks
                 data.Add(name, value);
             else
                 data[name] = value;
+
         }
         public object get_persistent_data(string name, object alter)
         {
+            if (bind_blueprint != null && bind_blueprint.source != null)
+            {
+                var item = bind_blueprint.source.FindNodeWithId(id);
+                if (item != null)
+                    return item.get_persistent_data(name, alter);
+                else
+                    return alter;
+            }
+
             if (persistent_data.TryGetValue(name, out var _val))
                 return _val;
             else
@@ -114,10 +125,22 @@ namespace blueprint.modules.blueprint.core.blocks
         }
         public void set_persistent_data(string name, object value)
         {
+            if (bind_blueprint != null && bind_blueprint.source != null)
+            {
+                var item = bind_blueprint.source.FindNodeWithId(id);
+                if (item != null)
+                    item.set_persistent_data(name, value);
+
+                return;
+            }
+
             if (!persistent_data.ContainsKey(name))
                 persistent_data.Add(name, value);
             else
                 persistent_data[name] = value;
+
+            if (bind_blueprint != null)
+                bind_blueprint.InvokeOnChangePersistentData();
         }
         public void BindNode(Node node)
         {

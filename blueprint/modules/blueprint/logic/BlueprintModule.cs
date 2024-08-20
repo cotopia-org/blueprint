@@ -3,6 +3,7 @@ using blueprint.modules.account;
 using blueprint.modules.blueprint.core;
 using blueprint.modules.blueprint.core.blocks;
 using blueprint.modules.blueprint.core.component;
+using blueprint.modules.blueprint.database;
 using blueprint.modules.blueprint.request;
 using blueprint.modules.blueprint.response;
 using blueprint.modules.blueprintProcess.logic;
@@ -59,7 +60,8 @@ namespace blueprint.modules.blueprint
                 var dbItem = await dbContext.AsQueryable().Where(i => i._id == blueprint_id).FirstOrDefaultAsync();
                 if (dbItem != null)
                 {
-                    var process = await BlueprintProcessModule.Instance.CreateProcess(dbItem.data_snapshot);
+                    var source = await BlueprintModule.Instance.GetBlueprint(blueprint_id);
+                    var process = await BlueprintProcessModule.Instance.CreateProcess(source, dbItem.data_snapshot);
 
                     var pulses = process.blueprint.FindComponents<Pulse>();
 
@@ -79,12 +81,17 @@ namespace blueprint.modules.blueprint
         public async Task<WebhookCallResponse> Exec_webhooktoken(string token)
         {
             var index_token = $"webhook:{token}";
-            var dbItem = await dbContext.AsQueryable().Where(i => i.index_tokens.Contains(index_token)).FirstOrDefaultAsync();
+            var dbItem = await SuperCache.Get(async () =>
+            {
+                return await dbContext.AsQueryable().Where(i => i.index_tokens.Contains(index_token)).FirstOrDefaultAsync();
+            }, new CacheSetting() { key = $"webhook_blueprint_" + index_token });
+
 
             if (dbItem == null)
                 return null;
 
-            var process = await BlueprintProcessModule.Instance.CreateProcess(dbItem.data_snapshot);
+            var sourceBlueprint = await GetBlueprint(dbItem._id);
+            var process = await BlueprintProcessModule.Instance.CreateProcess(sourceBlueprint, dbItem.data_snapshot);
 
             var webhooks = process.blueprint.FindComponents<Webhook>();
 
@@ -125,6 +132,7 @@ namespace blueprint.modules.blueprint
             else
             {
                 item = new database.blueprint_model();
+                item.index_tokens = new List<string>();
                 item._id = ObjectId.GenerateNewId().ToString();
                 item.createDateTime = DateTime.UtcNow;
                 item.data_snapshot = new Blueprint().Snapshot();
@@ -140,10 +148,14 @@ namespace blueprint.modules.blueprint
 
             await ApplyChanges(mainBlueprint, changedBlueprint, changedBlocks, removedBlocks);
 
+
             item.title = request.title;
             item.description = request.description;
 
             item.data_snapshot = mainBlueprint.Snapshot();
+
+            foreach (var i in item.index_tokens)
+                SuperCache.Remove($"webhook_blueprint_{i}");
 
             item.index_tokens = new List<string>();
             item.index_tokens.AddRange(mainBlueprint.FindComponents<Webhook>().Select(i => $"webhook:{i.token}").ToList());
@@ -153,7 +165,7 @@ namespace blueprint.modules.blueprint
             await dbContext.ReplaceOneAsync(i => i._id == item._id, item, new ReplaceOptions() { IsUpsert = true });
 
             HandleExternalProcess(id, changedBlocks, removedBlocks);
-
+            SuperCache.Remove($"blueprint_{id}");
             return await Get(item._id, fromAccountId);
         }
         private static void HandleExternalProcess(string id, List<Block> changedBlocks, List<Block> removedBlocks)
@@ -424,6 +436,43 @@ namespace blueprint.modules.blueprint
                     component.delayParam = refComponent.delayParam;
                     component.callback = refComponent.callback;
                 }
+            }
+        }
+
+
+
+        public async Task<Blueprint> GetBlueprint(string id)
+        {
+            return await SuperCache.Get(async () =>
+            {
+                var item = await dbContext.AsQueryable().FirstOrDefaultAsync(i => i._id == id);
+                if (item != null)
+                {
+                    var blueprint = await LoadBlueprint(item._id, JObject.Parse(item.data_snapshot));
+                    var newBlueprintSaveHandler = new BlueprintSaveHandler();
+                    blueprint.onChangePersistentData += newBlueprintSaveHandler.OnSave;
+                    return blueprint;
+                }
+                return null;
+
+            }, new CacheSetting() { key = $"blueprint_{id}", timeLife = TimeSpan.FromMinutes(1) });
+        }
+
+        public class BlueprintSaveHandler
+        {
+            public async void OnSave(Blueprint blueprint)
+            {
+                try
+                {
+                    await BlueprintModule.Instance.dbContext.UpdateOneAsync(
+                        Builders<blueprint_model>.Filter.Eq(i => i._id, blueprint.id),
+                        Builders<blueprint_model>.Update.Set(i => i.data_snapshot, blueprint.Snapshot()));
+                }
+                catch (Exception e)
+                {
+                    Debug.Error(e);
+                }
+
             }
         }
     }

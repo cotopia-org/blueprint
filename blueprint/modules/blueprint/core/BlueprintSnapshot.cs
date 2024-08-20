@@ -26,13 +26,13 @@ namespace blueprint.modules.blueprint.core
                     envFields.Add(eField.ObjectToJson());
             if (envFields.Count > 0)
                 result["fields"] = envFields;
+
             var jBlocks = new JArray();
             if (item.blocks != null)
                 foreach (var block in item.blocks)
                     jBlocks.Add(block.JsonSnapshot());
             if (jBlocks.Count > 0)
                 result["blocks"] = jBlocks;
-
             return result;
         }
         public static JObject JsonSnapshot(this Block item)
@@ -79,7 +79,15 @@ namespace blueprint.modules.blueprint.core
 
                 result["data"] = dataJObject;
             }
+            if (node.persistent_data.Count > 0)
+            {
+                var dataJObject = new JObject();
 
+                foreach (var d in node.persistent_data)
+                    dataJObject[d.Key] = d.Value.ObjectToJson();
+
+                result["persistent_data"] = dataJObject;
+            }
             var components = new JArray();
             foreach (var c in node.components)
                 components.Add(c.JsonSnapshot());
@@ -330,6 +338,13 @@ namespace blueprint.modules.blueprint.core
                     node.data.Add(item.Name, BlueprintSnapshot.JsonToObject_data((JObject)item.Value));
                 }
             }
+            if (data["persistent_data"] != null)
+            {
+                foreach (var item in ((JObject)data["persistent_data"]).Properties())
+                {
+                    node.persistent_data.Add(item.Name, BlueprintSnapshot.JsonToObject_data((JObject)item.Value));
+                }
+            }
 
             if (data["components"] != null)
                 foreach (JObject componentData in (JArray)data["components"])
@@ -339,9 +354,11 @@ namespace blueprint.modules.blueprint.core
 
             return node;
         }
-        public static Blueprint LoadBlueprint(string data)
+        public static Blueprint LoadBlueprint(string data, Blueprint source = null)
         {
-            return LoadBlueprint(JObject.Parse(data));
+            var result = LoadBlueprint(JObject.Parse(data));
+            result.source = source;
+            return result;
         }
         public static Blueprint LoadBlueprint(JObject data)
         {
@@ -432,36 +449,8 @@ namespace blueprint.modules.blueprint.core
                     }
                     break;
             }
-
-            //switch (type)
-            //{
-            //    case "null":
-            //        field.value = null;
-            //        break;
-            //    case "expression":
-            //        field.type = DataType.expression;
-            //        field.value = LoadExpression((string)data["value"]);
-            //        break;
-            //    case "string":
-            //        field.type = DataType.@string;
-            //        field.value = (string)data["value"];
-            //        break;
-            //    case "double":
-            //        field.value = (double)data["value"];
-            //        break;
-            //    case "int":
-            //        field.value = (int)data["value"];
-            //        break;
-            //    case "bool":
-            //        field.value = (bool)data["value"];
-            //        break;
-            //    case "datetime":
-            //        field.value = (DateTime)data["value"];
-            //        break;
-            //}
             return field;
         }
-
         public static ComponentBase LoadComponent(blocks.Node node, JObject data)
         {
             var name = (string)data["name"];
@@ -497,7 +486,6 @@ namespace blueprint.modules.blueprint.core
                 result["callback"] = pulse.callback;
                 result["delayParam"] = pulse.delayParam;
                 result["origin"] = pulse.origin.ToString();
-
             }
             else
             {

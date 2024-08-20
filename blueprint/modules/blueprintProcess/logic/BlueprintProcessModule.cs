@@ -63,47 +63,61 @@ namespace blueprint.modules.blueprintProcess.logic
                 Debug.Error(e);
             }
         }
-        public async Task<Process> CreateProcess(string snapshot)
+        public async Task<Process> CreateProcess(Blueprint source, string snapshot)
         {
             var process = new Process();
             process.id = ObjectId.GenerateNewId().ToString();
             process.blueprint = BlueprintSnapshot.LoadBlueprint(snapshot);
+            process.blueprint.source = source;
             await BlueprintModule.Instance.FillReference(process.blueprint);
             process.blueprint._process = process;
-            await Task.Yield();
             return process;
         }
         public async Task<Process> GetProcessById(string id)
         {
-            var dbItem = await dbContext.AsQueryable().Where(i => i._id == id).FirstOrDefaultAsync();
-            if (dbItem == null)
-                return null;
+            return await SuperCache.Get(async () =>
+            {
+                var dbItem = await dbContext.AsQueryable().Where(i => i._id == id).FirstOrDefaultAsync();
+                if (dbItem == null)
+                    return null;
 
-            var process = new Process();
-            process.id = dbItem._id;
-            process.blueprint = BlueprintSnapshot.LoadBlueprint(dbItem.snapshot);
-            await BlueprintModule.Instance.FillReference(process.blueprint);
+                var process = new Process();
+                process.id = dbItem._id;
+                process.blueprint = BlueprintSnapshot.LoadBlueprint(dbItem.snapshot);
+                await BlueprintModule.Instance.FillReference(process.blueprint);
 
-            process.blueprint._process = process;
+                process.blueprint._process = process;
 
-            return process;
+                return process;
+
+            }, new CacheSetting() { key = $"process_{id}", timeLife = TimeSpan.FromMinutes(1) });
+
+
         }
-        public async Task SaveProcess(Process process)
+        public async void SaveProcess(Process process)
         {
-            var dbProcess = new process_model();
-            dbProcess._id = process.id;
-            dbProcess.blueprint_id = process.blueprint.id;
-            dbProcess.createDateTime = DateTime.UtcNow;
-            dbProcess.snapshot = process.blueprint.Snapshot();
+            try
+            {
+                SuperCache.Set(process, new CacheSetting() { key = $"process_{process.id}", timeLife = TimeSpan.FromMinutes(1) });
+                var dbProcess = new process_model();
+                dbProcess._id = process.id;
+                dbProcess.blueprint_id = process.blueprint.id;
+                dbProcess.createDateTime = DateTime.UtcNow;
+                dbProcess.snapshot = process.blueprint.Snapshot();
 
-            await dbContext.ReplaceOneAsync(i => i._id == dbProcess._id, dbProcess, new ReplaceOptions() { IsUpsert = true });
+                await dbContext.ReplaceOneAsync(i => i._id == dbProcess._id, dbProcess, new ReplaceOptions() { IsUpsert = true });
+            }
+            catch (Exception e)
+            {
+                Debug.Error(e);
+            }
         }
 
-        public async void Wait(Node node, double waitTime, string callBackFunction)
+        public void Wait(Node node, double waitTime, string callBackFunction)
         {
             if (node.bind_blueprint._process != null)
             {
-                await SaveProcess(node.bind_blueprint._process);
+                SaveProcess(node.bind_blueprint._process);
                 var data = new JObject();
                 data["type"] = "wait";
                 data["nodeId"] = node.id;
