@@ -141,7 +141,8 @@ namespace blueprint.modules.blueprint
             item.account_id = fromAccountId;
 
             var changedBlueprint = await LoadBlueprint(item._id, request.blueprint);
-            var mainBlueprint = await LoadBlueprint(item._id, JObject.Parse(item.data_snapshot));
+            // var mainBlueprint = await LoadBlueprint(item._id, JObject.Parse(item.data_snapshot));
+            var mainBlueprint = await GetBlueprint(item._id);
 
             var changedBlocks = new List<Block>();
             var removedBlocks = new List<Block>();
@@ -154,8 +155,8 @@ namespace blueprint.modules.blueprint
 
             item.data_snapshot = mainBlueprint.Snapshot();
 
-            foreach (var i in item.index_tokens)
-                SuperCache.Remove($"webhook_blueprint_{i}");
+            foreach (var token in item.index_tokens)
+                SuperCache.Remove($"webhook_blueprint_{token}");
 
             item.index_tokens = new List<string>();
             item.index_tokens.AddRange(mainBlueprint.FindComponents<Webhook>().Select(i => $"webhook:{i.token}").ToList());
@@ -165,7 +166,6 @@ namespace blueprint.modules.blueprint
             await dbContext.ReplaceOneAsync(i => i._id == item._id, item, new ReplaceOptions() { IsUpsert = true });
 
             HandleExternalProcess(id, changedBlocks, removedBlocks);
-            SuperCache.Remove($"blueprint_{id}");
             return await Get(item._id, fromAccountId);
         }
         private static void HandleExternalProcess(string id, List<Block> changedBlocks, List<Block> removedBlocks)
@@ -186,7 +186,7 @@ namespace blueprint.modules.blueprint
                             payload["node_id"] = pulse.node.id;
 
                             var _sm_id = $"pulse:{id}_{pulse.node.id}_{pulse.name}";
-                            var delay = TimeSpan.FromSeconds((int)pulse.node.GetField(pulse.delayParam));
+                            var delay = TimeSpan.FromSeconds(double.Parse(pulse.node.GetField(pulse.delayParam).ToString()));
                             SchedulerModule.Instance.Upsert(_sm_id, delay, payload.ToString(), "node:pulse", true);
                         }
                     }
@@ -449,28 +449,43 @@ namespace blueprint.modules.blueprint
                 if (item != null)
                 {
                     var blueprint = await LoadBlueprint(item._id, JObject.Parse(item.data_snapshot));
-                    var newBlueprintSaveHandler = new BlueprintSaveHandler();
-                    blueprint.onChangePersistentData += newBlueprintSaveHandler.OnSave;
+                    var newBlueprintSaveHandler = new BlueprintSaveHandler(blueprint);
+                    blueprint.onChangePersistentData += newBlueprintSaveHandler.doSave;
                     return blueprint;
                 }
                 return null;
 
-            }, new CacheSetting() { key = $"blueprint_{id}", timeLife = TimeSpan.FromMinutes(1) });
+            }, new CacheSetting() { key = $"blueprint_{id}", timeLife = TimeSpan.FromMinutes(5) });
         }
 
         public class BlueprintSaveHandler
         {
-            public async void OnSave(Blueprint blueprint)
+            public Blueprint blueprint;
+            bool saving = false;
+            public BlueprintSaveHandler(Blueprint blueprint)
+            {
+                this.blueprint = blueprint;
+            }
+            public async void doSave(Blueprint blueprint)
             {
                 try
                 {
-                    await BlueprintModule.Instance.dbContext.UpdateOneAsync(
-                        Builders<blueprint_model>.Filter.Eq(i => i._id, blueprint.id),
-                        Builders<blueprint_model>.Update.Set(i => i.data_snapshot, blueprint.Snapshot()));
+                    if (!saving)
+                    {
+                        saving = true;
+                        await Task.Delay(10000);
+
+                        await BlueprintModule.Instance.dbContext.UpdateOneAsync(
+                            Builders<blueprint_model>.Filter.Eq(i => i._id, blueprint.id),
+                            Builders<blueprint_model>.Update.Set(i => i.data_snapshot, blueprint.Snapshot()));
+
+                        saving = false;
+                    }
                 }
                 catch (Exception e)
                 {
                     Debug.Error(e);
+                    saving = false;
                 }
 
             }

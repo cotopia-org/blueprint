@@ -37,7 +37,6 @@ namespace blueprint.modules.scheduler.logic
         {
             while (true)
             {
-                int wait = 100;
                 List<database.schedule> schedules;
                 try
                 {
@@ -49,7 +48,6 @@ namespace blueprint.modules.scheduler.logic
 
                     if (schedules.Count > 0)
                     {
-                        wait = 1;
                         await dbContext
                             .DeleteManyAsync(Builders<schedule>.Filter
                             .In(i => i._id, schedules.Select(i => i._id).ToList()) &
@@ -66,7 +64,7 @@ namespace blueprint.modules.scheduler.logic
                                 var createTime = schedule.invokeTime;
                                 var invokeTime = createTime + delay;
 
-                                if( invokeTime < DateTime.UtcNow)
+                                if (invokeTime < DateTime.UtcNow)
                                 {
                                     createTime = DateTime.UtcNow;
                                     invokeTime = createTime + delay;
@@ -90,10 +88,6 @@ namespace blueprint.modules.scheduler.logic
                             }
                         }
                     }
-                    else
-                    {
-                        wait = 1000;
-                    }
                 }
                 catch (Exception e)
                 {
@@ -103,7 +97,7 @@ namespace blueprint.modules.scheduler.logic
                         Debug.Error(e);
                 }
 
-                await Task.Delay(wait);
+                await Task.Delay(500);
             }
         }
         private void ExucuteSchedule(database.schedule schedule)
@@ -125,17 +119,35 @@ namespace blueprint.modules.scheduler.logic
             {
                 var now = DateTime.UtcNow;
 
-                await dbContext.UpdateOneAsync(
-                Builders<schedule>.Filter.Eq(i => i.key, key),
-                  Builders<schedule>.Update
-                  .Set(i => i.key, key)
-                  .Set(i => i.category, category)
-                  .Set(i => i.repeat, repeat)
-                  .Set(i => i.payload, payload)
-                  .Set(i => i.invokeTime, now + delayTime)
-                  .Set(i => i.createDateTime, now)
-                  , new UpdateOptions() { IsUpsert = true }
-                );
+                if (delayTime.TotalSeconds > 10 || repeat)
+                {
+                    await dbContext.UpdateOneAsync(
+                    Builders<schedule>.Filter.Eq(i => i.key, key),
+                      Builders<schedule>.Update
+                      .Set(i => i.key, key)
+                      .Set(i => i.category, category)
+                      .Set(i => i.repeat, repeat)
+                      .Set(i => i.payload, payload)
+                      .Set(i => i.invokeTime, now + delayTime)
+                      .Set(i => i.createDateTime, now)
+                      , new UpdateOptions() { IsUpsert = true }
+                    );
+                }
+                else
+                {
+                    await Task.Delay(delayTime);
+                    ExucuteSchedule(
+                        new schedule()
+                        {
+                            category = category,
+                            repeat = repeat,
+                            createDateTime = now,
+                            invokeTime = now + delayTime,
+                            key = key,
+                            payload = payload,
+                            _id = ObjectId.GenerateNewId().ToString()
+                        });
+                }
             }
             catch (Exception e)
             {
