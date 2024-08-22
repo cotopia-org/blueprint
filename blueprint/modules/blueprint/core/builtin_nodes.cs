@@ -18,9 +18,9 @@ namespace blueprint.modules.blueprint.core
                 @"
 function start()
 {
-    var counter = node.get_persistent_data(""counter"",0);
+    var counter = node.get_static_data(""counter"",0);
     counter = counter + 1;
-    node.set_persistent_data(""counter"",counter);
+    node.set_static_data(""counter"",counter);
 
     node.print(node.field(""text"") + "" "" + counter);
     node.next();

@@ -17,7 +17,7 @@ namespace blueprint.modules.blueprint.core.blocks
         public Field fields { get; set; }
         public List<component.ComponentBase> components { get; set; }
         public Dictionary<string, object> data { get; set; }
-        public Dictionary<string, object> persistent_data { get; set; }
+        public Dictionary<string, object> static_data { get; set; }
 
         public Node() : base()
         {
@@ -25,7 +25,7 @@ namespace blueprint.modules.blueprint.core.blocks
             fields = new Field();
             components = new List<component.ComponentBase>();
             data = new Dictionary<string, object>();
-            persistent_data = new Dictionary<string, object>();
+            static_data = new Dictionary<string, object>();
 
             coordinate = new Coordinate() { h = 10, w = 10 };
         }
@@ -107,37 +107,37 @@ namespace blueprint.modules.blueprint.core.blocks
                 data[name] = value;
 
         }
-        public object get_persistent_data(string name, object alter)
+        public object get_static_data(string name, object alter)
         {
             if (bind_blueprint != null && bind_blueprint.source != null)
             {
                 var item = bind_blueprint.source.FindNodeWithId(id);
                 if (item != null)
-                    return item.get_persistent_data(name, alter);
+                    return item.get_static_data(name, alter);
                 else
                     return alter;
             }
 
-            if (persistent_data.TryGetValue(name, out var _val))
+            if (static_data.TryGetValue(name, out var _val))
                 return _val;
             else
                 return alter;
         }
-        public void set_persistent_data(string name, object value)
+        public void set_static_data(string name, object value)
         {
             if (bind_blueprint != null && bind_blueprint.source != null)
             {
                 var item = bind_blueprint.source.FindNodeWithId(id);
                 if (item != null)
-                    item.set_persistent_data(name, value);
+                    item.set_static_data(name, value);
 
                 return;
             }
 
-            if (!persistent_data.ContainsKey(name))
-                persistent_data.Add(name, value);
+            if (!static_data.ContainsKey(name))
+                static_data.Add(name, value);
             else
-                persistent_data[name] = value;
+                static_data[name] = value;
 
             if (bind_blueprint != null)
                 bind_blueprint.InvokeOnChangePersistentData();

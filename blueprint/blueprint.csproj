@@ -19,10 +19,10 @@
     <PackageReference Include="Microsoft.ClearScript" Version="7.4.5" />
     <PackageReference Include="Microsoft.ClearScript.V8.Native.win-x64" Version="7.4.5" />
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.0.0" />
-    <PackageReference Include="MongoDB.Driver" Version="2.27.0" />
+    <PackageReference Include="MongoDB.Driver" Version="2.28.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.6.3" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.7.1" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.0.2" />
   </ItemGroup>
 
   <ItemGroup>
@@ -37,12 +37,6 @@
     <Folder Include="modules\process\logic\" />
     <Folder Include="modules\process\response\" />
     <Folder Include="modules\process\request\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="srtoolkit">
-      <HintPath>..\dlls\srtoolkit.dll</HintPath>
-    </Reference>
   </ItemGroup>
 
 </Project>

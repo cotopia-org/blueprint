@@ -79,14 +79,14 @@ namespace blueprint.modules.blueprint.core
 
                 result["data"] = dataJObject;
             }
-            if (node.persistent_data.Count > 0)
+            if (node.static_data.Count > 0)
             {
                 var dataJObject = new JObject();
 
-                foreach (var d in node.persistent_data)
+                foreach (var d in node.static_data)
                     dataJObject[d.Key] = d.Value.ObjectToJson();
 
-                result["persistent_data"] = dataJObject;
+                result["static_data"] = dataJObject;
             }
             var components = new JArray();
             foreach (var c in node.components)
@@ -238,12 +238,6 @@ namespace blueprint.modules.blueprint.core
 
 
         }
-        public static JObject JsonSnapshot(this Expression expression)
-        {
-            var res = new JObject();
-            res["expression"] = expression.expression;
-            return res;
-        }
         public static JObject JsonSnapshot(this blocks.StickyNote item)
         {
             var result = new JObject();
@@ -338,11 +332,11 @@ namespace blueprint.modules.blueprint.core
                     node.data.Add(item.Name, BlueprintSnapshot.JsonToObject_data((JObject)item.Value));
                 }
             }
-            if (data["persistent_data"] != null)
+            if (data["static_data"] != null)
             {
-                foreach (var item in ((JObject)data["persistent_data"]).Properties())
+                foreach (var staticData in ((JObject)data["static_data"]).Properties())
                 {
-                    node.persistent_data.Add(item.Name, BlueprintSnapshot.JsonToObject_data((JObject)item.Value));
+                    node.static_data.Add(staticData.Name, BlueprintSnapshot.JsonToObject_data((JObject)staticData.Value));
                 }
             }
 

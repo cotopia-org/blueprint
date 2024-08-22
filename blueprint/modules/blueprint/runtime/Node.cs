@@ -58,13 +58,13 @@ namespace blueprint.modules.blueprint.runtime
         {
             node.set_data(name, value);
         }
-        public object get_persistent_data(string name, object alter = null)
+        public object get_static_data(string name, object alter = null)
         {
-            return node.get_persistent_data(name, alter);
+            return node.get_static_data(name, alter);
         }
-        public void set_persistent_data(string name, object value)
+        public void set_static_data(string name, object value)
         {
-            node.set_persistent_data(name, value);
+            node.set_static_data(name, value);
         }
         public void set_output(object value)
         {
