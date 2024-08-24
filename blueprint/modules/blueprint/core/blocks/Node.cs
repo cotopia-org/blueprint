@@ -68,6 +68,10 @@ namespace blueprint.modules.blueprint.core.blocks
                 }
             }
         }
+        public Node find_byname(string name)
+        {
+           return this.bind_blueprint.nodes.FirstOrDefault(i => i.name == name);
+        }
         public void ExecuteNode(string address, int position)
         {
             var field = GetField(address);
@@ -140,7 +144,7 @@ namespace blueprint.modules.blueprint.core.blocks
                 static_data[name] = value;
 
             if (bind_blueprint != null)
-                bind_blueprint.InvokeOnChangePersistentData();
+                bind_blueprint.InvokeOnChangeStaticData();
         }
         public void BindNode(Node node)
         {

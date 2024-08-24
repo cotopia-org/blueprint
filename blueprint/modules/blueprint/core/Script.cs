@@ -32,11 +32,11 @@ namespace blueprint.modules.blueprint.core
                 return "";
             });
 
-            if (count == 1)
-            {
-                return run_as_java_script(items[0], objVarName, fromObject, true)?.FirstOrDefault();
-            }
-            else
+            //if (count == 1)
+            //{
+            //    return run_as_java_script(items[0], objVarName, fromObject, true)?.FirstOrDefault();
+            //}
+            //else
             if (items.Count > 0)
             {
                 var output = regex.Replace(input, match =>

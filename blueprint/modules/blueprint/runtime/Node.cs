@@ -32,6 +32,10 @@ namespace blueprint.modules.blueprint.runtime
         {
             node.ExecuteNode("next");
         }
+        public Node find_byname(string name)
+        {
+            return new Node(node.find_byname(name));
+        }
         public void execnode(string address)
         {
             node.ExecuteNode(address);

@@ -16,7 +16,7 @@ namespace srtool
 
         public static bool Exist(string key)
         {
-            return _cache.TryGetValue(key, out object res);
+            return _cache.TryGetValue(key, out CacheItem res);
         }
         public static async Task<T> Get<T>(Func<Task<T>> task, string key, TimeSpan span)
         {
@@ -25,17 +25,15 @@ namespace srtool
 
         public static async Task<T> Get<T>(Func<Task<T>> task, CacheSetting settings)
         {
-            if (!_cache.TryGetValue(settings.key, out T cacheEntry))// Look for cache key.
+            if (!_cache.TryGetValue(settings.key, out CacheItem cacheEntry))// Look for cache key.
             {
+                cacheEntry = new CacheItem();
                 // Key not in cache, so get data.
-                cacheEntry = await task();
+                cacheEntry.Value = await task();
                 _cache.Set(settings.key, cacheEntry, GetOption(settings));
             }
 
-            if (settings.clone)
-                return cacheEntry.DeepClone();
-            else
-                return cacheEntry;
+            return (T)cacheEntry.Value;
         }
 
         public static T Get<T>(Func<T> task, string key, TimeSpan span)
@@ -44,22 +42,19 @@ namespace srtool
         }
         public static T Get<T>(Func<T> task, CacheSetting settings)
         {
-            if (!_cache.TryGetValue(settings.key, out T cacheEntry))// Look for cache key.
+            if (!_cache.TryGetValue(settings.key, out CacheItem cacheEntry))// Look for cache key.
             {
+                cacheEntry = new CacheItem();
                 // Key not in cache, so get data.
-                cacheEntry = task();
+                cacheEntry.Value = task();
                 _cache.Set(settings.key, cacheEntry, GetOption(settings));
             }
-
-            if (settings.clone)
-                return cacheEntry.DeepClone();
-            else
-                return cacheEntry;
+            return (T)cacheEntry.Value;
         }
         public static T Get<T>(string key)
         {
-            if (_cache.TryGetValue(key, out T cacheEntry))// Look for cache key.
-                return cacheEntry;
+            if (_cache.TryGetValue(key, out CacheItem cacheEntry))// Look for cache key.
+                return (T)cacheEntry.Value;
 
             return default;
         }
@@ -69,16 +64,20 @@ namespace srtool
         }
         public static void Set<T>(T value, CacheSetting settings)
         {
-            _cache.Set(settings.key, value, GetOption(settings));
+            _cache.Set(settings.key, new CacheItem() { Value = value }, GetOption(settings));
         }
         private static MemoryCacheEntryOptions GetOption(CacheSetting settings)
         {
             return new MemoryCacheEntryOptions()
              .SetSize(1)//Size amount
              .SetPriority(CacheItemPriority.High)
-             .SetSlidingExpiration(settings.timeLife)
+            // .SetSlidingExpiration(settings.timeLife)
              .SetAbsoluteExpiration(settings.absoloteLifeTime == null ? settings.timeLife : settings.absoloteLifeTime.Value);
         }
+    }
+    public class CacheItem
+    {
+        public object Value { get; set; }
     }
     public class CacheSetting
     {

@@ -59,16 +59,16 @@ namespace blueprint.modules.blueprint.controller
             return Ok();
         }
 
-        [Route("run-webhook")]
-        [HttpGet]
-        [AllowAnonymous]
-        [ProducesResponseType(200)]
-        public async Task<IActionResult> RunWithWebhook([FromQuery] string token)
-        {
-            var result = await BlueprintModule.Instance.Exec_webhooktoken(token);
-            if (result == null)
-                return NotFound(new { message = "Not found webhook-token." });
-            return Ok(result.output);
-        }
+        //[Route("run-webhook")]
+        //[HttpGet]
+        //[AllowAnonymous]
+        //[ProducesResponseType(200)]
+        //public async Task<IActionResult> RunWithWebhook([FromQuery] string token)
+        //{
+        //    var result = await BlueprintModule.Instance.Exec_webhooktoken(token);
+        //    if (result == null)
+        //        return NotFound(new { message = "Not found webhook-token." });
+        //    return Ok(result.output);
+        //}
     }
 }

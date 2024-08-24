@@ -83,8 +83,9 @@ namespace blueprint.modules.blueprint
             var index_token = $"webhook:{token}";
             var dbItem = await SuperCache.Get(async () =>
             {
-                return await dbContext.AsQueryable().Where(i => i.index_tokens.Contains(index_token)).FirstOrDefaultAsync();
-            }, new CacheSetting() { key = $"webhook_blueprint_" + index_token });
+                var item = await dbContext.AsQueryable().Where(i => i.index_tokens.Contains(index_token)).FirstOrDefaultAsync();
+                return item;
+            }, new CacheSetting() { key = $"webhook_blueprint_{index_token}", timeLife = TimeSpan.FromSeconds(60) });
 
 
             if (dbItem == null)
@@ -104,7 +105,7 @@ namespace blueprint.modules.blueprint
             IncExecution(dbItem);
 
             var response = new WebhookCallResponse();
-            response.output = webhookNode.node.get_output();
+            response.output = webhookNode.node.GetField("output");
             return response;
         }
 
@@ -132,13 +133,13 @@ namespace blueprint.modules.blueprint
             else
             {
                 item = new database.blueprint_model();
+                item.account_id = fromAccountId;
                 item.index_tokens = new List<string>();
                 item._id = ObjectId.GenerateNewId().ToString();
                 item.createDateTime = DateTime.UtcNow;
                 item.data_snapshot = new Blueprint().Snapshot();
             }
-
-            item.account_id = fromAccountId;
+            item.run = request.run;
 
             var changedBlueprint = await LoadBlueprint(item._id, request.blueprint);
             // var mainBlueprint = await LoadBlueprint(item._id, JObject.Parse(item.data_snapshot));
@@ -165,10 +166,10 @@ namespace blueprint.modules.blueprint
 
             await dbContext.ReplaceOneAsync(i => i._id == item._id, item, new ReplaceOptions() { IsUpsert = true });
 
-            HandleExternalProcess(id, changedBlocks, removedBlocks);
+            Handle_Pulse(id, changedBlocks, removedBlocks, item.run);
             return await Get(item._id, fromAccountId);
         }
-        private static void HandleExternalProcess(string id, List<Block> changedBlocks, List<Block> removedBlocks)
+        private static void Handle_Pulse(string id, List<Block> changedBlocks, List<Block> removedBlocks, bool run)
         {
             foreach (var block in changedBlocks)
             {
@@ -187,7 +188,11 @@ namespace blueprint.modules.blueprint
 
                             var _sm_id = $"pulse:{id}_{pulse.node.id}_{pulse.name}";
                             var delay = TimeSpan.FromSeconds(double.Parse(pulse.node.GetField(pulse.delayParam).ToString()));
-                            SchedulerModule.Instance.Upsert(_sm_id, delay, payload.ToString(), "node:pulse", true);
+
+                            if (run)
+                                SchedulerModule.Instance.Upsert(_sm_id, delay, payload.ToString(), "node:pulse", true);
+                            else
+                                SchedulerModule.Instance.Remove(_sm_id);
                         }
                     }
                 }
@@ -257,6 +262,7 @@ namespace blueprint.modules.blueprint
                     description = i.description,
                     createDateTime = i.createDateTime,
                     updateDateTime = i.updateDateTime,
+                    run = i.run,
                 },
                 accId = i.account_id,
                 snapshot = i.data_snapshot,
@@ -450,7 +456,7 @@ namespace blueprint.modules.blueprint
                 {
                     var blueprint = await LoadBlueprint(item._id, JObject.Parse(item.data_snapshot));
                     var newBlueprintSaveHandler = new BlueprintSaveHandler(blueprint);
-                    blueprint.onChangePersistentData += newBlueprintSaveHandler.doSave;
+                    blueprint.onChangeStaticData += newBlueprintSaveHandler.doSave;
                     return blueprint;
                 }
                 return null;

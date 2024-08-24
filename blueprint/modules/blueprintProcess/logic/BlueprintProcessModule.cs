@@ -90,7 +90,7 @@ namespace blueprint.modules.blueprintProcess.logic
 
                 return process;
 
-            }, new CacheSetting() { key = $"process_{id}", timeLife = TimeSpan.FromMinutes(1) });
+            }, new CacheSetting() { key = $"process_{id}", timeLife = TimeSpan.FromMinutes(10) });
 
 
         }
@@ -98,14 +98,34 @@ namespace blueprint.modules.blueprintProcess.logic
         {
             try
             {
-                SuperCache.Set(process, new CacheSetting() { key = $"process_{process.id}", timeLife = TimeSpan.FromMinutes(1) });
-                var dbProcess = new process_model();
-                dbProcess._id = process.id;
-                dbProcess.blueprint_id = process.blueprint.id;
-                dbProcess.createDateTime = DateTime.UtcNow;
-                dbProcess.snapshot = process.blueprint.Snapshot();
+                SuperCache.Set(process, new CacheSetting() { key = $"process_{process.id}", timeLife = TimeSpan.FromMinutes(10) });
 
-                await dbContext.ReplaceOneAsync(i => i._id == dbProcess._id, dbProcess, new ReplaceOptions() { IsUpsert = true });
+                var cKey = $"process_{process.id}_saving";
+                if (!SuperCache.Exist(cKey))
+                {
+                    SuperCache.Set(true, new CacheSetting() { key = cKey, timeLife = TimeSpan.FromSeconds(15) });
+
+                    await Task.Delay(TimeSpan.FromSeconds(10));
+
+                    process = SuperCache.Get<Process>(cKey);
+                    if (process != null)
+                    {
+                        var dbProcess = new process_model();
+                        dbProcess._id = process.id;
+                        dbProcess.blueprint_id = process.blueprint.id;
+                        dbProcess.createDateTime = DateTime.UtcNow;
+                        dbProcess.snapshot = process.blueprint.Snapshot();
+
+                        SuperCache.Set(dbProcess, new CacheSetting() { timeLife = TimeSpan.FromMinutes(1), key = $"process_{process.id}_save_item" });
+                        await dbContext.ReplaceOneAsync(i => i._id == dbProcess._id, dbProcess, new ReplaceOptions() { IsUpsert = true });
+                        SuperCache.Remove(cKey);
+                    }
+                }
+                else
+                {
+                    return;
+                }
+
             }
             catch (Exception e)
             {

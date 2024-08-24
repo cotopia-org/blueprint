@@ -10,15 +10,13 @@ namespace blueprint.modules.blueprint.core
 {
     public class Blueprint
     {
-        public event Action<Blueprint> onChangePersistentData;
+        public event Action<Blueprint> onChangeStaticData;
         public Process _process { get; set; }
 
 
         public string id { get; set; }
         public Dictionary<string, Field> fields { get; private set; }
-        public Dictionary<string, List<KeyValuePair<string, object>>> persistentNodeData { get; private set; }
         public List<Block> blocks { get; private set; }
-        public bool hasChange { get; set; }
         public Blueprint source { get; set; }
         public IEnumerable<blocks.Node> nodes
         {
@@ -30,7 +28,6 @@ namespace blueprint.modules.blueprint.core
         public Blueprint()
         {
             fields = new Dictionary<string, Field>();
-            persistentNodeData = new Dictionary<string, List<KeyValuePair<string, object>>>();
             blocks = new List<Block>();
         }
         public blocks.Node FindNodeWithName(string name)
@@ -80,9 +77,9 @@ namespace blueprint.modules.blueprint.core
         }
 
 
-        public void InvokeOnChangePersistentData()
+        public void InvokeOnChangeStaticData()
         {
-            onChangePersistentData?.Invoke(this);
+            onChangeStaticData?.Invoke(this);
         }
     }
 }

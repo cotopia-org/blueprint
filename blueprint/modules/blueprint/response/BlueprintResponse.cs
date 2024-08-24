@@ -10,7 +10,7 @@ namespace blueprint.modules.blueprint.response
         public string id { get; set; }
         public string title { get; set; }
         public AccountResponse creator { get; set; }
-
+        public bool run { get; set; }
         public string description { get; set; }
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public JObject blueprint { get; set; }
