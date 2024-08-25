@@ -11,6 +11,7 @@ namespace blueprint.modules.blueprint.core
     public class Blueprint
     {
         public event Action<Blueprint> onChangeStaticData;
+        public event Action<Blueprint, object> onResponse;
         public Process _process { get; set; }
 
 
@@ -80,6 +81,11 @@ namespace blueprint.modules.blueprint.core
         public void InvokeOnChangeStaticData()
         {
             onChangeStaticData?.Invoke(this);
+        }
+
+        public void Response(core.blocks.Node node, object value)
+        {
+            onResponse?.Invoke(this, value);
         }
     }
 }

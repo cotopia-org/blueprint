@@ -70,13 +70,17 @@ namespace blueprint.modules.blueprint.runtime
         {
             node.set_static_data(name, value);
         }
-        public void set_output(object value)
+        public void set_result(object value)
         {
-            node.set_output(value);
+            node.set_result(value);
         }
-        public object get_output()
+        public object get_result()
         {
-            return node.get_output();
+            return node.get_result();
+        }
+        public void blueprint_response(object value)
+        {
+            node.bind_blueprint.Response(node, value);
         }
         public void wait(int sec, string function)
         {

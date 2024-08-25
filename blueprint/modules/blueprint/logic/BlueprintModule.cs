@@ -105,6 +105,10 @@ namespace blueprint.modules.blueprint
             IncExecution(dbItem);
 
             var response = new WebhookCallResponse();
+
+            process.blueprint.onResponse += (blueprint, value) => { };
+
+
             response.output = webhookNode.node.GetField("output");
             return response;
         }

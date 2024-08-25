@@ -18,11 +18,7 @@ namespace blueprint.modules.blueprint.core
                 @"
 function start()
 {
-    var counter = node.get_static_data(""counter"",0);
-    counter = counter + 1;
-    node.set_static_data(""counter"",counter);
-
-    node.print(node.field(""text"") + "" "" + counter);
+    node.print(node.field(""text"") );
     node.next();
 }
 "
@@ -45,7 +41,7 @@ function start()
 @"
 function start()
 {
-    node.set_output(node.field(""output"")); 
+    node.set_result(node.field(""output"")); 
     node.next();
 }
 "
@@ -59,6 +55,30 @@ function start()
 
             return node;
         }
+        public static Node _response_node(string token)
+        {
+            var node = new Node();
+
+            node.id = util.GenerateId();
+            node.name = "response-node";
+            node.script =
+                new Script(
+@"
+function start()
+{
+    node.set_result(node.field(""value"")); 
+}
+"
+);
+            node.SetField("next", new List<Field>());
+
+            var webhook = node.AddComponent<Webhook>();
+            webhook.name = "c1";
+            webhook.token = token;
+
+            return node;
+        }
+
         public static Node _start_node()
         {
             var node = new Node();

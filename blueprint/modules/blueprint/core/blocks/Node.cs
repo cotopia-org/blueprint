@@ -88,13 +88,13 @@ namespace blueprint.modules.blueprint.core.blocks
         {
             return fields.GetArraySize(address);
         }
-        public void set_output(object value)
+        public void set_result(object value)
         {
-            set_data("_$$_OUTPUT_$$_", value);
+            set_data("_$$_RESULT_$$_", value);
         }
-        public object get_output()
+        public object get_result()
         {
-            return get_data("_$$_OUTPUT_$$_", null);
+            return get_data("_$$_RESULT_$$_", null);
         }
         public object get_data(string name, object alter)
         {
