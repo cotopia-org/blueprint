@@ -14,7 +14,6 @@ namespace blueprint.modules.blueprint.core
         public event Action<Blueprint, object> onResponse;
         public Process _process { get; set; }
 
-
         public string id { get; set; }
         public Dictionary<string, Field> fields { get; private set; }
         public List<Block> blocks { get; private set; }

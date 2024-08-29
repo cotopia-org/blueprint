@@ -6,96 +6,96 @@ using MongoDB.Driver.Linq;
 using srtool;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Security.Cryptography;
 
 namespace blueprint.core.CRUD
 {
-    public class EntityCRUD<T> where T : DBItemBase
+    public class MongoCRUD_Handler<T>
     {
-        public TimeSpan CacheTime { get; set; }
-        public IMongoCollection<T> DbContext { get; private set; }
-        private string PREFIX_CACHE_KEY { get; set; }
-        public EntityCRUD(IMongoCollection<T> dbContext)
+        private IMongoCollection<T> collection { get; set; }
+        private string PREFIX_CACHE_KEY = "A11";
+        public MongoCRUD_Handler(IMongoCollection<T> collection)
         {
-            DbContext = dbContext;
-            PREFIX_CACHE_KEY = $"EntityCRUD_{GetHashCode()}";
-            CacheTime = TimeSpan.FromSeconds(0);
+            this.collection = collection;
         }
-
-        public async Task<T> Upsert(T item)
+        public async Task Create(T item)
         {
-            var _dbItem = (DBItemBase)item;
-            var result = await DbContext.ReplaceOneAsync(i => i._id == _dbItem._id, item, new ReplaceOptions { IsUpsert = true });
-            if (result.IsAcknowledged && result.ModifiedCount == 0 && result.UpsertedId != BsonValue.Create(ObjectId.Empty))
+            await collection.InsertOneAsync(item);
+            string _id = ((dynamic)item)._id;
+            SuperCache.Set<T>(item, new CacheSetting() { timeLife = TimeSpan.FromSeconds(60), key = $"{PREFIX_CACHE_KEY}:{_id}" });
+
+        }
+        public async Task<bool> Update(T item)
+        {
+            dynamic _dbItem = item;
+            string _id = _dbItem._id;
+            var result = await collection.ReplaceOneAsync(Builders<T>.Filter.Eq("_id", _id), item);
+            if (result.IsAcknowledged && result.ModifiedCount > 0)
             {
-                _dbItem._id = result.UpsertedId.AsObjectId;
-                _dbItem.createDateTime = DateTime.UtcNow;
+                SuperCache.Set<T>(item, new CacheSetting() { timeLife = TimeSpan.FromSeconds(60), key = $"{PREFIX_CACHE_KEY}:{_id}" });
+                return true;
             }
             else
-            if (result.IsAcknowledged && result.ModifiedCount == 1)
-            {
-                _dbItem.updateDateTime = DateTime.UtcNow;
-            }
-
-            SuperCache.Set<T>(item, new CacheSetting() { timeLife = CacheTime, key = $"{PREFIX_CACHE_KEY}_{_dbItem._id}" });
-
-            return item;
+                return false;
         }
-        public async Task<T> Read(ObjectId id)
+        public async Task<T> Read(string id)
         {
-            if (!SuperCache.Exist($"{PREFIX_CACHE_KEY}_{id}"))
+            if (!SuperCache.Exist($"{PREFIX_CACHE_KEY}:{id}"))
             {
-                var item = await DbContext.Find(i => i._id == id).FirstOrDefaultAsync();
-                SuperCache.Set<T>(item, new CacheSetting() { timeLife = CacheTime, key = $"{PREFIX_CACHE_KEY}_{id}" });
+                var item = await collection.Find(Builders<T>.Filter.Eq("_id", id)).FirstOrDefaultAsync();
+                SuperCache.Set<T>(item, new CacheSetting() { timeLife = TimeSpan.FromSeconds(60), key = $"{PREFIX_CACHE_KEY}:{id}" });
                 return item;
             }
             else
             {
-                var item = SuperCache.Get<T>($"{PREFIX_CACHE_KEY}_{id}");
+                var item = SuperCache.Get<T>($"{PREFIX_CACHE_KEY}:{id}");
                 return item;
             }
         }
         public async Task<PaginationResponse<T>> Read(Expression<Func<T, bool>> whereExpression, int page, int perPage)
         {
-            await DbContext.AsQueryable().Where(whereExpression).ToListAsync();
+            await collection.AsQueryable().Where(whereExpression).ToListAsync();
             return new PaginationResponse<T>();
         }
 
-        public async Task<List<T>> Read(IList<ObjectId> ids)
+        public async Task<List<T>> Read(IEnumerable<string> ids)
         {
-            var _notExist = new List<ObjectId>();
+            var _notExist = new List<string>();
             var items = new List<T>();
             foreach (var id in ids)
             {
-                if (!SuperCache.Exist($"{PREFIX_CACHE_KEY}_{id}"))
+                if (!SuperCache.Exist($"{PREFIX_CACHE_KEY}:{id}"))
                 {
                     _notExist.Add(id);
                 }
                 else
                 {
-                    var _cacheItem = SuperCache.Get<T>($"{PREFIX_CACHE_KEY}_{id}");
+                    var _cacheItem = SuperCache.Get<T>($"{PREFIX_CACHE_KEY}:{id}");
                     if (_cacheItem != null)
                         items.Add(_cacheItem);
                 }
             }
             if (_notExist.Count > 0)
             {
-                var _newItems = await DbContext.Find(i => _notExist.Contains(i._id)).ToListAsync();
+                var _newItems = await collection.Find(Builders<T>.Filter.In("_id", _notExist)).ToListAsync();
 
                 foreach (var item in _newItems)
                 {
                     items.Add(item);
-                    SuperCache.Set<T>(item, new CacheSetting() { timeLife = CacheTime, key = $"{PREFIX_CACHE_KEY}_{item._id}" });
+                    string _id = ((dynamic)item)._id;
+
+                    SuperCache.Set<T>(item, new CacheSetting() { timeLife = TimeSpan.FromSeconds(60), key = $"{PREFIX_CACHE_KEY}:{_id}" });
                 }
             }
 
-            return ids.Select(i => items.FirstOrDefault(j => j._id == i)).Where(i => i != null).ToList();
+            return ids.Select(i => items.FirstOrDefault(j => (string)((dynamic)j)._id == i)).Where(i => i != null).ToList();
         }
         public async Task<bool> Delete(ObjectId id)
         {
-            var result = await DbContext.DeleteOneAsync(i => i._id == id);
+            var result = await collection.DeleteOneAsync(Builders<T>.Filter.Eq("_id", id));
             if (result.IsAcknowledged && result.DeletedCount > 0)
             {
-                SuperCache.Remove($"{PREFIX_CACHE_KEY}_{id}");
+                SuperCache.Remove($"{PREFIX_CACHE_KEY}:{id}");
                 return true;
             }
             else
@@ -103,19 +103,32 @@ namespace blueprint.core.CRUD
                 return false;
             }
         }
-        public async Task<int> Delete(IList<ObjectId> ids)
+        public async Task<int> Delete(IEnumerable<string> ids)
         {
-            var result = await DbContext.DeleteManyAsync(i => ids.Contains(i._id));
+            var result = await collection.DeleteManyAsync(Builders<T>.Filter.In("_id", ids));
             if (result.IsAcknowledged && result.DeletedCount > 0)
             {
                 foreach (var id in ids)
                 {
-                    SuperCache.Remove($"{PREFIX_CACHE_KEY}_{id}");
+                    SuperCache.Remove($"{PREFIX_CACHE_KEY}:{id}");
                 }
                 return (int)result.DeletedCount;
             }
             else
                 return 0;
+        }
+        public async Task<long> Count()
+        {
+            if (!SuperCache.Exist($"{PREFIX_CACHE_KEY}:count"))
+            {
+                long count = await collection.CountDocumentsAsync(Builders<T>.Filter.Empty);
+                SuperCache.Set(count, new CacheSetting() { key = $"{PREFIX_CACHE_KEY}:count", timeLife = TimeSpan.FromSeconds(60) });
+                return count;
+            }
+            else
+            {
+                return SuperCache.Get<long>($"{PREFIX_CACHE_KEY}:count");
+            }
         }
     }
 }

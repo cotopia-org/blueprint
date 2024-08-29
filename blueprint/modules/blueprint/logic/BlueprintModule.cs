@@ -26,7 +26,6 @@ namespace blueprint.modules.blueprint
             await base.RunAsync();
             dbContext = DatabaseModule.Instance.database.GetCollection<database.blueprint_model>("blueprint");
             Indexing();
-
             SchedulerModule.Instance.OnAction += Instance_OnAction;
         }
         private async void Indexing()
@@ -41,7 +40,6 @@ namespace blueprint.modules.blueprint
                 Debug.Error(e);
             }
         }
-
         private void Instance_OnAction(scheduler.database.SchedulerResponse item)
         {
             if (item.category == "node:pulse")
@@ -52,7 +50,6 @@ namespace blueprint.modules.blueprint
                 Exec_pulse(blueprint_id, node_id);
             }
         }
-
         public async void Exec_pulse(string blueprint_id, string node_id)
         {
             try
@@ -146,14 +143,12 @@ namespace blueprint.modules.blueprint
             item.run = request.run;
 
             var changedBlueprint = await LoadBlueprint(item._id, request.blueprint);
-            // var mainBlueprint = await LoadBlueprint(item._id, JObject.Parse(item.data_snapshot));
             var mainBlueprint = await GetBlueprint(item._id);
 
             var changedBlocks = new List<Block>();
             var removedBlocks = new List<Block>();
 
             await ApplyChanges(mainBlueprint, changedBlueprint, changedBlocks, removedBlocks);
-
 
             item.title = request.title;
             item.description = request.description;
@@ -448,8 +443,6 @@ namespace blueprint.modules.blueprint
                 }
             }
         }
-
-
 
         public async Task<Blueprint> GetBlueprint(string id)
         {
