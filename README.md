@@ -1,4 +1,4 @@
-# Blueprint document
+# Blueprint
 ## Overview
 This system is designed as a versatile workflow automation platform that allows users to create and manage automated workflows between various applications, services, and data sources. It empowers users to streamline processes and reduce manual intervention by connecting different tools in a cohesive, automated manner.
 
