@@ -187,9 +187,8 @@ function on_pulse()
 function start()
 {
     var operator = node.field(""operator"");
-    var valueA = node.field(""valueA"");
+    var valueA = node.field(""valueA""); 
     var valueB = node.field(""valueB"");
-
     var comparisonResult = false;
     var output_name = ""next_false"";
     switch (operator) {
