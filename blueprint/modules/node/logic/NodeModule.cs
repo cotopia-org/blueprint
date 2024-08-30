@@ -1,8 +1,6 @@
 ﻿using blueprint.core;
 using blueprint.modules.account;
 using blueprint.modules.blueprint.core;
-using blueprint.modules.blueprint.core.component;
-using blueprint.modules.blueprint.request;
 using blueprint.modules.database.logic;
 using blueprint.modules.drive.logic;
 using blueprint.modules.node.database;
@@ -14,6 +12,7 @@ using MongoDB.Driver.Linq;
 using Newtonsoft.Json.Linq;
 using srtool;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace blueprint.modules.node.logic
 {
@@ -24,8 +23,10 @@ namespace blueprint.modules.node.logic
         {
             await base.RunAsync();
             dbContext = DatabaseModule.Instance.database.GetCollection<database.node>("node");
+            await AutoLoadBuiltinNodes();
+            /*
             {
-                var node = builtin_nodes._log_node();
+                var node = new LogNode().Node();
                 var dbItem = new database.node();
                 dbItem._id = "65c4115a0111a5ca6bd473c6";
                 dbItem.title = "log";
@@ -39,7 +40,7 @@ namespace blueprint.modules.node.logic
             }
             ////////////////////////////////////////
             {
-                var node = builtin_nodes._delay_node();
+                var node = new DelayNode().Node();
                 var dbItem = new database.node();
                 dbItem._id = "65c4115a0111a5ca6bd472c4";
                 dbItem.title = "delay";
@@ -54,7 +55,7 @@ namespace blueprint.modules.node.logic
             }
             /////////////////////////////////////////
             {
-                var node = builtin_nodes._webhook_node(null);
+                var node = new WebhookNode().Node();
                 var dbItem = new database.node();
                 dbItem._id = "65c4115a0111a5ca6bd122c2";
                 dbItem.title = "web hook";
@@ -70,7 +71,7 @@ namespace blueprint.modules.node.logic
             }
             ///////////////////////////////////////////
             {
-                var node = builtin_nodes._pulse_node();
+                var node = new PulseNode().Node();
                 var dbItem = new database.node();
                 dbItem._id = "65c4115a0111a5ca6bd022c2";
                 dbItem.title = "pulse";
@@ -86,7 +87,7 @@ namespace blueprint.modules.node.logic
             }
             /////////////////////////////////////////
             {
-                var node = builtin_nodes._condition_node();
+                var node = new ConditionNode().Node();
                 var dbItem = new database.node();
                 dbItem._id = "65c4115a0111a5ca6bd021c7";
                 dbItem.title = "condition";
@@ -102,7 +103,7 @@ namespace blueprint.modules.node.logic
             }
             //////////////////////////////////////////
             {
-                var node = builtin_nodes._branch_node();
+                var node = new BranchNode().Node();
                 var dbItem = new database.node();
                 dbItem._id = "65c4115a0111a2ca6cd021a9";
                 dbItem.title = "branch";
@@ -117,23 +118,63 @@ namespace blueprint.modules.node.logic
                 await dbContext.ReplaceOneAsync(i => i._id == dbItem._id, dbItem, new ReplaceOptions() { IsUpsert = true });
             }
             //////////////////////////////////////////
+            //{
+            //    var node = builtin_nodes._test_node();
+            //    var dbItem = new database.node();
+            //    dbItem._id = "65c4115a0111a3ca6cd041c2";
+            //    dbItem.title = "test_node";
+
+            //    dbItem.name = node.name;
+            //    dbItem.data = BlueprintSnapshot.JsonSnapshot(node).ToString(Newtonsoft.Json.Formatting.None);
+            //    dbItem.script = node.script.code;
+
+            //    dbItem.updateDateTime = DateTime.UtcNow;
+            //    dbItem.createDateTime = DateTime.UtcNow;
+
+            //    await dbContext.ReplaceOneAsync(i => i._id == dbItem._id, dbItem, new ReplaceOptions() { IsUpsert = true });
+            //}
+
+            */
+        }
+        private async Task AutoLoadBuiltinNodes()
+        {
+            // Get the assembly where ClassA is defined
+            var assembly = Assembly.GetAssembly(typeof(NodeBuilder));
+
+            // Get all types in the assembly
+            var types = assembly.GetTypes();
+
+            // Find all types that derive from ClassA
+            var derivedTypes = types
+                      .Where(t => t.IsClass && t.BaseType == typeof(NodeBuilder))
+                      .ToList();
+
+            foreach (var type in derivedTypes)
             {
-                var node = builtin_nodes._test_node();
-                var dbItem = new database.node();
-                dbItem._id = "65c4115a0111a3ca6cd041c2";
-                dbItem.title = "test_node";
+                try
+                {
+                    var baseClass = (NodeBuilder)Activator.CreateInstance(type);
 
-                dbItem.name = node.name;
-                dbItem.data = BlueprintSnapshot.JsonSnapshot(node).ToString(Newtonsoft.Json.Formatting.None);
-                dbItem.script = node.script.code;
+                    var node = baseClass.Node();
+                    var dbItem = new database.node();
+                    dbItem._id = baseClass.id;
+                    dbItem.name = baseClass.name;
 
-                dbItem.updateDateTime = DateTime.UtcNow;
-                dbItem.createDateTime = DateTime.UtcNow;
+                    dbItem.title = baseClass.title;
+                    dbItem.data = BlueprintSnapshot.JsonSnapshot(node).ToString(Newtonsoft.Json.Formatting.None);
+                    dbItem.script = node.script.code;
 
-                await dbContext.ReplaceOneAsync(i => i._id == dbItem._id, dbItem, new ReplaceOptions() { IsUpsert = true });
+                    dbItem.updateDateTime = new DateTime(2020, 1, 1);
+                    dbItem.createDateTime = new DateTime(2020, 1, 1);
+
+                    await dbContext.ReplaceOneAsync(i => i._id == dbItem._id, dbItem, new ReplaceOptions() { IsUpsert = true });
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.ToString());
+                }
+
             }
-
-            
         }
         public async Task<NodeResponse> Upsert(string id, NodeRequest request, string fromAccountId)
         {
