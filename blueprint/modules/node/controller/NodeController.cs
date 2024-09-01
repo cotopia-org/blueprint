@@ -8,7 +8,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace blueprint.modules.node.controller
 {
-    [Tags("node")]
+    [Tags("Node")]
     [ApiController]
     [Route("v1/nodes")]
     public class NodeController : ControllerBase

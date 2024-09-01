@@ -12,7 +12,7 @@ using blueprint.modules.scheduler.logic;
 using Newtonsoft.Json.Linq;
 using blueprint.modules.blueprint.core.fields;
 using blueprint.modules.blueprintProcess.logic;
-using blueprint.modules.processlog.logic;
+using blueprint.modules.blueprintlog.logic;
 namespace blueprint.modules._global
 {
     public class SystemModule : Module<SystemModule>

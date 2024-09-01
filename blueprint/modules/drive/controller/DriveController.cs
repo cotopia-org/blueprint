@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace blueprint.modules.drive.controller
 {
-    [Tags("drive")]
+    [Tags("Drive")]
     [ApiController]
     [Route("v1/drive")]
     public class DriveController : ControllerBase

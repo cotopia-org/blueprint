@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace blueprint.modules.webhook.controller
 {
-    [Tags("webhook")]
+    [Tags("Webhook")]
     public class webhookController : ControllerBase
     {
         [Route("v1/webhooks/{token}")]

@@ -1,4 +1,4 @@
-﻿namespace blueprint.modules.log.response
+﻿namespace blueprint.modules.blueprintlog.response
 {
     public class LogResponse
     {

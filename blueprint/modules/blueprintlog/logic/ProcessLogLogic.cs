@@ -3,15 +3,15 @@ using blueprint.modules.account.database;
 using blueprint.modules.account.response;
 using blueprint.modules.database.logic;
 using blueprint.modules.drive.logic;
-using blueprint.modules.log.response;
-using blueprint.modules.processlog.database;
+using blueprint.modules.blueprintlog.database;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 
 using srtool;
+using blueprint.modules.blueprintlog.response;
 
-namespace blueprint.modules.processlog.logic
+namespace blueprint.modules.blueprintlog.logic
 {
     public class ProcessLogLogic : Module<ProcessLogLogic>
     {
@@ -44,25 +44,32 @@ namespace blueprint.modules.processlog.logic
             }
         }
 
-        public async Task<PaginationResponse<LogResponse>> List(string blueprint_id, Pagination pagination)
+        public async Task<PaginationResponse<LogResponse>> List(string blueprint_id, string process_id, Pagination pagination)
         {
             var result = new PaginationResponse<LogResponse>();
+            var query = dbContext.AsQueryable();
+            if (blueprint_id != null)
+                query = query.Where(i => i.blueprint_id == blueprint_id);
 
-            var _q = dbContext.AsQueryable()
-                  .Where(i => i.blueprint_id == blueprint_id).OrderByDescending(i => i.createDateTime)
-                  .Skip(pagination.Skip)
-                  .Take(pagination.Take);
-            var count = await dbContext.AsQueryable()
-                  .Where(i => i.blueprint_id == blueprint_id).LongCountAsync();
-            var dbItems = await _q.ToListAsync();
+            if (process_id != null)
+                query = query.Where(i => i.process_id == process_id);
+
+            var dbItems = await query.OrderByDescending(i => i.createDateTime).Skip(pagination.Skip).Take(pagination.Take).ToListAsync();
 
             result.items = await List(dbItems);
             result.page = pagination.Page;
             result.perPage = pagination.PerPage;
-            result.total = count;
+            result.total = await query.LongCountAsync();
             return result;
         }
-
+        public async Task DeleteBlueprintLogs(string id)
+        {
+            await dbContext.DeleteManyAsync(Builders<log_model>.Filter.Eq(i => i.blueprint_id, id));
+        }
+        public async Task DeleteLogId(string id)
+        {
+            await dbContext.DeleteManyAsync(Builders<log_model>.Filter.Eq(i => i._id, id));
+        }
         public async Task<List<LogResponse>> List(List<string> ids, string fromAccountId = null)
         {
             if (ids == null)

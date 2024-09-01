@@ -1,5 +1,5 @@
 ﻿using blueprint.modules.blueprintProcess.logic;
-using blueprint.modules.processlog.logic;
+using blueprint.modules.blueprintlog.logic;
 using Microsoft.ClearScript;
 using System.Net;
 

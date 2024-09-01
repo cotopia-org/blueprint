@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace blueprint.modules.drive.controller
 {
-    [Tags("drive-file")]
+    [Tags("Frive-file")]
     [ApiController]
     [Route("v1/drive/files")]
     public class FileController : ControllerBase

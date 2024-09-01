@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace blueprint.modules.account.controller
 {
-    [Tags("account")]
+    [Tags("Account")]
     [ApiController]
     [Route("v1/accounts")]
     public class AccountController : ControllerBase

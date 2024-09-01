@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace blueprint.modules.auth.controller
 {
-    [Tags("auth")]
+    [Tags("Auth")]
     [ApiController]
     [Route("v1/auth")]
     public class AuthController : ControllerBase

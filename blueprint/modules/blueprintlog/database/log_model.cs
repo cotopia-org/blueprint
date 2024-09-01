@@ -1,7 +1,7 @@
 ﻿using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson;
 
-namespace blueprint.modules.processlog.database
+namespace blueprint.modules.blueprintlog.database
 {
     [BsonIgnoreExtraElements]
     public class log_model

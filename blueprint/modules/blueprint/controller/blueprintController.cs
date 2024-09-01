@@ -1,8 +1,7 @@
 ﻿using blueprint.core;
 using blueprint.modules.blueprint.request;
 using blueprint.modules.blueprint.response;
-using blueprint.modules.log.response;
-using blueprint.modules.processlog.logic;
+using blueprint.modules.blueprintlog.logic;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using srtool;
@@ -10,10 +9,10 @@ using System.ComponentModel.DataAnnotations;
 
 namespace blueprint.modules.blueprint.controller
 {
-    [Tags("blueprint")]
+    [Tags("Blueprint")]
     [ApiController]
     [Route("v1/blueprints")]
-    public class blueprintController : ControllerBase
+    public class BlueprintController : ControllerBase
     {
         [HttpPost]
         [AuthRequire()]
@@ -59,19 +58,6 @@ namespace blueprint.modules.blueprint.controller
         {
             await Task.Yield();
             return Ok();
-        }
-
-
-
-        [Route("{id}/logs")]
-        [HttpGet]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(typeof(PaginationResponse<LogResponse>), 200)]
-        public async Task<IActionResult> LogList([FromRoute] string id, [FromQuery] int page = 1, [FromQuery] int perPage = 50)
-        {
-            var result = await ProcessLogLogic.Instance
-                .List(id, new Pagination(page, perPage));
-            return Ok(result);
         }
     }
 }
