@@ -1,6 +1,8 @@
 ﻿using blueprint.core;
 using blueprint.modules.blueprint.request;
 using blueprint.modules.blueprint.response;
+using blueprint.modules.log.response;
+using blueprint.modules.processlog.logic;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using srtool;
@@ -59,16 +61,17 @@ namespace blueprint.modules.blueprint.controller
             return Ok();
         }
 
-        //[Route("run-webhook")]
-        //[HttpGet]
-        //[AllowAnonymous]
-        //[ProducesResponseType(200)]
-        //public async Task<IActionResult> RunWithWebhook([FromQuery] string token)
-        //{
-        //    var result = await BlueprintModule.Instance.Exec_webhooktoken(token);
-        //    if (result == null)
-        //        return NotFound(new { message = "Not found webhook-token." });
-        //    return Ok(result.output);
-        //}
+
+
+        [Route("{id}/logs")]
+        [HttpGet]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(typeof(PaginationResponse<LogResponse>), 200)]
+        public async Task<IActionResult> LogList([FromRoute] string id, [FromQuery] int page = 1, [FromQuery] int perPage = 50)
+        {
+            var result = await ProcessLogLogic.Instance
+                .List(id, new Pagination(page, perPage));
+            return Ok(result);
+        }
     }
 }

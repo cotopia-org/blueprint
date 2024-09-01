@@ -30,7 +30,6 @@
     <Folder Include="modules\blueprintProcess\controller\" />
     <Folder Include="modules\blueprintProcess\response\" />
     <Folder Include="modules\blueprintProcess\request\" />
-    <Folder Include="modules\loginsession\" />
     <Folder Include="modules\entity\" />
     <Folder Include="modules\processlog\request\" />
     <Folder Include="modules\process\controller\" />

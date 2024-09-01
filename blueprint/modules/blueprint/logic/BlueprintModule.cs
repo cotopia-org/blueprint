@@ -3,7 +3,6 @@ using blueprint.modules.account;
 using blueprint.modules.blueprint.core;
 using blueprint.modules.blueprint.core.blocks;
 using blueprint.modules.blueprint.core.component;
-using blueprint.modules.blueprint.database;
 using blueprint.modules.blueprint.request;
 using blueprint.modules.blueprint.response;
 using blueprint.modules.blueprintProcess.logic;
@@ -18,7 +17,7 @@ using srtool;
 
 namespace blueprint.modules.blueprint
 {
-    public class BlueprintModule : Module<BlueprintModule>
+    public partial class BlueprintModule : Module<BlueprintModule>
     {
         public IMongoCollection<database.blueprint_model> dbContext { get; private set; }
         public override async Task RunAsync()
@@ -459,39 +458,6 @@ namespace blueprint.modules.blueprint
                 return null;
 
             }, new CacheSetting() { key = $"blueprint_{id}", timeLife = TimeSpan.FromMinutes(5) });
-        }
-
-        public class BlueprintSaveHandler
-        {
-            public Blueprint blueprint;
-            bool saving = false;
-            public BlueprintSaveHandler(Blueprint blueprint)
-            {
-                this.blueprint = blueprint;
-            }
-            public async void doSave(Blueprint blueprint)
-            {
-                try
-                {
-                    if (!saving)
-                    {
-                        saving = true;
-                        await Task.Delay(10000);
-
-                        await BlueprintModule.Instance.dbContext.UpdateOneAsync(
-                            Builders<blueprint_model>.Filter.Eq(i => i._id, blueprint.id),
-                            Builders<blueprint_model>.Update.Set(i => i.data_snapshot, blueprint.Snapshot()));
-
-                        saving = false;
-                    }
-                }
-                catch (Exception e)
-                {
-                    Debug.Error(e);
-                    saving = false;
-                }
-
-            }
         }
     }
 }

@@ -52,13 +52,14 @@ namespace blueprint.modules.processlog.logic
                   .Where(i => i.blueprint_id == blueprint_id).OrderByDescending(i => i.createDateTime)
                   .Skip(pagination.Skip)
                   .Take(pagination.Take);
-
+            var count = await dbContext.AsQueryable()
+                  .Where(i => i.blueprint_id == blueprint_id).LongCountAsync();
             var dbItems = await _q.ToListAsync();
 
             result.items = await List(dbItems);
             result.page = pagination.Page;
             result.perPage = pagination.PerPage;
-            result.total = -1;
+            result.total = count;
             return result;
         }
 

@@ -24,10 +24,6 @@ namespace blueprint.modules.blueprint.runtime
         {
             this.node = node;
         }
-        public void print(object log)
-        {
-            Console.WriteLine($"Print :{log}");
-        }
         public void next()
         {
             node.ExecuteNode("next");

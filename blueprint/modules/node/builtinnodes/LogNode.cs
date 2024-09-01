@@ -14,7 +14,7 @@ namespace blueprint.modules.node.builtinnodes
         public override string script => @"
 function start()
 {
-    node.print(node.field(""text"") );
+    node.log(node.field(""text"") );
     node.next();
 }
 ";

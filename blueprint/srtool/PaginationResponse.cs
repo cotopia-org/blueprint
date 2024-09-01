@@ -6,7 +6,7 @@ namespace srtool
     {
         public int page { get; set; }
         public int perPage { get; set; }
-        public int total { get; set; }
+        public long total { get; set; }
         public List<Item> items { get; set; }
     }
 }
