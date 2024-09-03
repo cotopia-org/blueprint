@@ -70,7 +70,7 @@ namespace blueprint.modules.blueprint.core.blocks
         }
         public Node find_byname(string name)
         {
-           return this.bind_blueprint.nodes.FirstOrDefault(i => i.name == name);
+            return this.bind_blueprint.nodes.FirstOrDefault(i => i.name == name);
         }
         public void ExecuteNode(string address, int position)
         {
@@ -205,6 +205,11 @@ namespace blueprint.modules.blueprint.core.blocks
                     return true;
             }
             return false;
+        }
+
+        public void webresponse(int statusCode, object value)
+        {
+            bind_blueprint?.SetWebResponse(new WebResponse() { statusCode = statusCode, Content = value?.ToString() });
         }
     }
 }

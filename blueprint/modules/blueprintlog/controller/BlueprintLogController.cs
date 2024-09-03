@@ -22,7 +22,7 @@ namespace blueprint.modules.blueprintlog.controller
         }
         [HttpDelete("{id}/logs")]
         [ProducesResponseType(200)]
-        public async Task<IActionResult> Delete([FromRoute] string id)
+        public async Task<IActionResult> DeleteBlueprintLogs([FromRoute] string id)
         {
             await ProcessLogLogic.Instance.DeleteBlueprintLogs(id: id);
             return Ok();
@@ -30,16 +30,16 @@ namespace blueprint.modules.blueprintlog.controller
 
         [HttpGet("logs/{id}")]
         [ProducesResponseType(typeof(LogResponse), 200)]
-        public async Task<IActionResult> Get([FromRoute] string id, [FromQuery] int page = 1, [FromQuery] int perPage = 50)
+        public async Task<IActionResult> Get([FromRoute] string id)
         {
-            await Task.Yield();
-            return Ok();
+            var result = await ProcessLogLogic.Instance.Get(id);
+            return Ok(result);
         }
         [HttpDelete("logs/{id}")]
         [ProducesResponseType(200)]
-        public async Task<IActionResult> DeleteItem([FromRoute] string id)
+        public async Task<IActionResult> DeleteLog([FromRoute] string id)
         {
-            await Task.Yield();
+            await ProcessLogLogic.Instance.DeleteLog(id: id);
             return Ok();
         }
     }

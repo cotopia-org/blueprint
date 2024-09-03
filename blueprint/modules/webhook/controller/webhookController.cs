@@ -14,7 +14,13 @@ namespace blueprint.modules.webhook.controller
             var result = await BlueprintModule.Instance.Exec_webhooktoken(token);
             if (result == null)
                 return NotFound(new { message = "Not found webhook-token." });
-            return Ok(result.output);
+            //else
+            //    if (result.statusCode == 200)
+            //    return Ok(result.text);
+            //else
+            //    return BadRequest();
+
+            return new ContentResult() { StatusCode = result.statusCode, Content = result.Content, ContentType = "text/plain" };
         }
     }
 }

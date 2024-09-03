@@ -74,7 +74,7 @@ namespace blueprint.modules.blueprint
                 Debug.Error(e);
             }
         }
-        public async Task<WebhookCallResponse> Exec_webhooktoken(string token)
+        public async Task<WebResponse> Exec_webhooktoken(string token)
         {
             var index_token = $"webhook:{token}";
             var dbItem = await SuperCache.Get(async () =>
@@ -90,23 +90,18 @@ namespace blueprint.modules.blueprint
             var sourceBlueprint = await GetBlueprint(dbItem._id);
             var process = await BlueprintProcessModule.Instance.CreateProcess(sourceBlueprint, dbItem.data_snapshot);
 
-            var webhooks = process.blueprint.FindComponents<Webhook>();
-
-            var webhookNode = webhooks.FirstOrDefault(i => i.token == token);
+            var webhookNode = process.blueprint.FindComponents<Webhook>().Where(i => i.token == token).Select(i => i.node).FirstOrDefault();
             if (webhookNode == null)
                 return null;
 
-            webhookNode.node.CallStart();
+            webhookNode.CallStart();
 
             IncExecution(dbItem);
 
-            var response = new WebhookCallResponse();
+            //var timeout = TimeSpan.FromSeconds(Convert.ToInt32(webhookNode.GetField("timeout")));
+            var result = await process.blueprint.WaitForWebResponse(TimeSpan.FromSeconds(10));
 
-            process.blueprint.onResponse += (blueprint, value) => { };
-
-
-            response.output = webhookNode.node.GetField("output");
-            return response;
+            return result;
         }
 
         private async void IncExecution(database.blueprint_model dbItem)

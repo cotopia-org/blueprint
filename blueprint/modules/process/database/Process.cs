@@ -1,10 +1,10 @@
 ﻿using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson;
 
-namespace blueprint.modules.process.database
+namespace blueprint.modules.blueprintProcess.database
 {
     [BsonIgnoreExtraElements]
-    public class process_model
+    public class Process
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
@@ -12,7 +12,6 @@ namespace blueprint.modules.process.database
         [BsonRepresentation(BsonType.ObjectId)]
         public string blueprint_id { get; set; }
         public string snapshot { get; set; }
-        public bool end { get; set; }
         public DateTime createDateTime { get; set; }
     }
 }

@@ -62,9 +62,22 @@ namespace blueprint.modules.blueprintlog.logic
             result.total = await query.LongCountAsync();
             return result;
         }
+        public async Task<LogResponse> Get(string id)
+        {
+            var item = await dbContext.AsQueryable().Where(i => i._id == id).FirstOrDefaultAsync();
+            if(item == null)
+                throw new AppException( System.Net.HttpStatusCode.NotFound );
+
+            return (await List(new List<log_model>() { item })).FirstOrDefault();
+        }
         public async Task DeleteBlueprintLogs(string id)
         {
             await dbContext.DeleteManyAsync(Builders<log_model>.Filter.Eq(i => i.blueprint_id, id));
+        }
+
+        public async Task DeleteLog(string id)
+        {
+            await dbContext.DeleteManyAsync(Builders<log_model>.Filter.Eq(i => i._id, id));
         }
         public async Task DeleteLogId(string id)
         {

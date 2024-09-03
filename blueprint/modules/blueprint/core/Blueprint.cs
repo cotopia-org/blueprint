@@ -11,7 +11,6 @@ namespace blueprint.modules.blueprint.core
     public class Blueprint
     {
         public event Action<Blueprint> onChangeStaticData;
-        public event Action<Blueprint, object> onResponse;
         public Process _process { get; set; }
 
         public string id { get; set; }
@@ -82,9 +81,42 @@ namespace blueprint.modules.blueprint.core
             onChangeStaticData?.Invoke(this);
         }
 
-        public void Response(core.blocks.Node node, object value)
+        public void SetWebResponse(WebResponse webResponse)
         {
-            onResponse?.Invoke(this, value);
+            this.webResponse = webResponse;
+
+            if (_WaitForWebResponseToken != null)
+                _WaitForWebResponseToken.Cancel();
+        }
+        private WebResponse webResponse;
+        private CancellationTokenSource _WaitForWebResponseToken;
+        public async Task<WebResponse> WaitForWebResponse(TimeSpan timeout)
+        {
+            if (this.webResponse != null)
+            {
+                return this.webResponse;
+            }
+            else
+            {
+                _WaitForWebResponseToken = new CancellationTokenSource();
+                try
+                {
+                    await Task.Delay(timeout, _WaitForWebResponseToken.Token);
+
+                    return null;
+                }
+                catch (TaskCanceledException)
+                {
+                    return this.webResponse;
+                }
+            }
+
         }
     }
+    public class WebResponse
+    {
+        public int statusCode { get; set; }
+        public string Content { get; set; }
+    }
+
 }

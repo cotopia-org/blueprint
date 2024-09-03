@@ -7,7 +7,6 @@ namespace blueprint.modules.blueprint.core
     public class Script
     {
         public string code { get; set; }
-
         public Script(string code)
         {
             this.code = code;
@@ -23,6 +22,9 @@ namespace blueprint.modules.blueprint.core
         const string expressionPattern = @"{{(.*?)}}";
         private object ParseExpressions(string objVarName, object fromObject, string input)
         {
+            if (input == null)
+                return null;
+
             var regex = new Regex(expressionPattern);
             var items = regex.Matches(input).Select(i => i.Groups[1].Value).ToList();
             var count = 0;

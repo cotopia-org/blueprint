@@ -74,9 +74,9 @@ namespace blueprint.modules.blueprint.runtime
         {
             return node.get_result();
         }
-        public void blueprint_response(object value)
+        public void webresponse(int statusCode , string content)
         {
-            node.bind_blueprint.Response(node, value);
+            node.webresponse(statusCode, content);
         }
         public void wait(int sec, string function)
         {
@@ -86,10 +86,14 @@ namespace blueprint.modules.blueprint.runtime
         {
             BlueprintProcessModule.Instance.Wait(node, sec, function);
         }
+        public void print(object message)
+        {
+            Console.WriteLine(message);
+        }
         public void log(object message)
         {
             if (node.bind_blueprint != null && node.bind_blueprint._process != null)
-                ProcessLogLogic.Instance.AddLog(node.bind_blueprint.id, node.bind_blueprint._process.id, "log", message.ToString());
+                ProcessLogLogic.Instance.AddLog(node.bind_blueprint.id, node.bind_blueprint._process.id, "log", message?.ToString());
         }
         public void warning(object message)
         {
