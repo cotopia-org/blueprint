@@ -2,6 +2,7 @@
 using blueprint.modules.blueprintlog.logic;
 using Microsoft.ClearScript;
 using System.Net;
+using Newtonsoft.Json.Linq;
 
 namespace blueprint.modules.blueprint.runtime
 {
@@ -48,12 +49,10 @@ namespace blueprint.modules.blueprint.runtime
         {
             return node.GetField(address);
         }
-
         public object get_data(string name, object alter = null)
         {
             return node.get_data(name, alter);
         }
-
         public void set_data(string name, object value)
         {
             node.set_data(name, value);
@@ -74,7 +73,7 @@ namespace blueprint.modules.blueprint.runtime
         {
             return node.get_result();
         }
-        public void webresponse(int statusCode , string content)
+        public void webresponse(int statusCode, string content)
         {
             node.webresponse(statusCode, content);
         }
@@ -88,7 +87,16 @@ namespace blueprint.modules.blueprint.runtime
         }
         public void print(object message)
         {
-            Console.WriteLine(message);
+            try
+            {
+                var json = JObject.FromObject(message);
+                Console.WriteLine(json.ToString());
+            }
+            catch
+            {
+                Console.WriteLine(message.ToString());
+            }
+
         }
         public void log(object message)
         {

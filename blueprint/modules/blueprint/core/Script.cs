@@ -1,4 +1,5 @@
 ﻿using blueprint.modules.blueprint.runtime;
+using blueprint.modules.blueprint.runtime.tools;
 using Microsoft.ClearScript.V8;
 using System.Text.RegularExpressions;
 
@@ -65,7 +66,7 @@ namespace blueprint.modules.blueprint.core
             try
             {
                 engine.AddHostObject(objectName, fromObject);
-                //engine.AddHostType("devtools", typeof(devtools));
+                engine.AddHostType("httprequest", typeof(httprequest));
                 // Execute the JavaScript code
                 if (expression)
                 {

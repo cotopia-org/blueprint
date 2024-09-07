@@ -12,6 +12,7 @@ namespace blueprint.modules.node.builtinnodes
 function start()
 {
     node.webresponse(200,node.field(""text""))
+    node.next();
 }";
         public override Node Node()
         {

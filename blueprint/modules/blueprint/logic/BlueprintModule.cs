@@ -1,4 +1,9 @@
-﻿using blueprint.core;
+﻿using srtool;
+using blueprint.core;
+using MongoDB.Bson;
+using MongoDB.Driver;
+using MongoDB.Driver.Linq;
+using Newtonsoft.Json.Linq;
 using blueprint.modules.account;
 using blueprint.modules.blueprint.core;
 using blueprint.modules.blueprint.core.blocks;
@@ -9,24 +14,40 @@ using blueprint.modules.blueprintProcess.logic;
 using blueprint.modules.database.logic;
 using blueprint.modules.node.logic;
 using blueprint.modules.scheduler.logic;
-using MongoDB.Bson;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
-using Newtonsoft.Json.Linq;
-using srtool;
-
+using blueprint.modules.blueprint.logic;
+using blueprint.srtool;
+using System.Net.WebSockets;
+using System.Collections.Concurrent;
 namespace blueprint.modules.blueprint
 {
     public partial class BlueprintModule : Module<BlueprintModule>
     {
         public IMongoCollection<database.blueprint_model> dbContext { get; private set; }
+        private List<BlueprintDebugHandler> debugItems { get; set; }
         public override async Task RunAsync()
         {
             await base.RunAsync();
             dbContext = DatabaseModule.Instance.database.GetCollection<database.blueprint_model>("blueprint");
             Indexing();
+            debugItems = new List<BlueprintDebugHandler>();
+            BlueprintProcessModule.Instance.OnCreateProcess += Instance_OnCreateProcess;
             SchedulerModule.Instance.OnAction += Instance_OnAction;
         }
+
+        private void Instance_OnCreateProcess(Process process)
+        {
+            if (debugItems.Count > 0)
+            {
+                var debugItem = debugItems.FirstOrDefault(i => i.id == process.blueprint.id);
+                if( debugItem != null)
+                {
+                    debugItems.Remove(debugItem);
+                    debugItem.Bind(process);
+                }
+            }
+
+        }
+
         private async void Indexing()
         {
             try
@@ -74,6 +95,7 @@ namespace blueprint.modules.blueprint
                 Debug.Error(e);
             }
         }
+
         public async Task<WebResponse> Exec_webhooktoken(string token)
         {
             var index_token = $"webhook:{token}";
@@ -323,7 +345,7 @@ namespace blueprint.modules.blueprint
             }
         }
 
-        private static async Task ApplyChanges(Blueprint mainBlueprint, Blueprint changedBlueprint, List<Block> changedBlocks, List<Block> removedBlocks)
+        private async Task ApplyChanges(Blueprint mainBlueprint, Blueprint changedBlueprint, List<Block> changedBlocks, List<Block> removedBlocks)
         {
             var addBlockIds = new List<string>();
             var removedBlockIds = new List<string>();
@@ -414,7 +436,7 @@ namespace blueprint.modules.blueprint
 
             }
         }
-        private static void UpsertNode(Node main, Node edited, Node reference, bool isAdded)
+        private void UpsertNode(Node main, Node edited, Node reference, bool isAdded)
         {
             if (reference != null)
             {
@@ -437,7 +459,6 @@ namespace blueprint.modules.blueprint
                 }
             }
         }
-
         public async Task<Blueprint> GetBlueprint(string id)
         {
             return await SuperCache.Get(async () =>
@@ -453,6 +474,30 @@ namespace blueprint.modules.blueprint
                 return null;
 
             }, new CacheSetting() { key = $"blueprint_{id}", timeLife = TimeSpan.FromMinutes(5) });
+        }
+
+        public async Task LiveTrace(WebSocket socket, string id)
+        {
+            var blueprint = await GetBlueprint(id);
+
+            var debugHandler = new BlueprintDebugHandler();
+            debugHandler.id = id;
+            var wsConnection = new WSConnection();
+            wsConnection.Init(socket);
+            debugHandler.onDisconnect += DebugHandler_onDisconnect;
+            debugHandler.Bind(blueprint);
+            debugHandler.Bind(wsConnection);
+            debugItems.Add(debugHandler);
+
+            while (wsConnection.IsConnected)
+            {
+                await Task.Delay(1000);
+            }
+        }
+
+        private void DebugHandler_onDisconnect(BlueprintDebugHandler item)
+        {
+            debugItems.Remove(item);
         }
     }
 }

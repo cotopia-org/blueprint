@@ -3,6 +3,7 @@ using Microsoft.OpenApi.Models;
 using blueprint.core;
 using blueprint.modules.config;
 using blueprint.modules._global;
+using blueprint.modules.blueprintProcess.logic;
 
 await SystemModule.Instance.RunAsync();
 
@@ -77,9 +78,9 @@ if (ConfigModule.GetBool("swagger.active", false))
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
 app.MapRazorPages();
 app.UseRouting();
+app.UseWebSockets();
 //app.UseAuthentication();
 //app.UseAuthorization();
 app.MapControllers();

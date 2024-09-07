@@ -15,6 +15,7 @@ namespace blueprint.modules.drive.controller
         [ProducesResponseType(typeof(DriveInfoResponse), 200)]
         public async Task<IActionResult> GetDriveInfo()
         {
+            await Task.Yield();
             //string accountId = await this.GetAccountId();
 
             //var result = await MediaLogic.Instance.Upload(accountId, file, title);

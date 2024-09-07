@@ -17,7 +17,7 @@ namespace blueprint.modules.blueprintProcess.logic
     {
         public IMongoCollection<database.Process> dbContext { get; private set; }
 
-
+        public event Action<Process> OnCreateProcess;
         public override async Task RunAsync()
         {
             await base.RunAsync();
@@ -70,6 +70,7 @@ namespace blueprint.modules.blueprintProcess.logic
             process.blueprint.source = source;
             await BlueprintModule.Instance.FillReference(process.blueprint);
             process.blueprint._process = process;
+            OnCreateProcess?.Invoke(process);
             return process;
         }
         public async Task<Process> GetProcessById(string id)
@@ -106,7 +107,7 @@ namespace blueprint.modules.blueprintProcess.logic
 
                     await Task.Delay(TimeSpan.FromSeconds(10));
 
-                    process = SuperCache.Get<Process>(cKey);
+                    process = SuperCache.Get<Process>($"process_{process.id}");
                     if (process != null)
                     {
                         var dbProcess = new database.Process();

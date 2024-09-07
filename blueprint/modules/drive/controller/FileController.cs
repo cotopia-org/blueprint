@@ -33,6 +33,7 @@ namespace blueprint.modules.drive.controller
         [ProducesResponseType(typeof(FileResponse), 200)]
         public async Task<IActionResult> Update([FromRoute] string id, string title = null, string description = null)
         {
+            await Task.Yield();
             //string accountId = await this.GetAccountId();
 
             //var result = await MediaLogic.Instance.Upload(accountId, file, title);
@@ -51,6 +52,7 @@ namespace blueprint.modules.drive.controller
         [ProducesResponseType(typeof(FileResponse), 200)]
         public async Task<IActionResult> List(string directoryId = null, string search = null, int page = 1, int perPage = 100)
         {
+            await Task.Yield();
             //string accountId = await this.GetAccountId();
 
             //var result = await DriveLogic.Instance.List(accountId, file, title);

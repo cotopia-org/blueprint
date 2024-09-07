@@ -18,7 +18,7 @@ namespace blueprint.modules.blueprint.core.blocks
         public List<component.ComponentBase> components { get; set; }
         public Dictionary<string, object> data { get; set; }
         public Dictionary<string, object> static_data { get; set; }
-
+        public event Action<Node> OnStart;
         public Node() : base()
         {
             // fields = new Dictionary<string, Field>();
@@ -49,6 +49,7 @@ namespace blueprint.modules.blueprint.core.blocks
         {
             from = fromNode;
             script?.Invoke("node", new runtime.Node(this), "start");
+            OnStart?.Invoke(this);
         }
         public void InvokeFunction(string function)
         {

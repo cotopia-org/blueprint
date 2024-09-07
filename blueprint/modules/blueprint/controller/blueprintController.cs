@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using srtool;
 using System.ComponentModel.DataAnnotations;
+using System.Net.WebSockets;
 
 namespace blueprint.modules.blueprint.controller
 {
@@ -41,6 +42,23 @@ namespace blueprint.modules.blueprint.controller
             var accountId = await this.GetAccountId();
             var result = await BlueprintModule.Instance.Get(id, accountId);
             return Ok(result);
+        }
+
+        [HttpGet]
+        [Route("{id}/live-trace")]
+        public async Task<IActionResult> LiveTrace([FromRoute] string id)
+        {
+            if (HttpContext.WebSockets.IsWebSocketRequest)
+            {
+                var webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
+                await BlueprintModule.Instance.LiveTrace(webSocket, id);
+
+                return new EmptyResult(); // WebSocket is now handled.
+            }
+            else
+            {
+                return BadRequest("WebSocket request expected.");
+            }
         }
         [HttpGet]
         [ProducesResponseType(typeof(PaginationResponse<BlueprintResponse>), 200)]

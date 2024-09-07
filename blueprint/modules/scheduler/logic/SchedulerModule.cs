@@ -14,6 +14,7 @@ namespace blueprint.modules.scheduler.logic
 
         public IMongoCollection<schedule> dbContext { get; private set; }
         public event Action<SchedulerResponse> OnAction;
+
         public override async Task RunAsync()
         {
             await base.RunAsync();
