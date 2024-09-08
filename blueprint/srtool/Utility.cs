@@ -224,6 +224,18 @@ namespace srtool
         }
         #endregion
         #region JSON
+        public static object ConvertToJson(this object obj)
+        {
+            try
+            {
+                var json = JObject.FromObject(obj);
+                return json;
+            }
+            catch
+            {
+                return obj.ToString();
+            }
+        }
         public static JObject ToJObject(this object _object)
         {
             if (_object == null)

@@ -1,6 +1,6 @@
 ﻿using blueprint.modules.blueprint.core;
 using blueprint.srtool;
-
+using srtool;
 namespace blueprint.modules.blueprint.logic
 {
     public class BlueprintDebugHandler
@@ -24,11 +24,11 @@ namespace blueprint.modules.blueprint.logic
             connection.Send(new { type = "listening", time = time });
         }
 
-        private void Connection_OnDisconnect(WSConnection arg1, DisconnectInfo arg2)
+        private void Connection_OnDisconnect(WSConnection connection, DisconnectInfo info)
         {
             foreach (var i in this.process.blueprint.nodes)
             {
-                i.OnStart -= Node_OnStart;
+                i.OnCall -= Node_OnCall;
             }
             onDisconnect?.Invoke(this);
         }
@@ -38,14 +38,16 @@ namespace blueprint.modules.blueprint.logic
             this.process = process;
             foreach (var i in this.process.blueprint.nodes)
             {
-                i.OnStart += Node_OnStart;
+                i.OnCall += Node_OnCall;
             }
             connection.Send(new { type = "bind-process", time = time, data = new { blueprint = blueprint.JsonSnapshot() } });
         }
 
-        private void Node_OnStart(core.blocks.Node node)
+        private void Node_OnCall(core.blocks.Node node)
         {
-            connection.Send(new { type = "start-node", time = time, data = new { nodeId = node.id, fromNodeId = node.from?.id } });
+            connection.Send(new { type = "call-node", time = time, data = new { nodeId = node.id, fromNodeId = node.from?.id } });
+            if (node.from != null)
+                connection.Send(new { type = "update-node", time = time, data = new { node = new { id = node.from.id, result = node.from.get_result()?.ConvertToJson() } } });
         }
     }
 }
