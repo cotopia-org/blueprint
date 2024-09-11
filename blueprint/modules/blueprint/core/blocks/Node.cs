@@ -1,5 +1,7 @@
 ﻿using blueprint.modules.blueprint.core.component;
 using blueprint.modules.blueprint.core.fields;
+using blueprint.modules.blueprint.runtime;
+using blueprint.modules.blueprintlog.logic;
 using blueprint.modules.node.types;
 using Newtonsoft.Json.Linq;
 using Swashbuckle.AspNetCore.SwaggerGen;
@@ -19,6 +21,8 @@ namespace blueprint.modules.blueprint.core.blocks
         public Dictionary<string, object> data { get; set; }
         public Dictionary<string, object> static_data { get; set; }
         public event Action<Node> OnCall;
+        public event Action<Log> OnAddLog;
+
         public Node() : base()
         {
             // fields = new Dictionary<string, Field>();
@@ -57,12 +61,12 @@ namespace blueprint.modules.blueprint.core.blocks
         }
         public void ExecuteNode(string address)
         {
-            var field = GetField(address);
-            if (field != null && field is List<Field> fieldArray)
+            var arrayField = GetField(address);
+            if (arrayField != null && arrayField is List<Field> fields)
             {
-                foreach (var item in fieldArray)
+                foreach (var field in fields)
                 {
-                    var nodeId = item.AsString(this);
+                    var nodeId = field.AsString(this);
                     var node = this.bind_blueprint.nodes.FirstOrDefault(i => i.id == nodeId);
                     if (node != null)
                         node.CallStart(this);
@@ -211,6 +215,39 @@ namespace blueprint.modules.blueprint.core.blocks
         public void webresponse(int statusCode, object value)
         {
             bind_blueprint?.SetWebResponse(new WebResponse() { statusCode = statusCode, Content = value?.ToString() });
+        }
+
+        public void log(object message)
+        {
+            OnAddLog?.Invoke(new Log() { message = message, node_id = id, type = "log" });
+            if (bind_blueprint != null && bind_blueprint._process != null)
+                ProcessLogLogic.Instance.AddLog(bind_blueprint.id, bind_blueprint._process.id, id, "log", message?.ToString());
+        }
+        public void warning(object message)
+        {
+            OnAddLog?.Invoke(new Log() { message = message, node_id = id, type = "warning" });
+            if (bind_blueprint != null && bind_blueprint._process != null)
+                ProcessLogLogic.Instance.AddLog(bind_blueprint.id, bind_blueprint._process.id, id, "warning", message.ToString());
+        }
+        public void error(object message)
+        {
+            OnAddLog?.Invoke(new Log() { message = message, node_id = id, type = "error" });
+            if (bind_blueprint != null && bind_blueprint._process != null)
+                ProcessLogLogic.Instance.AddLog(bind_blueprint.id, bind_blueprint._process.id, id, "error", message.ToString());
+        }
+
+        public void print(object message)
+        {
+            OnAddLog?.Invoke(new Log() { message = message, node_id = id, type = "print" });
+            try
+            {
+                var json = JObject.FromObject(message);
+                Console.WriteLine(json.ToString());
+            }
+            catch
+            {
+                Console.WriteLine(message.ToString());
+            }
         }
     }
 }

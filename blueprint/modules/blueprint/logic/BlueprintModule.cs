@@ -476,23 +476,17 @@ namespace blueprint.modules.blueprint
             }, new CacheSetting() { key = $"blueprint_{id}", timeLife = TimeSpan.FromMinutes(5) });
         }
 
-        public async Task LiveTrace(WebSocket socket, string id)
+        public async Task LiveTrace(WSConnection connection, string id)
         {
             var blueprint = await GetBlueprint(id);
 
             var debugHandler = new BlueprintDebugHandler();
             debugHandler.id = id;
-            var wsConnection = new WSConnection();
-            wsConnection.Init(socket);
+
             debugHandler.onDisconnect += DebugHandler_onDisconnect;
             debugHandler.Bind(blueprint);
-            debugHandler.Bind(wsConnection);
+            debugHandler.Bind(connection);
             debugItems.Add(debugHandler);
-
-            while (wsConnection.IsConnected)
-            {
-                await Task.Delay(1000);
-            }
         }
 
         private void DebugHandler_onDisconnect(BlueprintDebugHandler item)

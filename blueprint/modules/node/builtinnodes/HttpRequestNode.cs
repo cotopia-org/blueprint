@@ -22,7 +22,8 @@ function start()
 }
 function callback_result(x)
 {
-    node.set_result(x);
+    node.print(x.content);
+    node.set_result(x.content);
     node.next();
 }
 ";

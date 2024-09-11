@@ -11,6 +11,7 @@ namespace blueprint.modules.blueprintlog.database
         public string _id { get; set; }
         public string blueprint_id { get; set; }
         public string process_id { get; set; }
+        public string node_id { get; set; }
         public string type { get; set; }
         public string message { get; set; }
         public DateTime createDateTime { get; set; }

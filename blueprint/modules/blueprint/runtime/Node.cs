@@ -87,31 +87,19 @@ namespace blueprint.modules.blueprint.runtime
         }
         public void print(object message)
         {
-            try
-            {
-                var json = JObject.FromObject(message);
-                Console.WriteLine(json.ToString());
-            }
-            catch
-            {
-                Console.WriteLine(message.ToString());
-            }
-
+            node.print(message);
         }
         public void log(object message)
         {
-            if (node.bind_blueprint != null && node.bind_blueprint._process != null)
-                ProcessLogLogic.Instance.AddLog(node.bind_blueprint.id, node.bind_blueprint._process.id, "log", message?.ToString());
+            node.log(message);
         }
         public void warning(object message)
         {
-            if (node.bind_blueprint != null && node.bind_blueprint._process != null)
-                ProcessLogLogic.Instance.AddLog(node.bind_blueprint.id, node.bind_blueprint._process.id, "warning", message.ToString());
+            node.warning(message);
         }
         public void error(object message)
         {
-            if (node.bind_blueprint != null && node.bind_blueprint._process != null)
-                ProcessLogLogic.Instance.AddLog(node.bind_blueprint.id, node.bind_blueprint._process.id, "error", message.ToString());
+            node.error(message);
         }
     }
 }

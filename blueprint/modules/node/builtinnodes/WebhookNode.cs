@@ -13,13 +13,11 @@ namespace blueprint.modules.node.builtinnodes
         public override string script => @"
 function start()
 {
-    node.set_result(node.field(""output"")); 
     node.next();
 }";
         public override Node Node()
         {
             var node = base.Node();
-            node.SetField("output", "OK");
             node.SetField("next", new List<Field>());
 
             var webhook = node.AddComponent<Webhook>();

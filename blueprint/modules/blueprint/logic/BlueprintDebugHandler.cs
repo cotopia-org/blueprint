@@ -12,6 +12,7 @@ namespace blueprint.modules.blueprint.logic
         private DateTime DateTime;
         private float time { get { return (float)Math.Round((DateTime.UtcNow - DateTime).TotalSeconds, 5); } }
         public event Action<BlueprintDebugHandler> onDisconnect;
+
         public void Bind(Blueprint blueprint)
         {
             this.blueprint = blueprint;
@@ -21,7 +22,7 @@ namespace blueprint.modules.blueprint.logic
             this.connection = connection;
             connection.OnDisconnect += Connection_OnDisconnect;
             DateTime = DateTime.UtcNow;
-            connection.Send(new { type = "listening", time = time });
+            connection.Send(new { topic = "listening", time = time });
         }
 
         private void Connection_OnDisconnect(WSConnection connection, DisconnectInfo info)
@@ -29,6 +30,8 @@ namespace blueprint.modules.blueprint.logic
             foreach (var i in this.process.blueprint.nodes)
             {
                 i.OnCall -= Node_OnCall;
+                i.OnAddLog -= Node_OnAddLog;
+
             }
             onDisconnect?.Invoke(this);
         }
@@ -39,15 +42,22 @@ namespace blueprint.modules.blueprint.logic
             foreach (var i in this.process.blueprint.nodes)
             {
                 i.OnCall += Node_OnCall;
+                i.OnAddLog += Node_OnAddLog;
+
             }
-            connection.Send(new { type = "bind-process", time = time, data = new { blueprint = blueprint.JsonSnapshot() } });
+            connection.Send(new { topic = "bind-process", time = time, data = new { blueprint = blueprint.JsonSnapshot() } });
+        }
+
+        private void Node_OnAddLog(runtime.Log log)
+        {
+            connection.Send(new { topic = "console", time = time, type = "add-log", log = new { type = log.type, message = log.message, node_id = log.node_id } });
         }
 
         private void Node_OnCall(core.blocks.Node node)
         {
-            connection.Send(new { type = "call-node", time = time, data = new { nodeId = node.id, fromNodeId = node.from?.id } });
+            connection.Send(new { topic = "call-node", time = time, data = new { nodeId = node.id, fromNodeId = node.from?.id } });
             if (node.from != null)
-                connection.Send(new { type = "update-node", time = time, data = new { node = new { id = node.from.id, result = node.from.get_result()?.ConvertToJson() } } });
+                connection.Send(new { topic = "update-node", time = time, data = new { node = new { id = node.from.id, result = node.from.get_result()?.ConvertToJson() } } });
         }
     }
 }

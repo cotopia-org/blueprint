@@ -2,10 +2,12 @@
 using blueprint.modules.blueprint.request;
 using blueprint.modules.blueprint.response;
 using blueprint.modules.blueprintlog.logic;
+using blueprint.srtool;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using srtool;
 using System.ComponentModel.DataAnnotations;
+using System.Net.Sockets;
 using System.Net.WebSockets;
 
 namespace blueprint.modules.blueprint.controller
@@ -51,14 +53,17 @@ namespace blueprint.modules.blueprint.controller
             if (HttpContext.WebSockets.IsWebSocketRequest)
             {
                 var webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
-                await BlueprintModule.Instance.LiveTrace(webSocket, id);
-
-                return new EmptyResult(); // WebSocket is now handled.
+                var wsConnection = new WSConnection();
+                wsConnection.Init(webSocket);
+                await BlueprintModule.Instance.LiveTrace(wsConnection, id);
+                await wsConnection.RecivedLoop();
             }
             else
             {
                 return BadRequest("WebSocket request expected.");
             }
+
+            return new EmptyResult(); // WebSocket is now handled.
         }
         [HttpGet]
         [ProducesResponseType(typeof(PaginationResponse<BlueprintResponse>), 200)]
