@@ -11,7 +11,7 @@ namespace blueprint.modules.webhook.controller
         [ProducesResponseType(200)]
         public async Task<IActionResult> Get([FromRoute] string token)
         {
-            var result = await BlueprintModule.Instance.Exec_webhooktoken(token);
+            var result = await BlueprintModule.Instance.Exec_webhooktoken(token, HttpContext);
             if (result == null)
                 return NotFound(new { message = "Not found webhook-token." });
             //else

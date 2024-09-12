@@ -12,11 +12,15 @@ namespace blueprint.modules.node.builtinnodes
         public override string script => @"
 function start()
 {
-    var url = node.field(""url"");
-    switch(node.field(""method""))
+    var url = node.field('url');
+    var method = node.field('method');
+    switch(method)
     {
-        case ""GET"":
+        case 'GET':
           httprequest.get(url,callback_result);
+        break;
+        case 'DELETE':
+          httprequest.delete(url,callback_result);
         break;
     }
 }

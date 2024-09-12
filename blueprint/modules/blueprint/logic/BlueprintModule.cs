@@ -18,6 +18,7 @@ using blueprint.modules.blueprint.logic;
 using blueprint.srtool;
 using System.Net.WebSockets;
 using System.Collections.Concurrent;
+using HttpRequest = Microsoft.AspNetCore.Http.HttpRequest;
 namespace blueprint.modules.blueprint
 {
     public partial class BlueprintModule : Module<BlueprintModule>
@@ -39,7 +40,7 @@ namespace blueprint.modules.blueprint
             if (debugItems.Count > 0)
             {
                 var debugItem = debugItems.FirstOrDefault(i => i.id == process.blueprint.id);
-                if( debugItem != null)
+                if (debugItem != null)
                 {
                     debugItems.Remove(debugItem);
                     debugItem.Bind(process);
@@ -96,7 +97,7 @@ namespace blueprint.modules.blueprint
             }
         }
 
-        public async Task<WebResponse> Exec_webhooktoken(string token)
+        public async Task<WebResponse> Exec_webhooktoken(string token, HttpContext context)
         {
             var index_token = $"webhook:{token}";
             var dbItem = await SuperCache.Get(async () =>
@@ -116,6 +117,15 @@ namespace blueprint.modules.blueprint
             if (webhookNode == null)
                 return null;
 
+            var resItem = new
+            {
+                headers = context.Request.Headers.Select(i => new { name = i.Key, value = i.Value }).ToList(),
+                query = context.Request.Query.Select(i => new { name = i.Key, value = i.Value }).ToList(),
+                remoteIp_v4 = context.Connection.RemoteIpAddress.MapToIPv4().ToString(),
+                remoteIp_v6 = context.Connection.RemoteIpAddress.MapToIPv6().ToString(),
+            };
+
+            webhookNode.set_result(JObject.FromObject(resItem).ToString());
             webhookNode.CallStart();
 
             IncExecution(dbItem);

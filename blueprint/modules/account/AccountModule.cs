@@ -58,7 +58,6 @@ namespace blueprint.modules.account
             result.page = pagination.Page;
             result.perPage = pagination.PerPage;
             result.items = await List(dbAccounts, fromAccountId);
-
             return result;
         }
         public async Task<List<AccountResponse>> List(List<string> ids, string fromAccountId = null)

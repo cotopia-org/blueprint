@@ -26,6 +26,28 @@ namespace blueprint.modules.blueprint.runtime.tools
                 callback.InvokeAsFunction(new object[] { result });
             }
         }
+        public static async Task delete(string url, ScriptObject callback)
+        {
+            var result = new rest_response();
+            using (HttpClient client = new HttpClient())
+            {
+                try
+                {
+                    var res = await client.DeleteAsync(url);
+                    result.statusCode = (int)res.StatusCode;
+                    res.EnsureSuccessStatusCode(); // Ensure success status code (200-299)
+                    var responseBody = await res.Content.ReadAsStringAsync();
+                    result.content = responseBody;
+                }
+                catch (HttpRequestException e)
+                {
+                    result.statusCode = (int)e.StatusCode;
+                    Console.WriteLine($"Error: {e.Message}");
+                }
+
+                callback.InvokeAsFunction(new object[] { result });
+            }
+        }
     }
     public class rest_response
     {

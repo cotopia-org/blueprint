@@ -29,7 +29,7 @@ namespace blueprint.modules.blueprint.runtime
         {
             node.ExecuteNode("next");
         }
-        public Node find_byname(string name)
+        public Node findnode(string name)
         {
             return new Node(node.find_byname(name));
         }
@@ -37,11 +37,11 @@ namespace blueprint.modules.blueprint.runtime
         {
             node.ExecuteNode(address);
         }
-        public void execnodeposition(string address, int position)
+        public void execnode(string address, int position)
         {
             node.ExecuteNode(address, position);
         }
-        public int fieldarraycount(string address)
+        public int fieldcount(string address)
         {
             return node.GetFieldArraySize(address);
         }
