@@ -33,9 +33,9 @@ namespace blueprint.modules.blueprint.core.blocks
 
             coordinate = new Coordinate() { h = 10, w = 10 };
         }
-        public object GetField(string address)
+        public object GetField(string address, object alter = null)
         {
-            return fields.Value(address, this);
+            return fields.Value(address, this , alter);
         }
         public void SetField(string address, object value)
         {

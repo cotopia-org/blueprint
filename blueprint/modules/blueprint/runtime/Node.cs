@@ -45,9 +45,9 @@ namespace blueprint.modules.blueprint.runtime
         {
             return node.GetFieldArraySize(address);
         }
-        public object field(string address)
+        public object field(string address , object alter = null)
         {
-            return node.GetField(address);
+            return node.GetField(address, alter);
         }
         public object get_data(string name, object alter = null)
         {

@@ -165,9 +165,9 @@ namespace blueprint.modules.blueprint.core.fields
 
             field.AsArrayList.Add(new Field() { value = value });
         }
-        public object Value(string address)
+        public object Value(string address, object alter = null)
         {
-            return Value(address, null);
+            return Value(address, null, alter);
         }
         public Field GetField(string address)
         {
@@ -216,7 +216,7 @@ namespace blueprint.modules.blueprint.core.fields
             }
             return null;
         }
-        public object Value(string address, Node node)
+        public object Value(string address, Node node, object alter = null)
         {
             var splitItems = address.Split('.');
             var splitCount = splitItems.Length;
@@ -250,7 +250,7 @@ namespace blueprint.modules.blueprint.core.fields
                         }
                         else
                         {
-                            return null;
+                            return alter;
                         }
                     }
                     else
@@ -261,12 +261,12 @@ namespace blueprint.modules.blueprint.core.fields
                         }
                         else
                         {
-                            return null;
+                            return alter;
                         }
                     }
                 }
             }
-            return null;
+            return alter;
         }
         public object Value(Node fromNode)
         {
