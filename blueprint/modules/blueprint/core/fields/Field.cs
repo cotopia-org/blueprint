@@ -47,7 +47,6 @@ namespace blueprint.modules.blueprint.core.fields
             return (int)Value(node);
         }
 
-
         public int GetArraySize(string address)
         {
             var splitItems = address.Split('.');
@@ -155,7 +154,6 @@ namespace blueprint.modules.blueprint.core.fields
                 }
             }
         }
-
 
         public void PushValue(string address, object value)
         {
@@ -271,7 +269,12 @@ namespace blueprint.modules.blueprint.core.fields
         public object Value(Node fromNode)
         {
             if (value is Expression expression)
-                return expression.Value(this, fromNode);
+            {
+                var input = new ScriptInput();
+                input.AddHostObject("node", new runtime.Node(fromNode));
+
+                return expression.Value(input);
+            }
             else
                 return value;
         }

@@ -11,7 +11,9 @@ namespace blueprint.modules.node.builtinnodes
         public override string script => @"
 function start()
 {
-    node.webresponse(200,node.field(""text""))
+    var content = node.field('content','OK');
+    var status = node.field('status',200);
+    node.webresponse(status,content)
     node.next();
 }";
         public override Node Node()

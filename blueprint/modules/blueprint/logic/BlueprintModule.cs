@@ -18,7 +18,7 @@ using blueprint.modules.blueprint.logic;
 using blueprint.srtool;
 using System.Net.WebSockets;
 using System.Collections.Concurrent;
-using HttpRequest = Microsoft.AspNetCore.Http.HttpRequest;
+using Microsoft.AspNetCore.Http;
 namespace blueprint.modules.blueprint
 {
     public partial class BlueprintModule : Module<BlueprintModule>
@@ -46,9 +46,7 @@ namespace blueprint.modules.blueprint
                     debugItem.Bind(process);
                 }
             }
-
         }
-
         private async void Indexing()
         {
             try

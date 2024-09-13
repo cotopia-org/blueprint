@@ -1,9 +1,7 @@
 ﻿using blueprint.modules.blueprintProcess.logic;
 using blueprint.modules.blueprintlog.logic;
-using Microsoft.ClearScript;
 using System.Net;
 using Newtonsoft.Json.Linq;
-
 namespace blueprint.modules.blueprint.runtime
 {
     public class Node
@@ -45,7 +43,7 @@ namespace blueprint.modules.blueprint.runtime
         {
             return node.GetFieldArraySize(address);
         }
-        public object field(string address , object alter = null)
+        public object field(string address, object alter = null)
         {
             return node.GetField(address, alter);
         }
@@ -65,13 +63,23 @@ namespace blueprint.modules.blueprint.runtime
         {
             node.set_static_data(name, value);
         }
-        public void set_result(object value)
+        public void set_json_result(object value)
         {
             node.set_result(value);
         }
-        public object get_result()
+        public JObject json_result
         {
-            return node.get_result();
+            get
+            {
+                try
+                {
+                    return JObject.Parse(node.get_result());
+                }
+                catch
+                {
+                    return new JObject();
+                }
+            }
         }
         public void webresponse(int statusCode, string content)
         {

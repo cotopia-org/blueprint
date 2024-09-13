@@ -27,11 +27,14 @@ namespace blueprint.modules.blueprint.logic
 
         private void Connection_OnDisconnect(WSConnection connection, DisconnectInfo info)
         {
-            foreach (var i in this.process.blueprint.nodes)
+            if (process != null)
             {
-                i.OnCall -= Node_OnCall;
-                i.OnAddLog -= Node_OnAddLog;
+                foreach (var node in process.blueprint.nodes)
+                {
+                    node.OnCall -= Node_OnCall;
+                    node.OnAddLog -= Node_OnAddLog;
 
+                }
             }
             onDisconnect?.Invoke(this);
         }

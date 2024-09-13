@@ -12,11 +12,11 @@ namespace blueprint.modules.node.builtinnodes
         public override string script => @"
 function start()
 {
-    var operator = node.field(""operator"");
-    var valueA = node.field(""valueA""); 
-    var valueB = node.field(""valueB"");
+    var operator = node.field('operator');
+    var valueA = node.field('valueA'); 
+    var valueB = node.field('valueB');
     var comparisonResult = false;
-    var output_name = ""next_false"";
+    var output_name = 'next_false';
     switch (operator) {
         case '>':
             comparisonResult = valueA > valueB;
@@ -37,15 +37,15 @@ function start()
             comparisonResult = valueA != valueB;
             break;
         default:
-            node.print(""Invalid operator"");
-            output_name = ""next_false"";
+            node.print('Invalid operator');
+            output_name = 'next_false';
             return;
     }
 
     if (comparisonResult) 
-        output_name = ""next_true"";
+        output_name = 'next_true';
     else
-        output_name = ""next_false"";
+        output_name = 'next_false';
 
     node.execnode(output_name);
 }

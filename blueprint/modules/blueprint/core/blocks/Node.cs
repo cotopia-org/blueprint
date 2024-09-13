@@ -19,6 +19,7 @@ namespace blueprint.modules.blueprint.core.blocks
         public Field fields { get; set; }
         public List<component.ComponentBase> components { get; set; }
         public Dictionary<string, object> data { get; set; }
+        public string nodeResult { get; set; }
         public Dictionary<string, object> static_data { get; set; }
         public event Action<Node> OnCall;
         public event Action<Log> OnAddLog;
@@ -35,7 +36,7 @@ namespace blueprint.modules.blueprint.core.blocks
         }
         public object GetField(string address, object alter = null)
         {
-            return fields.Value(address, this , alter);
+            return fields.Value(address, this, alter);
         }
         public void SetField(string address, object value)
         {
@@ -53,11 +54,15 @@ namespace blueprint.modules.blueprint.core.blocks
         {
             from = fromNode;
             OnCall?.Invoke(this);
-            script?.Invoke("node", new runtime.Node(this), "start");
+            var scriptInput = new ScriptInput();
+            scriptInput.AddHostObject("node", new runtime.Node(this));
+            script?.Invoke("start", scriptInput);
         }
         public void InvokeFunction(string function)
         {
-            script?.Invoke("node", new runtime.Node(this), function);
+            var scriptInput = new ScriptInput();
+            scriptInput.AddHostObject("node", new runtime.Node(this));
+            script?.Invoke(function, scriptInput);
         }
         public void ExecuteNode(string address)
         {
@@ -95,11 +100,11 @@ namespace blueprint.modules.blueprint.core.blocks
         }
         public void set_result(object value)
         {
-            set_data("_$$_RESULT_$$_", value);
+            nodeResult = value?.ToString();
         }
-        public object get_result()
+        public string get_result()
         {
-            return get_data("_$$_RESULT_$$_", null);
+            return nodeResult;
         }
         public object get_data(string name, object alter)
         {

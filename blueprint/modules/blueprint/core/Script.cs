@@ -7,21 +7,22 @@ namespace blueprint.modules.blueprint.core
 {
     public class Script
     {
+        const string expressionPattern = @"{{(.*?)}}";
         public string code { get; set; }
+
         public Script(string code)
         {
             this.code = code;
         }
-        public object[] Expression(string objVarName, object fromObject)
+        public object AsExpression(ScriptInput scriptInput)
         {
-            return new object[] { ParseExpressions(objVarName, fromObject, code) };
+            return ParseExpressions( code, scriptInput);
         }
-        public void Invoke(string objVarName, object fromObject, string function)
+        public void Invoke( string function, ScriptInput scriptInput)
         {
-            run_as_java_script(code, objVarName, fromObject, false, function);
+            run_as_java_script(code, scriptInput, false, function);
         }
-        const string expressionPattern = @"{{(.*?)}}";
-        private object ParseExpressions(string objVarName, object fromObject, string input)
+        private object ParseExpressions(string input, ScriptInput scriptInput)
         {
             if (input == null)
                 return null;
@@ -35,20 +36,12 @@ namespace blueprint.modules.blueprint.core
                 return "";
             });
 
-            //if (count == 1)
-            //{
-            //    return run_as_java_script(items[0], objVarName, fromObject, true)?.FirstOrDefault();
-            //}
-            //else
             if (items.Count > 0)
             {
                 var output = regex.Replace(input, match =>
                 {
-                    // Extract the JavaScript code between {{ and }}
                     string expressionCode = match.Groups[1].Value;
-
-                    return run_as_java_script(expressionCode, objVarName, fromObject, true)?.FirstOrDefault()?.ToString();
-
+                    return run_as_java_script(expressionCode, scriptInput, true)?.ToString();
                 });
 
                 return output;
@@ -59,19 +52,21 @@ namespace blueprint.modules.blueprint.core
             }
         }
 
-        private object[] run_as_java_script(string code, string objectName, object fromObject, bool expression, string functionName = null)
+        private object run_as_java_script(string code, ScriptInput scriptInput, bool expression, string functionName = null)
         {
             var engine = new V8ScriptEngine();
             //{
             try
             {
-                engine.AddHostObject(objectName, fromObject);
+                foreach (var hostObject in scriptInput.hostObjects)
+                    engine.AddHostObject(hostObject.Key, hostObject.Value);
+
                 engine.AddHostType("httprequest", typeof(httprequest));
                 // Execute the JavaScript code
                 if (expression)
                 {
                     var result = engine.Evaluate($"var result = ({code}); result;");
-                    return new object[] { result };
+                    return result;
                 }
                 else
                 {
@@ -84,7 +79,7 @@ namespace blueprint.modules.blueprint.core
                     else
                     {
                         var result = engine.Evaluate(code);
-                        return new object[] { result };
+                        return result;
                     }
                 }
             }
@@ -97,5 +92,12 @@ namespace blueprint.modules.blueprint.core
             return null;
         }
     }
-
+    public class ScriptInput
+    {
+        public List<KeyValuePair<string, object>> hostObjects = new List<KeyValuePair<string, object>>();
+        public void AddHostObject(string varName, object value)
+        {
+            hostObjects.Add(new KeyValuePair<string, object>(varName, value));
+        }
+    }
 }

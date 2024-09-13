@@ -95,7 +95,7 @@ namespace blueprint.modules.blueprint.core
                 result["components"] = components;
 
             result["fields"] = node.fields.JsonSnapshot();
-
+            result["result"] = node.nodeResult;
             return result;
         }
 
@@ -325,6 +325,9 @@ namespace blueprint.modules.blueprint.core
             {
                 node.fields = LoadField(node, data["fields"]);
             }
+            if (data["result"] != null)
+                node.nodeResult = data["result"].ToString();
+
             if (data["data"] != null)
             {
                 foreach (var item in ((JObject)data["data"]).Properties())

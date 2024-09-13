@@ -26,7 +26,7 @@ function start()
 }
 function callback_result(x)
 {
-    node.set_result(x.content);
+    node.set_json_result(x.content);
     node.next();
 }
 ";
