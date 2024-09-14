@@ -19,7 +19,7 @@ function start()
         public override Node Node()
         {
             var node = base.Node();
-            node.SetField("value", "ok");
+            node.SetField("content", "OK");
             return node;
         }
 

@@ -73,7 +73,8 @@ namespace blueprint.modules.blueprint.runtime
             {
                 try
                 {
-                    return JObject.Parse(node.get_result());
+                    var json = node.get_result();
+                    return JObject.Parse(json);
                 }
                 catch
                 {
