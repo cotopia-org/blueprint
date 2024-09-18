@@ -14,7 +14,7 @@ namespace blueprint.modules.blueprint.database
         public string? account_id { get; set; }
         public string title { get; set; }
         public string description { get; set; }
-        public bool run { get; set; }
+        public bool active { get; set; }
         public string data_snapshot { get; set; }
 
         public List<string> index_tokens { get; set; }

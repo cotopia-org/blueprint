@@ -6,7 +6,6 @@ namespace blueprint.modules.node.builtinnodes
 {
     public class HttpRequestNode : NodeBuilder
     {
-        public override string id => "65c4115a1011a2b12cd054b8";
         public override string name => "http-request-node";
         public override string title => "HttpRequest node";
         public override string script => @"
@@ -26,7 +25,12 @@ function start()
 }
 function callback_result(x)
 {
-    node.set_json_result(x.content);
+    let result = {};
+    result.content = x.content;
+    result.statusCode = x.statusCode;
+
+    var jsonResult = JSON.stringify(result);
+    node.set_json_result(jsonResult);
     node.next();
 }
 ";

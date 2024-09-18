@@ -85,7 +85,7 @@ namespace blueprint.modules.blueprint
                     if (pulseNode != null)
                     {
                         pulseNode.node.InvokeFunction(pulseNode.callback);
-                        IncExecution(dbItem);
+                        IncExecution(dbItem._id);
                     }
                 }
             }
@@ -104,29 +104,51 @@ namespace blueprint.modules.blueprint
                 return item;
             }, new CacheSetting() { key = $"webhook_blueprint_{index_token}", timeLife = TimeSpan.FromSeconds(60) });
 
-
             if (dbItem == null)
-                return null;
+            {
+                var appE = new AppException(System.Net.HttpStatusCode.NotFound);
+                throw appE;
+            }
+
+            if (!dbItem.active)
+            {
+                var appE = new AppException(System.Net.HttpStatusCode.NotFound);
+                appE.AddHint("hint", "Blueptint is deactive.");
+                throw appE;
+            }
 
             var sourceBlueprint = await GetBlueprint(dbItem._id);
             var process = await BlueprintProcessModule.Instance.CreateProcess(sourceBlueprint, dbItem.data_snapshot);
 
             var webhookNode = process.blueprint.FindComponents<Webhook>().Where(i => i.token == token).Select(i => i.node).FirstOrDefault();
             if (webhookNode == null)
-                return null;
+            {
+                var appE = new AppException(System.Net.HttpStatusCode.NotFound);
+                appE.AddHint("hint", "Webhook node is not found.");
+                throw appE;
+            }
+
+            var queryData = new JObject();
+            foreach (var i in context.Request.Query)
+                queryData[i.Key] = i.Value.ToString();
+
+            var headersData = new JObject();
+            foreach (var i in context.Request.Headers)
+                headersData[i.Key] = i.Value.ToString();
 
             var resItem = new
             {
-                headers = context.Request.Headers.Select(i => new { name = i.Key, value = i.Value }).ToList(),
-                query = context.Request.Query.Select(i => new { name = i.Key, value = i.Value }).ToList(),
+                webhook_token = token,
+                headers = headersData,
+                query = queryData,
                 remoteIp_v4 = context.Connection.RemoteIpAddress.MapToIPv4().ToString(),
                 remoteIp_v6 = context.Connection.RemoteIpAddress.MapToIPv6().ToString(),
             };
 
-            webhookNode.set_result(JObject.FromObject(resItem).ToString());
+            webhookNode.set_result(JObject.FromObject(resItem).ToString(Newtonsoft.Json.Formatting.Indented));
             webhookNode.CallStart();
 
-            IncExecution(dbItem);
+            IncExecution(dbItem._id);
 
             //var timeout = TimeSpan.FromSeconds(Convert.ToInt32(webhookNode.GetField("timeout")));
             var result = await process.blueprint.WaitForWebResponse(TimeSpan.FromSeconds(10));
@@ -134,11 +156,11 @@ namespace blueprint.modules.blueprint
             return result;
         }
 
-        private async void IncExecution(database.blueprint_model dbItem)
+        private async void IncExecution(string id)
         {
             try
             {
-                await dbContext.UpdateOneAsync(i => i._id == dbItem._id, Builders<database.blueprint_model>.Update.Inc(j => j.exec_counter, 1));
+                await dbContext.UpdateOneAsync(i => i._id == id, Builders<database.blueprint_model>.Update.Inc(j => j.exec_counter, 1));
             }
             catch (Exception e)
             {
@@ -164,7 +186,7 @@ namespace blueprint.modules.blueprint
                 item.createDateTime = DateTime.UtcNow;
                 item.data_snapshot = new Blueprint().Snapshot();
             }
-            item.run = request.run;
+            item.active = request.active;
 
             var changedBlueprint = await LoadBlueprint(item._id, request.blueprint);
             var mainBlueprint = await GetBlueprint(item._id);
@@ -189,7 +211,7 @@ namespace blueprint.modules.blueprint
 
             await dbContext.ReplaceOneAsync(i => i._id == item._id, item, new ReplaceOptions() { IsUpsert = true });
 
-            Handle_Pulse(id, changedBlocks, removedBlocks, item.run);
+            Handle_Pulse(id, changedBlocks, removedBlocks, item.active);
             return await Get(item._id, fromAccountId);
         }
         private static void Handle_Pulse(string id, List<Block> changedBlocks, List<Block> removedBlocks, bool run)
@@ -285,7 +307,7 @@ namespace blueprint.modules.blueprint
                     description = i.description,
                     createDateTime = i.createDateTime,
                     updateDateTime = i.updateDateTime,
-                    run = i.run,
+                    run = i.active,
                 },
                 accId = i.account_id,
                 snapshot = i.data_snapshot,
@@ -421,6 +443,7 @@ namespace blueprint.modules.blueprint
 
                 mainBlock.name = changedBlock.name;
                 mainBlock.coordinate = changedBlock.coordinate;
+                mainBlock.reference_id = changedBlock.reference_id;
                 bool isAdded = addBlockIds.Contains(changedBlock.id);
 
                 if (changedBlock is Node editNode)

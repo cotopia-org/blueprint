@@ -7,7 +7,6 @@ namespace blueprint.modules.node.builtinnodes
 {
     public class PulseNode : NodeBuilder
     {
-        public override string id => "65c4115a0111a5ca6bd022c2";
         public override string name => "pulse-node";
         public override string title => "Pulse node";
         public override string script => @"

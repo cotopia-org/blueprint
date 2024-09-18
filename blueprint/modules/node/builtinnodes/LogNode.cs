@@ -8,14 +8,13 @@ namespace blueprint.modules.node.builtinnodes
 {
     public class LogNode : NodeBuilder
     {
-        public override string id => "65c4115a0111a5ca6bd473c6";
         public override string name => "log-node";
         public override string title => "Log node";
         public override string script => @"
 function start()
 {
-    node.print(node.field(""text""));
-    node.log(node.field(""text""));
+    node.print(node.field('text'));
+    node.log(node.field('text'));
     node.next();
 }
 ";

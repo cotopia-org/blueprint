@@ -4,11 +4,10 @@ using blueprint.modules.blueprint.core.fields;
 
 namespace blueprint.modules.node.builtinnodes
 {
-    public class ConditionNode : NodeBuilder
+    public class IfNode : NodeBuilder
     {
-        public override string id => "65c4115a0111a5ca6bd021c7";
-        public override string name => "condition-node";
-        public override string title => "Condition node";
+        public override string name => "if-node";
+        public override string title => "If node";
         public override string script => @"
 function start()
 {

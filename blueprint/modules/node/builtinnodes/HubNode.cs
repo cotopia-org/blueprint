@@ -4,11 +4,10 @@ using blueprint.modules.blueprint.core.fields;
 
 namespace blueprint.modules.node.builtinnodes
 {
-    public class BranchNode : NodeBuilder
+    public class HubNode : NodeBuilder
     {
-        public override string id => "65c4115a0111a2ca6cd021a9";
-        public override string name => "branch-node";
-        public override string title => "Branch node";
+        public override string name => "hub-node";
+        public override string title => "Hub node";
         public override string script => @"
 function start()
 {

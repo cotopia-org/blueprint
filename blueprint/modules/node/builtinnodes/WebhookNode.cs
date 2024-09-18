@@ -7,7 +7,6 @@ namespace blueprint.modules.node.builtinnodes
 {
     public class WebhookNode : NodeBuilder
     {
-        public override string id => "65c4115a0111a5ca6bd122c2";
         public override string name => "webhook-node";
         public override string title => "Webhook node";
         public override string script => @"

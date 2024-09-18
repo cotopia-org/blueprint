@@ -20,7 +20,7 @@ namespace blueprint.modules.webhook.controller
             //else
             //    return BadRequest();
 
-            return new ContentResult() { StatusCode = result.statusCode, Content = result.Content, ContentType = "text/plain" };
+            return new ContentResult() { StatusCode = result.statusCode, Content = result.Content, ContentType = "text/plain;  charset=utf-8" };
         }
     }
 }
