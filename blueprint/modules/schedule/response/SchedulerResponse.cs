@@ -1,7 +1,7 @@
 ﻿using MongoDB.Bson;
 using Newtonsoft.Json.Linq;
 
-namespace blueprint.modules.scheduler.database
+namespace blueprint.modules.schedule.database
 {
     public class SchedulerResponse
     {

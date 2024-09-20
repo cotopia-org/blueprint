@@ -8,7 +8,7 @@ using blueprint.modules.config;
 using blueprint.modules.database.logic;
 using blueprint.modules.drive.logic;
 using blueprint.modules.node.logic;
-using blueprint.modules.scheduler.logic;
+using blueprint.modules.schedule.logic;
 using Newtonsoft.Json.Linq;
 using blueprint.modules.blueprint.core.fields;
 using blueprint.modules.blueprintlog.logic;
@@ -23,7 +23,7 @@ namespace blueprint.modules._global
             await base.RunAsync();
             await ConfigModule.Instance.RunAsync();
             await DatabaseModule.Instance.RunAsync();
-            await SchedulerModule.Instance.RunAsync();
+            await ScheduleModule.Instance.RunAsync();
             await AuthModule.Instance.RunAsync();
             await DriveModule.Instance.RunAsync();
             await NodeModule.Instance.RunAsync();

@@ -4,7 +4,7 @@ using blueprint.modules.blueprint.core;
 using blueprint.modules.blueprint.core.blocks;
 using blueprint.modules.blueprint.core.component;
 using blueprint.modules.database.logic;
-using blueprint.modules.scheduler.logic;
+using blueprint.modules.schedule.logic;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
@@ -22,10 +22,10 @@ namespace blueprint.modules.blueprintProcess.logic
         {
             await base.RunAsync();
             dbContext = DatabaseModule.Instance.database.GetCollection<database.Process>("process");
-            SchedulerModule.Instance.OnAction += Instance_OnAction;
+            ScheduleModule.Instance.OnAction += Instance_OnAction;
         }
 
-        private void Instance_OnAction(scheduler.database.SchedulerResponse scheduler)
+        private void Instance_OnAction(schedule.database.SchedulerResponse scheduler)
         {
             if (scheduler.category == "process")
             {
@@ -133,7 +133,7 @@ namespace blueprint.modules.blueprintProcess.logic
             }
         }
 
-        public void Wait(Node node, double waitTime, string callBackFunction)
+        public void Wait(Node node, double durration, string callBackFunction)
         {
             if (node.bind_blueprint._process != null)
             {
@@ -143,8 +143,8 @@ namespace blueprint.modules.blueprintProcess.logic
                 data["nodeId"] = node.id;
                 data["function"] = callBackFunction;
                 data["processId"] = node.bind_blueprint._process.id;
-                data["duration"] = waitTime;
-                SchedulerModule.Instance.Upsert($"process_{node.bind_blueprint._process.id}", TimeSpan.FromSeconds(waitTime), data.ToString(Newtonsoft.Json.Formatting.None), "process", false);
+                data["duration"] = durration;
+                ScheduleModule.Instance.Upsert($"process_{node.bind_blueprint._process.id}", TimeSpan.FromSeconds(durration), data.ToString(Newtonsoft.Json.Formatting.None), "process");
             }
         }
     }

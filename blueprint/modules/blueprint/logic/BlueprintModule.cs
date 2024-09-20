@@ -13,7 +13,7 @@ using blueprint.modules.blueprint.response;
 using blueprint.modules.blueprintProcess.logic;
 using blueprint.modules.database.logic;
 using blueprint.modules.node.logic;
-using blueprint.modules.scheduler.logic;
+using blueprint.modules.schedule.logic;
 using blueprint.modules.blueprint.logic;
 using blueprint.srtool;
 using System.Net.WebSockets;
@@ -32,7 +32,7 @@ namespace blueprint.modules.blueprint
             Indexing();
             debugItems = new List<BlueprintDebugHandler>();
             BlueprintProcessModule.Instance.OnCreateProcess += Instance_OnCreateProcess;
-            SchedulerModule.Instance.OnAction += Instance_OnAction;
+            ScheduleModule.Instance.OnAction += Instance_OnAction;
         }
 
         private void Instance_OnCreateProcess(Process process)
@@ -59,7 +59,7 @@ namespace blueprint.modules.blueprint
                 Debug.Error(e);
             }
         }
-        private void Instance_OnAction(scheduler.database.SchedulerResponse item)
+        private void Instance_OnAction(schedule.database.SchedulerResponse item)
         {
             if (item.category == "node:pulse")
             {
@@ -235,9 +235,9 @@ namespace blueprint.modules.blueprint
                             var delay = TimeSpan.FromSeconds(double.Parse(pulse.node.GetField(pulse.delayParam).ToString()));
 
                             if (run)
-                                SchedulerModule.Instance.Upsert(_sm_id, delay, payload.ToString(), "node:pulse", true);
+                                ScheduleModule.Instance.Upsert(_sm_id, TimeSpan.FromSeconds(delay.TotalSeconds), payload.ToString(), "node:pulse");
                             else
-                                SchedulerModule.Instance.Remove(_sm_id);
+                                ScheduleModule.Instance.Remove(_sm_id);
                         }
                     }
                 }
@@ -255,7 +255,7 @@ namespace blueprint.modules.blueprint
                         {
                             var _sm_id = $"pulse:{id}_{pulse.node.id}_{pulse.name}";
 
-                            SchedulerModule.Instance.Remove(_sm_id);
+                            ScheduleModule.Instance.Remove(_sm_id);
                         }
                     }
                 }

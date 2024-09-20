@@ -4,6 +4,7 @@ using blueprint.core;
 using blueprint.modules.config;
 using blueprint.modules._global;
 using blueprint.modules.blueprintProcess.logic;
+using blueprint.modules.schedule;
 
 await SystemModule.Instance.RunAsync();
 
