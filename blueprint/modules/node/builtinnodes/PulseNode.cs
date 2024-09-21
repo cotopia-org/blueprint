@@ -19,13 +19,13 @@ function on_pulse()
         {
             var node = base.Node();
 
-            var pulse = node.AddComponent<Pulse>();
-            pulse.name = "c1";
-            pulse.delayParam = "delay";
-            pulse.callback = "on_pulse";
-
-            node.SetField("delay", 10);
+            node.SetField("cronExpression", "*/10 * * * *");
             node.SetField("next", new List<Field>());
+
+            var cron = node.AddComponent<Cron>();
+            cron.name = "c1";
+            cron.expressionParam = "cronExpression";
+            cron.callback = "on_pulse";
 
             return node;
         }

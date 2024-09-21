@@ -61,15 +61,23 @@ namespace blueprint.modules.blueprint
         }
         private void Instance_OnAction(schedule.database.SchedulerResponse item)
         {
-            if (item.category == "node:pulse")
+            if (item.category == "blueprint")
             {
                 var data = item.payload.ToJObject();
-                var blueprint_id = (string)data["blueprint_id"];
-                var node_id = (string)data["node_id"];
-                Exec_pulse(blueprint_id, node_id);
+
+                var type = (string)data["type"];
+                switch (type)
+                {
+                    case "cron":
+                        var blueprint_id = (string)data["blueprint_id"];
+                        var node_id = (string)data["node_id"];
+                        Exec_cron(blueprint_id, node_id);
+                        break;
+                }
+
             }
         }
-        public async void Exec_pulse(string blueprint_id, string node_id)
+        public async void Exec_cron(string blueprint_id, string node_id)
         {
             try
             {
@@ -79,12 +87,12 @@ namespace blueprint.modules.blueprint
                     var source = await BlueprintModule.Instance.GetBlueprint(blueprint_id);
                     var process = await BlueprintProcessModule.Instance.CreateProcess(source, dbItem.data_snapshot);
 
-                    var pulses = process.blueprint.FindComponents<Pulse>();
+                    var crons = process.blueprint.FindComponents<Cron>();
 
-                    var pulseNode = pulses.FirstOrDefault(i => i.node.id == node_id);
-                    if (pulseNode != null)
+                    var node = crons.FirstOrDefault(i => i.node.id == node_id);
+                    if (node != null)
                     {
-                        pulseNode.node.InvokeFunction(pulseNode.callback);
+                        node.node.InvokeFunction(node.callback);
                         IncExecution(dbItem._id);
                     }
                 }
@@ -211,31 +219,33 @@ namespace blueprint.modules.blueprint
 
             await dbContext.ReplaceOneAsync(i => i._id == item._id, item, new ReplaceOptions() { IsUpsert = true });
 
-            Handle_Pulse(id, changedBlocks, removedBlocks, item.active);
+            Handle_Cron(id, changedBlocks, removedBlocks, item.active);
             return await Get(item._id, fromAccountId);
         }
-        private static void Handle_Pulse(string id, List<Block> changedBlocks, List<Block> removedBlocks, bool run)
+        private static void Handle_Cron(string id, List<Block> changedBlocks, List<Block> removedBlocks, bool active)
         {
             foreach (var block in changedBlocks)
             {
                 if (block is Node node)
                 {
-                    if (node.HasComponent<Pulse>())
+                    if (node.HasComponent<Cron>())
                     {
-                        var pulseComponents = node.GetComponents<Pulse>();
+                        var cronComponents = node.GetComponents<Cron>();
 
-                        foreach (var pulse in pulseComponents)
+                        foreach (var cron in cronComponents)
                         {
                             var payload = new JObject();
-                            payload["name"] = pulse.name;
+                            payload["type"] = "cron";
+
+                            payload["name"] = cron.name;
                             payload["blueprint_id"] = id;
-                            payload["node_id"] = pulse.node.id;
+                            payload["node_id"] = cron.node.id;
 
-                            var _sm_id = $"pulse:{id}_{pulse.node.id}_{pulse.name}";
-                            var delay = TimeSpan.FromSeconds(double.Parse(pulse.node.GetField(pulse.delayParam).ToString()));
+                            var _sm_id = $"blueprint:{id}:cron:{cron.node.id}>{cron.name}";
+                            var cronExpression = (string)cron.node.GetField(cron.expressionParam);
 
-                            if (run)
-                                ScheduleModule.Instance.Upsert(_sm_id, TimeSpan.FromSeconds(delay.TotalSeconds), payload.ToString(), "node:pulse");
+                            if (active)
+                                ScheduleModule.Instance.Upsert(_sm_id, cronExpression, payload.ToString(), "blueprint");
                             else
                                 ScheduleModule.Instance.Remove(_sm_id);
                         }
@@ -247,9 +257,9 @@ namespace blueprint.modules.blueprint
             {
                 if (block is Node node)
                 {
-                    if (node.HasComponent<Pulse>())
+                    if (node.HasComponent<Cron>())
                     {
-                        var pulseComponents = node.GetComponents<Pulse>();
+                        var pulseComponents = node.GetComponents<Cron>();
 
                         foreach (var pulse in pulseComponents)
                         {
@@ -480,12 +490,12 @@ namespace blueprint.modules.blueprint
                     component.token = Utility.CalculateMD5Hash(Guid.NewGuid().ToString()).ToLower();
                 }
                 else
-                if (reference.HasComponent<Pulse>() && !main.HasComponent<Pulse>())
+                if (reference.HasComponent<Cron>() && !main.HasComponent<Cron>())
                 {
-                    var refComponent = reference.GetComponent<Pulse>();
-                    var component = main.AddComponent<Pulse>();
+                    var refComponent = reference.GetComponent<Cron>();
+                    var component = main.AddComponent<Cron>();
                     component.name = refComponent.name;
-                    component.delayParam = refComponent.delayParam;
+                    component.expressionParam = refComponent.expressionParam;
                     component.callback = refComponent.callback;
                 }
             }

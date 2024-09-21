@@ -34,12 +34,12 @@ namespace blueprint.modules.blueprintProcess.logic
                 switch (type)
                 {
                     case "wait":
-                        On_wait(payload);
+                        On_end_wait(payload);
                         break;
                 }
             }
         }
-        private async void On_wait(JObject payload)
+        private async void On_end_wait(JObject payload)
         {
             try
             {
@@ -141,10 +141,12 @@ namespace blueprint.modules.blueprintProcess.logic
                 var data = new JObject();
                 data["type"] = "wait";
                 data["nodeId"] = node.id;
-                data["function"] = callBackFunction;
+                data["blueprintId"] = node.bind_blueprint.id;
                 data["processId"] = node.bind_blueprint._process.id;
+                data["function"] = callBackFunction;
+
                 data["duration"] = durration;
-                ScheduleModule.Instance.Upsert($"process_{node.bind_blueprint._process.id}", TimeSpan.FromSeconds(durration), data.ToString(Newtonsoft.Json.Formatting.None), "process");
+                ScheduleModule.Instance.Upsert($"process_{node.bind_blueprint._process.id}", TimeSpan.FromSeconds(durration), data.ToString(Newtonsoft.Json.Formatting.None), "blueprint");
             }
         }
     }

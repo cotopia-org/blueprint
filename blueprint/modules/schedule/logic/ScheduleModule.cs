@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.DataProtection.KeyManagement;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
+using NCrontab;
 using srtool;
 
 namespace blueprint.modules.schedule.logic
@@ -43,7 +44,7 @@ namespace blueprint.modules.schedule.logic
                 {
                     schedules = await dbContext
                          .AsQueryable()
-                         .Where(i => i.updateTime < DateTime.UtcNow)
+                         .Where(i => i.nextOccurrenceTime < DateTime.UtcNow)
                          .Take(50)
                          .ToListAsync();
 
@@ -62,19 +63,15 @@ namespace blueprint.modules.schedule.logic
                             #region Renew
                             if (schedule.expression != null)
                             {
-                                var cron = Cronos.CronExpression.Parse(schedule.expression);
+                                var cron = CrontabSchedule.Parse(schedule.expression, new CrontabSchedule.ParseOptions() { IncludingSeconds = true });
                                 var nextOccurrence = cron.GetNextOccurrence(now);
-                                if (nextOccurrence != null)
-                                {
-                                    var createTime = schedule.updateTime;
 
-                                    await dbContext.UpdateOneAsync(
-                                     Builders<Schedule>.Filter.Eq(i => i.key, schedule.key),
-                                       Builders<Schedule>.Update
-                                       .Set(i => i.updateTime, now)
-                                       .Set(i => i.nextOccurrenceTime, nextOccurrence.Value)
-                                     );
-                                }
+                                await dbContext.UpdateOneAsync(
+                                 Builders<Schedule>.Filter.Eq(i => i.key, schedule.key),
+                                   Builders<Schedule>.Update
+                                   .Set(i => i.updateTime, now)
+                                   .Set(i => i.nextOccurrenceTime, nextOccurrence)
+                                 );
                             }
                             #endregion
                             #region Call
@@ -120,24 +117,21 @@ namespace blueprint.modules.schedule.logic
             {
                 var now = DateTime.UtcNow;
 
-                var cron = Cronos.CronExpression.Parse(expression);
+                var cron = CrontabSchedule.Parse(expression, new CrontabSchedule.ParseOptions() { IncludingSeconds = true });
                 var nextOccurrence = cron.GetNextOccurrence(now);
-                if (nextOccurrence != null)
-                {
 
-                    await dbContext.UpdateOneAsync(
-                    Builders<Schedule>.Filter.Eq(i => i.key, key),
-                      Builders<Schedule>.Update
-                      .Set(i => i.key, key)
-                      .Set(i => i.category, category)
-                      .Set(i => i.expression, expression)
-                      .Set(i => i.payload, payload)
-                      .Set(i => i.nextOccurrenceTime, nextOccurrence)
-                      .Set(i => i.repeat, true)
-                      .Set(i => i.updateTime, now)
-                      , new UpdateOptions() { IsUpsert = true }
-                    );
-                }
+                await dbContext.UpdateOneAsync(
+                Builders<Schedule>.Filter.Eq(i => i.key, key),
+                  Builders<Schedule>.Update
+                  .Set(i => i.key, key)
+                  .Set(i => i.category, category)
+                  .Set(i => i.expression, expression)
+                  .Set(i => i.payload, payload)
+                  .Set(i => i.nextOccurrenceTime, nextOccurrence)
+                  .Set(i => i.repeat, true)
+                  .Set(i => i.updateTime, now)
+                  , new UpdateOptions() { IsUpsert = true }
+                );
             }
             catch (Exception e)
             {
@@ -158,7 +152,7 @@ namespace blueprint.modules.schedule.logic
                   .Set(i => i.expression, null)
                   .Set(i => i.payload, payload)
                   .Set(i => i.nextOccurrenceTime, now + delta)
-                  .Set(i => i.repeat, true)
+                  .Set(i => i.repeat, false)
                   .Set(i => i.updateTime, now)
                   , new UpdateOptions() { IsUpsert = true }
                 );

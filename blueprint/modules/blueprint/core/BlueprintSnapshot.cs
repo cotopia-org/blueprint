@@ -457,11 +457,8 @@ namespace blueprint.modules.blueprint.core
             {
                 case "webhook":
                     return new Webhook() { name = name, node = node, token = (string)data["token"] };
-                case "pulse":
-                    {
-                        Enum.TryParse<origin>((string)data["origin"], out origin origin);
-                        return new Pulse() { name = name, node = node, callback = (string)data["callback"], delayParam = (string)data["delayParam"], origin = origin };
-                    }
+                case "cron":
+                    return new Cron() { name = name, node = node, callback = (string)data["callback"], expressionParam = (string)data["expressionParam"] };
                 default:
                     return new ComponentBase() { node = node, name = name };
             }
@@ -477,12 +474,11 @@ namespace blueprint.modules.blueprint.core
                 result["token"] = webhook.token;
             }
             else
-            if (component is Pulse pulse)
+            if (component is Cron cron)
             {
-                result["type"] = "pulse";
-                result["callback"] = pulse.callback;
-                result["delayParam"] = pulse.delayParam;
-                result["origin"] = pulse.origin.ToString();
+                result["type"] = "cron";
+                result["callback"] = cron.callback;
+                result["expressionParam"] = cron.expressionParam;
             }
             else
             {
