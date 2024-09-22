@@ -2,7 +2,6 @@
 using blueprint.modules.blueprint.runtime.tools;
 using Microsoft.ClearScript.V8;
 using System.Text.RegularExpressions;
-
 namespace blueprint.modules.blueprint.core
 {
     public class Script

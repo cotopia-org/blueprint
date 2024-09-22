@@ -37,14 +37,19 @@ namespace blueprint.modules.blueprint
 
         private void Instance_OnCreateProcess(Process process)
         {
-            if (debugItems.Count > 0)
+            BlueprintDebugHandler debugItem = null;
+            lock (debugItems)
             {
-                var debugItem = debugItems.FirstOrDefault(i => i.id == process.blueprint.id);
-                if (debugItem != null)
+                if (debugItems.Count > 0)
                 {
-                    debugItems.Remove(debugItem);
-                    debugItem.Bind(process);
+                    debugItem = debugItems.FirstOrDefault(i => i.id == process.blueprint.id);
+
                 }
+            }
+            if (debugItem != null)
+            {
+                debugItems.Remove(debugItem);
+                debugItem.Bind(process);
             }
         }
         private async void Indexing()
@@ -463,7 +468,6 @@ namespace blueprint.modules.blueprint
                     UpsertNode(mainNode, editNode, referenceNode, isAdded);
 
                     changedBlocks.Add(mainNode);
-
                 }
                 else
                 if (changedBlock is StickyNote editStickyNote)
@@ -472,7 +476,6 @@ namespace blueprint.modules.blueprint
                     mainStickyNote.text = editStickyNote.text;
 
                     changedBlocks.Add(editStickyNote);
-
                 }
 
             }
@@ -484,10 +487,15 @@ namespace blueprint.modules.blueprint
                 if (reference.HasComponent<Webhook>() && !main.HasComponent<Webhook>())
                 {
                     var refComponent = reference.GetComponent<Webhook>();
+                    var component = main.GetComponent<Webhook>();
 
-                    var component = main.AddComponent<Webhook>();
+                    if (component == null)
+                        component = main.AddComponent<Webhook>();
+
+
                     component.name = refComponent.name;
-                    component.token = Utility.CalculateMD5Hash(Guid.NewGuid().ToString()).ToLower();
+                    if (isAdded)
+                        component.token = Utility.CalculateMD5Hash(Guid.NewGuid().ToString()).ToLower();
                 }
                 else
                 if (reference.HasComponent<Cron>() && !main.HasComponent<Cron>())
@@ -514,7 +522,7 @@ namespace blueprint.modules.blueprint
                 }
                 return null;
 
-            }, new CacheSetting() { key = $"blueprint_{id}", timeLife = TimeSpan.FromMinutes(5) });
+            }, new CacheSetting() { key = $"blueprint:{id}", timeLife = TimeSpan.FromMinutes(5) });
         }
 
         public async Task LiveTrace(WSConnection connection, string id)
@@ -527,12 +535,14 @@ namespace blueprint.modules.blueprint
             debugHandler.onDisconnect += DebugHandler_onDisconnect;
             debugHandler.Bind(blueprint);
             debugHandler.Bind(connection);
-            debugItems.Add(debugHandler);
+            lock (debugItems)
+                debugItems.Add(debugHandler);
         }
 
         private void DebugHandler_onDisconnect(BlueprintDebugHandler item)
         {
-            debugItems.Remove(item);
+            lock (debugItems)
+                debugItems.Remove(item);
         }
     }
 }

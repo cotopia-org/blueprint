@@ -12,7 +12,6 @@ namespace blueprint.modules.schedule.logic
 {
     public class ScheduleModule : Module<ScheduleModule>
     {
-
         public IMongoCollection<database.Schedule> dbContext { get; private set; }
         public event Action<SchedulerResponse> OnAction;
 
