@@ -49,6 +49,7 @@ namespace blueprint.modules.schedule.logic
 
                     if (schedules.Count > 0)
                     {
+
                         var ids_to_remove = schedules.Where(i => !i.repeat).Select(i => i._id).ToList();
                         if (ids_to_remove.Count > 0)
                         {
@@ -85,6 +86,10 @@ namespace blueprint.modules.schedule.logic
                             #endregion
                         }
                     }
+                    else
+                    {
+                        await Task.Delay(500);
+                    }
                 }
                 catch (Exception e)
                 {
@@ -94,7 +99,6 @@ namespace blueprint.modules.schedule.logic
                         Debug.Error(e);
                 }
 
-                await Task.Delay(500);
             }
         }
         private void ExucuteSchedule(database.Schedule schedule)

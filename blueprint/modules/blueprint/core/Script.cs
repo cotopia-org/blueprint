@@ -1,7 +1,7 @@
 ﻿using blueprint.modules.blueprint.runtime;
 using blueprint.modules.blueprint.runtime.tools;
-using Microsoft.ClearScript.V8;
 using System.Text.RegularExpressions;
+using Jint;
 namespace blueprint.modules.blueprint.core
 {
     public class Script
@@ -15,11 +15,11 @@ namespace blueprint.modules.blueprint.core
         }
         public object AsExpression(ScriptInput scriptInput)
         {
-            return ParseExpressions( code, scriptInput);
+            return ParseExpressions(code, scriptInput);
         }
-        public void Invoke( string function, ScriptInput scriptInput)
+        public void Invoke(string function, ScriptInput scriptInput)
         {
-            run_as_java_script(code, scriptInput, false, function);
+            run_script(code, scriptInput, false, function);
         }
         private object ParseExpressions(string input, ScriptInput scriptInput)
         {
@@ -40,7 +40,7 @@ namespace blueprint.modules.blueprint.core
                 var output = regex.Replace(input, match =>
                 {
                     string expressionCode = match.Groups[1].Value;
-                    return run_as_java_script(expressionCode, scriptInput, true)?.ToString();
+                    return run_script(expressionCode, scriptInput, true)?.ToString();
                 });
 
                 return output;
@@ -51,16 +51,22 @@ namespace blueprint.modules.blueprint.core
             }
         }
 
-        private object run_as_java_script(string code, ScriptInput scriptInput, bool expression, string functionName = null)
+        private object run_script(string code, ScriptInput scriptInput, bool expression, string functionName = null)
         {
-            var engine = new V8ScriptEngine();
+
+            var engine = new Engine(options =>
+            {
+                options.LimitMemory(4_000_000);
+                options.TimeoutInterval(TimeSpan.FromSeconds(1));
+                options.MaxStatements(1000);
+            });
             //{
             try
             {
                 foreach (var hostObject in scriptInput.hostObjects)
-                    engine.AddHostObject(hostObject.Key, hostObject.Value);
+                    engine.SetValue(hostObject.Key, hostObject.Value);
 
-                engine.AddHostType("httprequest", typeof(httprequest));
+                engine.SetValue("httprequest", typeof(httprequest));
                 // Execute the JavaScript code
                 if (expression)
                 {

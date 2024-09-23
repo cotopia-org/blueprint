@@ -55,13 +55,13 @@ namespace blueprint.modules.blueprint.core.blocks
             from = fromNode;
             OnCall?.Invoke(this);
             var scriptInput = new ScriptInput();
-            scriptInput.AddHostObject("node", new runtime.Node(this));
+            scriptInput.AddHostObject("node", this.Runtime());
             script?.Invoke("start", scriptInput);
         }
         public void InvokeFunction(string function)
         {
             var scriptInput = new ScriptInput();
-            scriptInput.AddHostObject("node", new runtime.Node(this));
+            scriptInput.AddHostObject("node", this.Runtime());
             script?.Invoke(function, scriptInput);
         }
         public void ExecuteNode(string address)
@@ -253,6 +253,11 @@ namespace blueprint.modules.blueprint.core.blocks
             {
                 Console.WriteLine(message.ToString());
             }
+        }
+
+        public runtime.Node Runtime()
+        {
+            return new runtime.Node(this);
         }
     }
 }

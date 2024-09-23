@@ -271,7 +271,7 @@ namespace blueprint.modules.blueprint.core.fields
             if (value is Expression expression)
             {
                 var input = new ScriptInput();
-                input.AddHostObject("node", new runtime.Node(fromNode));
+                input.AddHostObject("node", fromNode.Runtime());
 
                 return expression.Value(input);
             }
