@@ -15,6 +15,7 @@ namespace blueprint.modules.schedule.database
         public string payload { get; set; }
         public bool repeat { get; set; }
         public DateTime nextOccurrenceTime { get; set; }
+        public DateTime checkinTime { get; set; }
         public DateTime updateTime { get; set; }
     }
 }

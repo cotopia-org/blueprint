@@ -448,7 +448,7 @@ namespace srtool
             sbHTML.Replace("<br ", "\n<br ");
             sbHTML.Replace("<p ", "\n<p ");
 
-            // Finally, remove all HTML tags and return plain text
+            // Finally, remove_by_ids all HTML tags and return plain text
             return Regex.Replace(
               sbHTML.ToString(), "<[^>]*>", "");
         }
