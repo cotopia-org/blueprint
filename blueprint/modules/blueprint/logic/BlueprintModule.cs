@@ -161,7 +161,7 @@ namespace blueprint.modules.blueprint
             webhookNode.set_result(JObject.FromObject(resItem).ToString(Newtonsoft.Json.Formatting.Indented));
             webhookNode.CallStart();
 
-            IncExecution(dbItem._id);
+            //IncExecution(dbItem._id);
 
             //var timeout = TimeSpan.FromSeconds(Convert.ToInt32(webhookNode.GetField("timeout")));
             var result = await process.blueprint.WaitForWebResponse(TimeSpan.FromSeconds(10));
@@ -268,7 +268,7 @@ namespace blueprint.modules.blueprint
 
                         foreach (var pulse in pulseComponents)
                         {
-                            var _sm_id = $"pulse:{id}_{pulse.node.id}_{pulse.name}";
+                            var _sm_id = $"pulse:{id}:{pulse.node.id}:{pulse.name}";
 
                             ScheduleModule.Instance.Remove(_sm_id);
                         }

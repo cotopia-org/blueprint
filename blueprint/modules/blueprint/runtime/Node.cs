@@ -2,6 +2,7 @@
 using blueprint.modules.blueprintlog.logic;
 using System.Net;
 using Newtonsoft.Json.Linq;
+using srtool;
 namespace blueprint.modules.blueprint.runtime
 {
     public class Node
@@ -63,23 +64,24 @@ namespace blueprint.modules.blueprint.runtime
         {
             node.set_static_data(name, value);
         }
-        public void set_json_result(object value)
-        {
-            node.set_result(value);
-        }
-        public JObject json_result
+        public object json_result
         {
             get
             {
                 try
                 {
                     var json = node.get_result();
-                    return JObject.Parse(json);
+                    var result = JObject.Parse(json).ToObject<object>();
+                    return result; 
                 }
                 catch
                 {
-                    return new JObject();
+                    return new object();
                 }
+            }
+            set
+            {
+                node.set_result(value);
             }
         }
         public void webresponse(int statusCode, string content)

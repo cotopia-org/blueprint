@@ -56,16 +56,15 @@ namespace blueprint.modules.blueprint.core
 
             var engine = new Engine(options =>
             {
-                options.LimitMemory(4_000_000);
+                options.LimitMemory(20_000_000);
                 options.TimeoutInterval(TimeSpan.FromSeconds(1));
-                options.MaxStatements(1000);
+                options.MaxStatements(5000);
             });
             //{
             try
             {
                 foreach (var hostObject in scriptInput.hostObjects)
                     engine.SetValue(hostObject.Key, hostObject.Value);
-
                 engine.SetValue("httprequest", typeof(httprequest));
                 // Execute the JavaScript code
                 if (expression)

@@ -23,7 +23,7 @@ function start()
 
     var jsonResult = JSON.stringify(result);
 
-    node.set_json_result(jsonResult);
+    node.json_result = jsonResult;
     node.next();
 }";
         public override Node Node()

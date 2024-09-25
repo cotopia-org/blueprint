@@ -146,7 +146,7 @@ namespace blueprint.modules.blueprintProcess.logic
                 data["function"] = callBackFunction;
 
                 data["duration"] = durration;
-                ScheduleModule.Instance.Upsert($"process_{node.bind_blueprint._process.id}", TimeSpan.FromSeconds(durration), data.ToString(Newtonsoft.Json.Formatting.None), "blueprint");
+                ScheduleModule.Instance.Upsert($"process:wait:{node.bind_blueprint._process.id}", TimeSpan.FromSeconds(durration), data.ToString(Newtonsoft.Json.Formatting.None), "process");
             }
         }
     }

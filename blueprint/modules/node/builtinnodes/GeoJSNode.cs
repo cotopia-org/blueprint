@@ -10,6 +10,7 @@ namespace blueprint.modules.node.builtinnodes
 function start()
 {
       var ipAddress = node.field('ipAddress');
+      node.print('ip address ' + ipAddress);
       httprequest.get('https://get.geojs.io/v1/ip/geo/' + ipAddress + '.json',callback_result);
 }
 function callback_result(x)

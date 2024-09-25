@@ -1,10 +1,11 @@
 ﻿using Microsoft.ClearScript;
+using System.Net;
 
 namespace blueprint.modules.blueprint.runtime.tools
 {
-    public static class httprequest
+    public class httprequest
     {
-        public static async Task get(string url, ScriptObject callback)
+        public static async void get(string url, Action<rest_response> callback)
         {
             var result = new rest_response();
             using (HttpClient client = new HttpClient())
@@ -19,14 +20,13 @@ namespace blueprint.modules.blueprint.runtime.tools
                 }
                 catch (HttpRequestException e)
                 {
-                    result.statusCode = (int)e.StatusCode;
-                    Console.WriteLine($"Error: {e.Message}");
+                    result.statusCode = (int)HttpStatusCode.Conflict;
                 }
 
-                callback.InvokeAsFunction(new object[] { result });
+                callback(result);
             }
         }
-        public static async Task delete(string url, ScriptObject callback)
+        public async void delete(string url, Action<rest_response> callback)
         {
             var result = new rest_response();
             using (HttpClient client = new HttpClient())
@@ -45,7 +45,7 @@ namespace blueprint.modules.blueprint.runtime.tools
                     Console.WriteLine($"Error: {e.Message}");
                 }
 
-                callback.InvokeAsFunction(new object[] { result });
+                callback(result);
             }
         }
     }

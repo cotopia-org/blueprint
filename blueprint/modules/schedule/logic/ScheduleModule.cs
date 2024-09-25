@@ -234,11 +234,15 @@ namespace blueprint.modules.schedule.logic
                 schedule.repeat = true;
                 schedule.updateTime = now;
 
-                if (schedule.checkinTime < now)
+                lock (checkinSchedules)
                 {
                     var item = checkinSchedules.FirstOrDefault(i => i.key == schedule.key);
                     if (item != null)
                         checkinSchedules.Remove(item);
+                }
+
+                if (schedule.checkinTime < now)
+                {
                     checkinSchedules.Add(schedule);
                 }
 
@@ -292,13 +296,17 @@ namespace blueprint.modules.schedule.logic
                 schedule.repeat = false;
                 schedule.updateTime = now;
 
+                lock (checkinSchedules)
+                {
+                    var item = checkinSchedules.FirstOrDefault(i => i.key == schedule.key);
+                    if (item != null)
+                        checkinSchedules.Remove(item);
+                }
+
                 if (schedule.checkinTime < now)
                 {
                     lock (checkinSchedules)
                     {
-                        var item = checkinSchedules.FirstOrDefault(i => i.key == schedule.key);
-                        if (item != null)
-                            checkinSchedules.Remove(item);
                         checkinSchedules.Add(schedule);
                     }
                 }
