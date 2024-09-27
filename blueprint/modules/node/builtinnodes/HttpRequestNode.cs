@@ -29,8 +29,7 @@ function callback_result(x)
     result.content = x.content;
     result.statusCode = x.statusCode;
 
-    var jsonResult = JSON.stringify(result);
-    node.set_json_result(jsonResult);
+    node.result = result;
     node.next();
 }
 ";

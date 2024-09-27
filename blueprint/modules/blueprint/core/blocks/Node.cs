@@ -98,13 +98,16 @@ namespace blueprint.modules.blueprint.core.blocks
         {
             return fields.GetArraySize(address);
         }
-        public void set_result(object value)
+        public string result
         {
-            nodeResult = value?.ToString();
-        }
-        public string get_result()
-        {
-            return nodeResult;
+            get
+            {
+                return nodeResult;
+            }
+            set
+            {
+                nodeResult = value?.ToString();
+            }
         }
         public object get_data(string name, object alter)
         {

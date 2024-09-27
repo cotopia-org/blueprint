@@ -21,9 +21,7 @@ function start()
 
     var result = { matches: matcheItems || [] };
 
-    var jsonResult = JSON.stringify(result);
-
-    node.json_result = jsonResult;
+    node.result = result;
     node.next();
 }";
         public override Node Node()

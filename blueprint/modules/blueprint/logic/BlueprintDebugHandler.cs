@@ -60,7 +60,7 @@ namespace blueprint.modules.blueprint.logic
         {
             connection.Send(new { topic = "call-node", time = time, data = new { nodeId = node.id, fromNodeId = node.from?.id } });
             if (node.from != null)
-                connection.Send(new { topic = "update-node", time = time, data = new { node = new { id = node.from.id, result = node.from.get_result()?.ConvertToJson() } } });
+                connection.Send(new { topic = "update-node", time = time, data = new { node = new { id = node.from.id, result = node.from.result?.ConvertToJson() } } });
         }
     }
 }

@@ -64,15 +64,15 @@ namespace blueprint.modules.blueprint.runtime
         {
             node.set_static_data(name, value);
         }
-        public object json_result
+        public object result
         {
             get
             {
                 try
                 {
-                    var json = node.get_result();
+                    var json = node.result;
                     var result = JObject.Parse(json).ToObject<object>();
-                    return result; 
+                    return result;
                 }
                 catch
                 {
@@ -81,7 +81,14 @@ namespace blueprint.modules.blueprint.runtime
             }
             set
             {
-                node.set_result(value);
+                try
+                {
+                    node.result = JObject.FromObject(value).ToString();
+                }
+                catch (Exception e)
+                {
+                    Debug.Error(e);
+                }
             }
         }
         public void webresponse(int statusCode, string content)

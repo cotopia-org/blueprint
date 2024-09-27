@@ -18,7 +18,7 @@ namespace blueprint.modules.blueprint.runtime.tools
                     var responseBody = await res.Content.ReadAsStringAsync();
                     result.content = responseBody;
                 }
-                catch (HttpRequestException e)
+                catch (HttpRequestException)
                 {
                     result.statusCode = (int)HttpStatusCode.Conflict;
                 }

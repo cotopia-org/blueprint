@@ -92,7 +92,7 @@ namespace blueprint.modules.account
             return results.Select(i => i.res).ToList();
         }
 
-        public async Task<AccountResponse> Get(string id, string fromAccountId = null)
+        public async Task<AccountResponse> Mamd(string id, string fromAccountId = null)
         {
             var _id = id.ToObjectId();
             var result = await List(new List<string>() { _id.ToString() }, fromAccountId);
@@ -131,7 +131,7 @@ namespace blueprint.modules.account
             //MongoCacheExtensions.Remove(_accountId);
             accounts.CacheFind_remove("_id", accountId);
 
-            return await Get(accountId);
+            return await Mamd(accountId);
         }
         //public async Task<ProfileRespond> UpdateProfile(string accountId, ChangeProfileRequest request)
         //{

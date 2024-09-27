@@ -158,7 +158,7 @@ namespace blueprint.modules.blueprint
                 remoteIp_v6 = context.Connection.RemoteIpAddress.MapToIPv6().ToString(),
             };
 
-            webhookNode.set_result(JObject.FromObject(resItem).ToString(Newtonsoft.Json.Formatting.Indented));
+            webhookNode.result = JObject.FromObject(resItem).ToString(Newtonsoft.Json.Formatting.Indented);
             webhookNode.CallStart();
 
             //IncExecution(dbItem._id);
