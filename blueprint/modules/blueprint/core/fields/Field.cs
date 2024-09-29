@@ -167,7 +167,7 @@ namespace blueprint.modules.blueprint.core.fields
         {
             return Value(address, null, alter);
         }
-        public Field GetField(string address)
+        public Field GetField(string address, bool forceCreate = true)
         {
             var splitItems = address.Split('.');
             var splitCount = splitItems.Length;
@@ -188,7 +188,7 @@ namespace blueprint.modules.blueprint.core.fields
                     }
                     else
                     {
-                        return AsArrayList[index].GetField(string.Join('.', splitItems.Skip(1)));
+                        return AsArrayList[index].GetField(string.Join('.', splitItems.Skip(1)), forceCreate);
                     }
                 }
             }
@@ -198,17 +198,33 @@ namespace blueprint.modules.blueprint.core.fields
                 {
                     if (splitCount == 1)
                     {
-                        if (!(AsSubField[splitItem].value is Field field))
+                        //Field subField;
+
+                        //if (AsSubField.ContainsKey(splitItem))
+                        //    subField = AsSubField[splitItem];
+                        //else
+                        //    subField = null;
+
+                        if (!AsSubField.ContainsKey(splitItem) || !(AsSubField[splitItem] is Field field))
                         {
-                            field = new Field();
-                            AsSubField[splitItem].value = field;
+                            if (forceCreate)
+                            {
+                                field = new Field();
+                                AsSubField[splitItem].value = field;
+                            }
+                            else
+                            {
+                                field = null;
+                            }
                         }
                         return field;
                     }
                     else
                     {
-
-                        return AsSubField[splitItem].GetField(string.Join('.', splitItems.Skip(1)));
+                        var _s = AsSubField[splitItem];
+                        var sub_address = string.Join('.', splitItems.Skip(1));
+                        var field = _s.GetField(sub_address, forceCreate);
+                        return field;
                     }
                 }
             }

@@ -375,7 +375,6 @@ namespace blueprint.modules.blueprint.core
         public static Field LoadField(object fromObject, JToken data)
         {
             var field = new Field();
-
             switch (data.Type)
             {
                 case JTokenType.Object:

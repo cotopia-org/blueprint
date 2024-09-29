@@ -38,6 +38,12 @@ namespace blueprint.modules.blueprint.core.blocks
         {
             return fields.Value(address, this, alter);
         }
+        public bool IsExistField(string address)
+        {
+            var field = fields.GetField(address, false);
+            return field != null;
+        }
+
         public void SetField(string address, object value)
         {
             fields.SetValue(address, value);

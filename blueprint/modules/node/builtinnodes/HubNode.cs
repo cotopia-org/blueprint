@@ -19,7 +19,7 @@ function start()
         break;
         case 'step':
         {
-            var count = node.fieldcount('next');
+            var count = node.field_count('next');
             var step = node.get_static_data('step',-1);
             var reverse = node.field('reverse', false);
 
@@ -36,16 +36,16 @@ function start()
         break;
         case 'random':
         {
-            var count = node.fieldcount('next');
+            var count = node.field_count('next');
             var position = Math.floor(Math.random() * count);
             node.execnode('next',position);
         }
         break;
         case 'unique-random': 
         {
-            var count = node.fieldcount('next');
+            var count = node.field_count('next');
             
-            var usedIndicesString = node.get_static_data('usedIndices', '[]');
+            var usedIndicesString  = node.get_static_data('usedIndices', '[]');
             var usedIndices = JSON.parse(usedIndicesString);
 
             if (usedIndices.length >= count) {
@@ -81,4 +81,5 @@ function start()
             return node;
         }
     }
+
 }

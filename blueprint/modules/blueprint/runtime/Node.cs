@@ -40,13 +40,17 @@ namespace blueprint.modules.blueprint.runtime
         {
             node.ExecuteNode(address, position);
         }
-        public int fieldcount(string address)
+        public int field_count(string address)
         {
             return node.GetFieldArraySize(address);
         }
         public object field(string address, object alter = null)
         {
             return node.GetField(address, alter);
+        }
+        public bool is_exist_field(string address)
+        {
+            return node.IsExistField(address);
         }
         public object get_data(string name, object alter = null)
         {
