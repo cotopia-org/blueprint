@@ -19,7 +19,7 @@ function start()
     }
     else
     {
-        node.execnode('');
+        node.execnode('next_default');
     }
 }
 ";
@@ -31,5 +31,6 @@ function start()
             return node;
         }
     }
-
 }
+
+
