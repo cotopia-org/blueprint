@@ -16,13 +16,14 @@ namespace blueprint.modules.blueprint.logic
         public void Bind(Blueprint blueprint)
         {
             this.blueprint = blueprint;
+            connection.Send(new { topic = "listening", time = time, data = new { blueprint = blueprint.JsonSnapshot() } });
+
         }
         public void Bind(WSConnection connection)
         {
             this.connection = connection;
             connection.OnDisconnect += Connection_OnDisconnect;
             DateTime = DateTime.UtcNow;
-            connection.Send(new { topic = "listening", time = time });
         }
 
         private void Connection_OnDisconnect(WSConnection connection, DisconnectInfo info)
@@ -48,7 +49,7 @@ namespace blueprint.modules.blueprint.logic
                 i.OnAddLog += Node_OnAddLog;
 
             }
-            connection.Send(new { topic = "bind-process", time = time, data = new { blueprint = blueprint.JsonSnapshot() } });
+            connection.Send(new { topic = "bind-process", time = time, data = new { process = new { id = process.id }, blueprint = blueprint.JsonSnapshot() } });
         }
 
         private void Node_OnAddLog(runtime.Log log)

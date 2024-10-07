@@ -19,7 +19,6 @@ namespace blueprint.modules.node.controller
         public async Task<IActionResult> Insert([FromBody] NodeRequest request)
         {
             var accountId = await this.GetAccountId();
-
             var response = await NodeModule.Instance.Upsert(null, request, accountId);
 
             return Ok(response);

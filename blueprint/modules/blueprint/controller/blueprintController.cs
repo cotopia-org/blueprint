@@ -1,4 +1,5 @@
 ﻿using blueprint.core;
+using blueprint.modules.auth;
 using blueprint.modules.blueprint.request;
 using blueprint.modules.blueprint.response;
 using blueprint.modules.blueprintlog.logic;
@@ -9,6 +10,7 @@ using srtool;
 using System.ComponentModel.DataAnnotations;
 using System.Net.Sockets;
 using System.Net.WebSockets;
+using ZstdSharp.Unsafe;
 
 namespace blueprint.modules.blueprint.controller
 {
@@ -52,10 +54,12 @@ namespace blueprint.modules.blueprint.controller
         {
             if (HttpContext.WebSockets.IsWebSocketRequest)
             {
+                var accountId = await this.GetAccountId();
+
                 var webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
                 var wsConnection = new WSConnection();
                 wsConnection.Init(webSocket);
-                await BlueprintModule.Instance.LiveTrace(wsConnection, id);
+                await BlueprintModule.Instance.LiveTrace(wsConnection, id, accountId);
                 await wsConnection.RecivedLoop();
             }
             else

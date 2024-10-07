@@ -525,16 +525,29 @@ namespace blueprint.modules.blueprint
             }, new CacheSetting() { key = $"blueprint:{id}", timeLife = TimeSpan.FromMinutes(5) });
         }
 
-        public async Task LiveTrace(WSConnection connection, string id)
+        public async Task LiveTrace(WSConnection connection, string id, string fromAccountId = null)
         {
             var blueprint = await GetBlueprint(id);
+
+            if (fromAccountId != null)
+            {
+                var dbBlueprint = await dbContext.AsQueryable().Where(i => i._id == id).FirstOrDefaultAsync();
+                if (dbBlueprint != null)
+                {
+                    if (dbBlueprint.account_id != fromAccountId)
+                    {
+                        var appExeption = new AppException(System.Net.HttpStatusCode.Forbidden);
+                        throw appExeption;
+                    }
+                }
+            }
 
             var debugHandler = new BlueprintDebugHandler();
             debugHandler.id = id;
 
             debugHandler.onDisconnect += DebugHandler_onDisconnect;
-            debugHandler.Bind(blueprint);
             debugHandler.Bind(connection);
+            debugHandler.Bind(blueprint);
             lock (debugItems)
                 debugItems.Add(debugHandler);
         }

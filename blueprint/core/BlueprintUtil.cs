@@ -24,21 +24,37 @@ namespace blueprint.core
                 return null;
             }
             else
+            if (httpContext.Request.Query.ContainsKey("auth"))
+            {
+                // Get the bearer token from the request headers
+                string token = httpContext.Request.Query["auth"];
+
+                // Extract the token value
+                if (!string.IsNullOrEmpty(token) && token.StartsWith("Bearer "))
+                {
+                    string bearerToken = token.Substring("Bearer ".Length);
+                    // Use the bearer token as needed
+                    // ...
+                    return bearerToken;
+                }
+                return null;
+            }
+
+            else
             {
                 return null;
             }
         }
-        public static async Task<string> GetAccountId(this ControllerBase controller)
+        public static async Task<string> GetAccountId(this ControllerBase controller, string bearerToken)
         {
-            string bearerToken = controller.HttpContext.GetBearerToken();
-            if (bearerToken == null)
+            if (string.IsNullOrEmpty(bearerToken))
             {
                 var appE = new AppException(System.Net.HttpStatusCode.Unauthorized);
                 throw appE;
             }
 
-            string sessionId = AuthModule.Instance.JWTHandler.GetClaim(bearerToken, "session_id");
-            ObjectId _sessionId = ObjectId.Parse(sessionId);
+            var sessionId = AuthModule.Instance.JWTHandler.GetClaim(bearerToken, "session_id");
+            var _sessionId = ObjectId.Parse(sessionId);
 
             //var session = await AuthLogic.Instance.signinSession.AsQueryable()
             //    .Where(i => i._id == _sessionId).FirstOrDefaultAsync(new ExpertQuery() { cacheKey = _sessionId });
@@ -51,6 +67,11 @@ namespace blueprint.core
             }
 
             return session.account_id.ToString();
+        }
+        public static async Task<string> GetAccountId(this ControllerBase controller)
+        {
+            var bearerToken = controller.HttpContext.GetBearerToken();
+            return await GetAccountId(controller, bearerToken);
         }
         public static string GetLoginSessionId(this ControllerBase controller)
         {
