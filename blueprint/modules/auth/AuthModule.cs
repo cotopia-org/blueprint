@@ -132,7 +132,6 @@ namespace blueprint.modules.auth
                  Builders<SigninSession>.Update
                  .Set(i => i.refreshToken, refreshToken)
                  .Set(i => i.sessionName, sessionName)
-                 .Set(i => i.rememberMe, request.rememberMe)
                  .Set(i => i.account_id, foundAccount._id)
                  .Set(i => i.loginDateTime, DateTime.UtcNow)
                  ,
@@ -156,7 +155,6 @@ namespace blueprint.modules.auth
         {
             var result = new AccessTokenResponse();
 
-            //var session = await signinSession.AsQueryable().Where(i => i.refreshToken == refreshToken).FirstOrDefaultAsync(new ExpertQuery() { cacheKey = "refreshToken_" + refreshToken });
             var session = await signinSession.Find_Cache("refreshToken", refreshToken);
 
             if (session == null)

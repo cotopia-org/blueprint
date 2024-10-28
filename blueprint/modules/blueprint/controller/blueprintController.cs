@@ -60,7 +60,7 @@ namespace blueprint.modules.blueprint.controller
                 var wsConnection = new WSConnection();
                 wsConnection.Init(webSocket);
                 await BlueprintModule.Instance.LiveTrace(wsConnection, id, accountId);
-                await wsConnection.RecivedLoop();
+                await wsConnection.ReceivedLoop();
             }
             else
             {

@@ -17,7 +17,7 @@ namespace blueprint.srtool
             this.webSocket = webSocket;
             IsConnected = true;
         }
-        public async Task RecivedLoop()
+        public async Task ReceivedLoop()
         {
             WebSocketReceiveResult result = null;
             try

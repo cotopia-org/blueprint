@@ -10,7 +10,6 @@ namespace api_server.modules.auth.database
         public ObjectId _id { get; set; }
         public ObjectId account_id { get; set; }
         public string sessionName { get; set; }
-        public bool rememberMe { get; set; }
         public string refreshToken { get; set; }
         public DateTime loginDateTime { get; set; }
     }

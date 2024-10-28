@@ -207,7 +207,7 @@ namespace blueprint.modules.node.logic
             dbItem.description = request.description;
             dbItem.account_id = fromAccountId;
             dbItem.script = request.script;
-
+            dbItem.fields = request.fields;
             var node = new blueprint.core.blocks.Node();
             node.name = request.name;
             node.script = new Script(request.script);
@@ -259,7 +259,7 @@ namespace blueprint.modules.node.logic
                     title = i.title,
                     name = i.name,
                     description = i.description,
-                    // fields = i.fields,
+                    fields = i.fields,
                     data = i.data?.ToJObject(),
                     createDateTime = i.createDateTime,
                     updateDateTime = i.updateDateTime,

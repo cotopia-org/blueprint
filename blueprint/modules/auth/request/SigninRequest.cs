@@ -11,8 +11,6 @@ namespace blueprint.modules.auth.request
         [Required]
         [DefaultValue("")]
         public string password { get; set; }
-        [DefaultValue(false)]
-        public bool rememberMe { get; set; }
         [DefaultValue("default-session")]
         public string sessionName { get; set; }
     }
