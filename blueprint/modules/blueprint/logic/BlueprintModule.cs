@@ -126,7 +126,7 @@ namespace blueprint.modules.blueprint
             if (!dbItem.active)
             {
                 var appE = new AppException(System.Net.HttpStatusCode.NotFound);
-                appE.AddHint("hint", "Blueptint is deactive.");
+                appE.AddHint("hint", "Blueprint is deactivate.");
                 throw appE;
             }
 
@@ -536,8 +536,8 @@ namespace blueprint.modules.blueprint
                 {
                     if (dbBlueprint.account_id != fromAccountId)
                     {
-                        var appExeption = new AppException(System.Net.HttpStatusCode.Forbidden);
-                        throw appExeption;
+                        var appException = new AppException(System.Net.HttpStatusCode.Forbidden);
+                        throw appException;
                     }
                 }
             }

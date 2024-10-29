@@ -102,15 +102,23 @@ namespace blueprint.modules.auth
 
             Account foundAccount = null;
 
-            string md5Password = Utility.CalculateMD5Hash(request.password);
-
             if (Utility.IsValidEmail(request.email))
             {
                 foundAccount =
                     await AccountModule.Instance.accounts.AsQueryable()
                     .Where(i =>
-                    i.email == request.email.ToLower() &&
-                    i.passwordMd5 == md5Password).FirstOrDefaultAsync();
+                    i.email == request.email.ToLower()).FirstOrDefaultAsync();
+
+                if (foundAccount != null)
+                {
+                    if (BCrypt.Net.BCrypt.Verify(request.password, foundAccount.hashedPassword))
+                    {
+                    }
+                    else
+                    {
+                        foundAccount = null;
+                    }
+                }
             }
 
             if (foundAccount == null)
@@ -120,7 +128,7 @@ namespace blueprint.modules.auth
                 throw appE;
             }
 
-            string refreshToken = Utility.CalculateMD5Hash("A" + Guid.NewGuid().ToString()) + Utility.CalculateMD5Hash("B" + Guid.NewGuid().ToString());
+            var refreshToken = Utility.CalculateMD5Hash("A" + Guid.NewGuid().ToString()) + Utility.CalculateMD5Hash("B" + Guid.NewGuid().ToString());
 
 
             //////////// Upsert session in database

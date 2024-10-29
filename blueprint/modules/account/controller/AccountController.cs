@@ -22,7 +22,7 @@ namespace blueprint.modules.account.controller
         public async Task<IActionResult> Get([FromRoute] string id)
         {
             var accountId = await this.GetAccountId();
-            var result = await AccountModule.Instance.Mamd(id, accountId);
+            var result = await AccountModule.Instance.Get(id, accountId);
             return Ok(result);
         }
         [HttpGet]
@@ -40,7 +40,7 @@ namespace blueprint.modules.account.controller
         public async Task<IActionResult> Me()
         {
             var accountId = await this.GetAccountId();
-            var result = await AccountModule.Instance.Mamd(accountId, accountId);
+            var result = await AccountModule.Instance.Get(accountId, accountId);
             return Ok(result);
         }
     }

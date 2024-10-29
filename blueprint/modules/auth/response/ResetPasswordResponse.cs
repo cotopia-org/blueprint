@@ -3,6 +3,6 @@ namespace blueprint.modules.auth.response
 {
     public class ResetPasswordResponse
     {
-        public List<SignoutResponse> signouts { get; set; }
+        public List<SignoutResponse> signoutList { get; set; }
     }
 }

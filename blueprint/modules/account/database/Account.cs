@@ -12,7 +12,8 @@ namespace blueprint.modules.account.database
         public string firstName { get; set; }
         public string lastName { get; set; }
         public string email { get; set; }
-        public string passwordMd5 { get; set; }
+        public string hashedPassword { get; set; }
+        public  string saltPassword{get; set; }
         public ObjectId? avatar_fileId { get; set; }
         public List<string> roles { get; set; }
 

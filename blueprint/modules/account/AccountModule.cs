@@ -38,7 +38,9 @@ namespace blueprint.modules.account
             account.lastName = request.lastName;
             account.email = request.email;
             account.signupDateTime = DateTime.UtcNow;
-            account.passwordMd5 = Utility.CalculateMD5Hash(request.password);
+            account.saltPassword = BCrypt.Net.BCrypt.GenerateSalt();
+            account.hashedPassword = BCrypt.Net.BCrypt.HashPassword(request.password, account.saltPassword);
+
             await accounts.InsertOneAsync(account);
         }
         public async Task<PaginationResponse<AccountResponse>> List(Pagination pagination, string search = null, string fromAccountId = null)
@@ -92,7 +94,7 @@ namespace blueprint.modules.account
             return results.Select(i => i.res).ToList();
         }
 
-        public async Task<AccountResponse> Mamd(string id, string fromAccountId = null)
+        public async Task<AccountResponse> Get(string id, string fromAccountId = null)
         {
             var _id = id.ToObjectId();
             var result = await List(new List<string>() { _id.ToString() }, fromAccountId);
@@ -131,36 +133,8 @@ namespace blueprint.modules.account
             //MongoCacheExtensions.Remove(_accountId);
             accounts.CacheFind_remove("_id", accountId);
 
-            return await Mamd(accountId);
+            return await Get(accountId);
         }
-        //public async Task<ProfileRespond> UpdateProfile(string accountId, ChangeProfileRequest request)
-        //{
-        //    var _accountId = accountId.ToObjectId();
-        //    var currentAccount = await DBManager.Instance.accounts.AsQueryable().Where(i => i._id == _accountId).FirstOrDefaultAsync();
-        //    if (currentAccount.email != request.email.ToLower())
-        //    {
-        //        if (await Instance.IsExistEmail(request.email.ToLower()))
-        //            throw new ArgumentException("This email address already exist!");
-        //    }
-        //    if (currentAccount.username != request.username.ToLower())
-        //    {
-        //        if (await Instance.IsExistUsername(request.username.ToLower()))
-        //            throw new ArgumentException("This username already exist!");
-        //    }
-        //    await DBManager.Instance.accounts.UpdateOneAsync(
-        //    Builders<Account>.Filter.Eq(i => i._id, _accountId),
-        //     Builders<Account>.Update
-        //     .Set(i => i.email, request.email)
-        //     .Set(i => i.username, request.username)
-        //     .Set(i => i.fullname, request.fullname)
-        //     .Set(i => i.avatarMediaId, request.avatarMediaId.ToObjectId())
-        //     .Set(i => i.isVerifyEmail, true)
-        //     .Set(i => i.jobs, request.jobs)
-        //     .Set(i => i.bio, request.bio)
-        //     .Set(i => i.location, request.location)
-        //     );
-        //    return await GetProfile(accountId);
-        //}
         public async Task<ResetPasswordResponse> ResetPassword(string accountId, ResetPasswordRequest request)
         {
             var _accountId = accountId.ToObjectId();
@@ -169,9 +143,9 @@ namespace blueprint.modules.account
             Builders<Account>.Filter.Eq(i => i._id, _accountId),
 
              Builders<Account>.Update
-             .Set(i => i.passwordMd5, Utility.CalculateMD5Hash(request.newPassword)));
+             .Set(i => i.hashedPassword, Utility.CalculateMD5Hash(request.newPassword)));
             ResetPasswordResponse resetPasswordResponse = new ResetPasswordResponse();
-            resetPasswordResponse.signouts = await AuthModule.Instance.Signout(accountId);
+            resetPasswordResponse.signoutList = await AuthModule.Instance.Signout(accountId);
             //MongoCacheExtensions.Remove(_accountId);
             accounts.CacheFind_remove("_id", accountId);
             return resetPasswordResponse;
@@ -191,7 +165,7 @@ namespace blueprint.modules.account
             Builders<Account>.Filter.Eq(i => i._id, _accountId),
 
              Builders<Account>.Update
-             .Set(i => i.passwordMd5, Utility.CalculateMD5Hash(request.newPassword)));
+             .Set(i => i.hashedPassword, Utility.CalculateMD5Hash(request.newPassword)));
             var result = new ChangePasswordResponse();
             result.signouts = await AuthModule.Instance.Signout(accountId);
             //MongoCacheExtensions.Remove(_accountId);
