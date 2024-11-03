@@ -1,6 +1,5 @@
 ﻿using blueprint.modules.blueprint.core.blocks;
 using blueprint.modules.blueprint.core.fields;
-using Microsoft.ClearScript.V8;
 
 namespace blueprint.modules.blueprint.core
 {

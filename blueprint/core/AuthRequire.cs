@@ -12,8 +12,8 @@ namespace blueprint.core
     [AttributeUsage(AttributeTargets.All, AllowMultiple = false)]
     public sealed class AuthRequire : Attribute, IAsyncActionFilter
     {
-        string subrole = null;
-        public AuthRequire(string subrole) { this.subrole = subrole; }
+        private string subrule = null;
+        public AuthRequire(string subrule) { this.subrule = subrule; }
         public AuthRequire()
         {
         }
@@ -41,10 +41,10 @@ namespace blueprint.core
                 return;
             }
 
-            if (subrole != null)
+            if (subrule != null)
             {
                 var sDb = await AuthModule.Instance.signinSession.AsQueryable().Where(i => i._id == session.id.ToObjectId()).FirstOrDefaultAsync();
-                await AccountModule.Instance.CheckPermission(sDb.account_id.ToString(), subrole);
+                await AccountModule.Instance.CheckPermission(sDb.account_id.ToString(), subrule);
             }
             var result = await next();
 

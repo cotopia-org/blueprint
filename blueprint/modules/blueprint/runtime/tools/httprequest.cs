@@ -1,5 +1,4 @@
-﻿using Microsoft.ClearScript;
-using System.Net;
+﻿using System.Net;
 
 namespace blueprint.modules.blueprint.runtime.tools
 {

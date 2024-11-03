@@ -100,26 +100,26 @@ namespace blueprint.modules.account
             var result = await List(new List<string>() { _id.ToString() }, fromAccountId);
             return result.FirstOrDefault();
         }
-        public async Task<bool> HasPermission(string accountId, string subrole)
+        public async Task<bool> HasPermission(string accountId, string subrule)
         {
             var _accountId = accountId.ToObjectId();
             //var acc = await accounts.AsQueryable().Where(i => i._id == _accountId).Select(i => new Account() { roles = i.roles })
             //    .FirstOrDefaultAsync(new ExpertQuery() { cacheKey = _accountId });
 
             var acc = await accounts.Find_Cache("_id", _accountId);
-            if (acc.roles == null)
+            if (acc.rules == null)
                 return false;
             else
-                return acc.roles.Contains("super-root") || acc.roles.Contains(subrole);
+                return acc.rules.Contains("super-root") || acc.rules.Contains(subrule);
         }
-        public async Task CheckPermission(string accountId, string subrole)
+        public async Task CheckPermission(string accountId, string subrule)
         {
-            var state = await HasPermission(accountId, subrole);
+            var state = await HasPermission(accountId, subrule);
 
             if (!state)
             {
                 var appException = new AppException(System.Net.HttpStatusCode.Forbidden);
-                appException.AddHint("subrole", $"You have not {subrole} subrole permission.", new { subrole });
+                appException.AddHint("subrule", $"You have not {subrule} subrule permission.", new { subrule });
                 throw appException;
             }
         }

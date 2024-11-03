@@ -1,5 +1,4 @@
-﻿using Microsoft.ClearScript.JavaScript;
-using MongoDB.Bson;
+﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;

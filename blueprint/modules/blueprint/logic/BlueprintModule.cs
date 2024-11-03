@@ -188,7 +188,7 @@ namespace blueprint.modules.blueprint
             {
                 item = await dbContext.AsQueryable().FirstOrDefaultAsync(i => i._id == id);
                 if (item == null)
-                    throw new AppException(System.Net.HttpStatusCode.NotFound);
+                    throw AppException.NotFoundObject();
             }
             else
             {
@@ -226,6 +226,22 @@ namespace blueprint.modules.blueprint
 
             Handle_Cron(id, changedBlocks, removedBlocks, item.active);
             return await Get(item._id, fromAccountId);
+        }
+        public async Task Delete(string id, string fromAccountId)
+        {
+
+            var dbItem = await dbContext.AsQueryable().FirstOrDefaultAsync(i => i._id == id);
+
+            if (dbItem != null)
+            {
+                if (dbItem.account_id != fromAccountId)
+                    throw AppException.ForbiddenAccessObject();
+            }
+            else
+            {
+                throw AppException.NotFoundObject();
+            }
+            await dbContext.DeleteOneAsync(i => i._id == id);
         }
         private static void Handle_Cron(string id, List<Block> changedBlocks, List<Block> removedBlocks, bool active)
         {
@@ -361,7 +377,13 @@ namespace blueprint.modules.blueprint
         public async Task<BlueprintResponse> Get(string id, string fromAccountId = null)
         {
             var _id = id.ToObjectId();
-            var result = await List(new List<string>() { _id.ToString() }, fromAccountId);
+            var dbItem = await dbContext.AsQueryable().FirstOrDefaultAsync(i => i._id == id);
+            if (fromAccountId != null)
+                if (dbItem.account_id != fromAccountId)
+                {
+                    throw AppException.ForbiddenAccessObject();
+                }
+            var result = await List(new List<database.blueprint_model>() { dbItem }, fromAccountId);
             return result.FirstOrDefault();
         }
 
@@ -536,8 +558,7 @@ namespace blueprint.modules.blueprint
                 {
                     if (dbBlueprint.account_id != fromAccountId)
                     {
-                        var appException = new AppException(System.Net.HttpStatusCode.Forbidden);
-                        throw appException;
+                        throw AppException.ForbiddenAccessObject();
                     }
                 }
             }

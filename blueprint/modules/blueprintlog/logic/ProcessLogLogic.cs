@@ -10,6 +10,8 @@ using MongoDB.Driver.Linq;
 
 using srtool;
 using blueprint.modules.blueprintlog.response;
+using blueprint.modules.blueprint.core;
+using blueprint.modules.blueprint;
 
 namespace blueprint.modules.blueprintlog.logic
 {
@@ -45,15 +47,15 @@ namespace blueprint.modules.blueprintlog.logic
             }
         }
 
-        public async Task<PaginationResponse<LogResponse>> List(string blueprint_id, string process_id, Pagination pagination, string fromAccountId = null)
+        public async Task<PaginationResponse<LogResponse>> List(string blueprint_id, Pagination pagination, string fromAccountId = null)
         {
             var result = new PaginationResponse<LogResponse>();
             var query = dbContext.AsQueryable();
-            if (blueprint_id != null)
-                query = query.Where(i => i.blueprint_id == blueprint_id);
 
-            if (process_id != null)
-                query = query.Where(i => i.process_id == process_id);
+
+            var blueprint = await BlueprintModule.Instance.Get(blueprint_id, fromAccountId);
+
+            query = query.Where(i => i.blueprint_id == blueprint.id);
 
             var dbItems = await query.OrderByDescending(i => i.createDateTime).Skip(pagination.Skip).Take(pagination.Take).ToListAsync();
 
