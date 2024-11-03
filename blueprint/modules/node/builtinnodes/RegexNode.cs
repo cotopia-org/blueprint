@@ -17,9 +17,9 @@ function start()
     
     //var regex = new RegExp(regexPattern);  
     let regex = /\b\w+\b/g;
-    var matcheItems = text.match(regex);
+    var matchItems = text.match(regex);
 
-    var result = { matches: matcheItems || [] };
+    var result = { matches: matchItems || [] };
 
     node.result = result;
     node.next();

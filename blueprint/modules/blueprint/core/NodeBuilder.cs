@@ -5,7 +5,7 @@ namespace blueprint.modules.blueprint.core
 {
     public class NodeBuilder
     {
-        public virtual string id => ObjectIdExtention.GenerateBySeed($"nodeBuilder:{GetType().Name}").ToString();
+        public virtual string id => ObjectIdExtension.GenerateBySeed($"nodeBuilder:{GetType().Name}").ToString();
         public virtual string name { get; }
         public virtual string title { get; }
         public virtual string script { get; }

@@ -3,7 +3,7 @@ using System.Security.Cryptography;
 
 namespace srtool
 {
-    public static class ObjectIdExtention
+    public static class ObjectIdExtension
     {
         public static ObjectId GenerateBySeed(string seed)
         {

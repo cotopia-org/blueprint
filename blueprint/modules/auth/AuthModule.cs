@@ -35,7 +35,7 @@ namespace blueprint.modules.auth
         {
             if (await AccountModule.Instance.IsExistEmail(request.email.ToLower()))
             {
-                AppException appException = new AppException(System.Net.HttpStatusCode.Conflict);
+                var appException = new AppException(System.Net.HttpStatusCode.Conflict);
                 appException.AddHint("email", $"{request.email.ToLower()} already exist!", new { request.email });
                 throw appException;
             }
@@ -96,7 +96,7 @@ namespace blueprint.modules.auth
         }
         public async Task<SigninResponse> Signin(SigninRequest request, TimeSpan expireDuration)
         {
-            string sessionName = request.sessionName;
+            var sessionName = request.sessionName;
 
             var result = new SigninResponse();
 
@@ -131,8 +131,7 @@ namespace blueprint.modules.auth
             var refreshToken = Utility.CalculateMD5Hash("A" + Guid.NewGuid().ToString()) + Utility.CalculateMD5Hash("B" + Guid.NewGuid().ToString());
 
 
-            //////////// Upsert session in database
-            ObjectId sessionId = ObjectId.GenerateNewId();
+            // Upsert session in database
             var filter = Builders<SigninSession>.Filter;
             await signinSession.UpdateOneAsync(
                 filter.Eq(i => i.account_id, foundAccount._id) & filter.Eq(i => i.sessionName, sessionName),

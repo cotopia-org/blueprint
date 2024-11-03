@@ -6,22 +6,24 @@ using System.Linq;
 using System.Collections.Concurrent;
 using srtool;
 using blueprint.core;
+using System.Collections;
 namespace blueprint.modules.config
 {
     public class ConfigModule : Module<ConfigModule>
     {
+
         private static readonly ConcurrentDictionary<string, string> configs = new ConcurrentDictionary<string, string>();
-        public override async Task RunAsync()
+        public static void Init()
         {
-            await base.RunAsync();
             try
             {
+
                 if (!File.Exists("config.conf"))
                     File.WriteAllText("config.conf",
                         @"
 #CONFIG....
 net:
-   host: http://*:5033
+   host: http://*:9339
 mongodb:
    db-connection: mongodb://localhost
    db-name: automation
@@ -29,7 +31,6 @@ swagger:
     active: true
 "
                         );
-
                 var setupConfig = File.ReadAllText("config.conf");
                 var className = "";
                 foreach (string row in setupConfig.Split("\n"))
@@ -62,6 +63,19 @@ swagger:
                         }
                     }
                 }
+
+                foreach (DictionaryEntry envVar in Environment.GetEnvironmentVariables())
+                {
+                    var envKey = envVar.Key.ToString().Replace(">", ".").ToLower();
+                    var envValue = envVar.Value.ToString();
+
+                    // Add or override the configuration dictionary with environment variables
+                    if (configs.ContainsKey(envKey))
+                        configs[envKey] = envValue;
+                    else
+                        configs.TryAdd(envKey, envValue);
+                }
+
             }
             catch (Exception ee)
             {
@@ -114,4 +128,3 @@ swagger:
         }
     }
 }
-
