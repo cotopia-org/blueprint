@@ -13,8 +13,9 @@ namespace blueprint.modules.config
     {
 
         private static readonly ConcurrentDictionary<string, string> configs = new ConcurrentDictionary<string, string>();
-        public static void Init()
+        public override async Task RunAsync()
         {
+            await base.RunAsync();
             try
             {
 

@@ -18,7 +18,7 @@ namespace blueprint.modules.blueprintProcess.controller
         {
             var accountId = await this.GetAccountId();
             var result = await ProcessLogLogic.Instance
-                .List(blueprint_id: id, new Pagination(page, perPage), fromAccountId: accountId);
+                .List(id: id, new Pagination(page, perPage), fromAccountId: accountId);
             return Ok(result);
         }
         [HttpGet("processes/{id}")]

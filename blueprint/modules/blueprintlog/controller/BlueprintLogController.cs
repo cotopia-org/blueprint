@@ -20,7 +20,7 @@ namespace blueprint.modules.blueprintlog.controller
         {
             var accountId = await this.GetAccountId();
             var result = await ProcessLogLogic.Instance
-                .List(blueprint_id: id, process_id: null, new Pagination(page, perPage), accountId);
+                .List(id, new Pagination(page, perPage), accountId);
             return Ok(result);
         }
         [AuthRequire()]

@@ -6,6 +6,7 @@ using blueprint.modules._global;
 using blueprint.modules.blueprintProcess.logic;
 using blueprint.modules.schedule;
 
+
 await SystemModule.Instance.RunAsync();
 
 var builder = WebApplication.CreateBuilder(args);

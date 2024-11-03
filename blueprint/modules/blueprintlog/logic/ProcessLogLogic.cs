@@ -47,13 +47,12 @@ namespace blueprint.modules.blueprintlog.logic
             }
         }
 
-        public async Task<PaginationResponse<LogResponse>> List(string blueprint_id, Pagination pagination, string fromAccountId = null)
+        public async Task<PaginationResponse<LogResponse>> List(string id, Pagination pagination, string fromAccountId = null)
         {
             var result = new PaginationResponse<LogResponse>();
             var query = dbContext.AsQueryable();
 
-
-            var blueprint = await BlueprintModule.Instance.Get(blueprint_id, fromAccountId);
+            var blueprint = await BlueprintModule.Instance.Get(id, fromAccountId);
 
             query = query.Where(i => i.blueprint_id == blueprint.id);
 

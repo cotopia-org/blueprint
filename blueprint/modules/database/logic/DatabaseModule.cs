@@ -10,7 +10,8 @@ namespace blueprint.modules.database.logic
         public IMongoDatabase database { get; private set; }
         public override async Task RunAsync()
         {
-            client = new MongoClient(ConfigModule.GetString("mongodb.db-connection"));
+            var connection = ConfigModule.GetString("mongodb.db-connection");
+            client = new MongoClient(connection);
             database = client.GetDatabase(ConfigModule.GetString("mongodb.db-name"));
             await base.RunAsync();
 
