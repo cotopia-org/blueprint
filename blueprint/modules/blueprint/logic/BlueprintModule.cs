@@ -204,6 +204,12 @@ namespace blueprint.modules.blueprint
             var changedBlueprint = await LoadBlueprint(item._id, request.blueprint);
             var mainBlueprint = await GetBlueprint(item._id);
 
+            if (mainBlueprint == null)
+            {
+                mainBlueprint = new Blueprint();
+                mainBlueprint.id = item._id;
+            }
+
             var changedBlocks = new List<Block>();
             var removedBlocks = new List<Block>();
 
@@ -292,7 +298,7 @@ namespace blueprint.modules.blueprint
                 }
             }
         }
-        public async Task<PaginationResponse<BlueprintResponse>> List(string accountId, Pagination pagination, string search = null, string fromAccountId = null)
+        public async Task<PaginationResponse<BlueprintRowResponse>> List(string accountId, Pagination pagination, string search = null, string fromAccountId = null)
         {
             var q1 = dbContext.AsQueryable();
 
@@ -309,12 +315,23 @@ namespace blueprint.modules.blueprint
              .Skip(pagination.Skip)
              .Take(pagination.Take).ToListAsync();
 
-            var result = new PaginationResponse<BlueprintResponse>();
+            var result = new PaginationResponse<BlueprintRowResponse>();
             result.total = await q1.CountAsync();
             result.page = pagination.Page;
             result.perPage = pagination.PerPage;
-            result.items = await List(dbItems, fromAccountId);
+            var list = await List(dbItems, fromAccountId);
 
+            result.items = list.Select(i =>
+            new BlueprintRowResponse()
+            {
+                createDateTime = i.createDateTime,
+                updateDateTime = i.updateDateTime,
+                title = i.title,
+                creator = i.creator,
+                description = i.description,
+                id = i.id,
+                run = i.run,
+            }).ToList();
             return result;
         }
         public async Task<List<BlueprintResponse>> List(List<string> ids, string fromAccountId = null)

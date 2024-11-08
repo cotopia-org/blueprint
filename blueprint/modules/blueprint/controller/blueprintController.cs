@@ -70,7 +70,7 @@ namespace blueprint.modules.blueprint.controller
             return new EmptyResult(); // WebSocket is now handled.
         }
         [HttpGet]
-        [ProducesResponseType(typeof(PaginationResponse<BlueprintResponse>), 200)]
+        [ProducesResponseType(typeof(PaginationResponse<BlueprintRowResponse>), 200)]
         public async Task<IActionResult> List([FromQuery] string search = null, [FromQuery] int page = 1, [Range(1, 100)] int perPage = 100)
         {
             var accountId = await this.GetAccountId();
