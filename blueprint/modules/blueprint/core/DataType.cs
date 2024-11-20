@@ -11,6 +11,6 @@
         @expression,
         @variable,
         @object,
-        array
+        array,
     }
 }
