@@ -1,14 +1,19 @@
 ﻿using blueprint.modules.blueprint.core;
 using blueprint.modules.blueprint.core.blocks;
 using blueprint.modules.blueprint.core.fields;
+using blueprint.modules.node.types;
 
 namespace blueprint.modules.node.builtinnodes
 {
     public class IfNode : NodeBuilder
     {
-        public override string name => "if-node";
-        public override string title => "If node";
-        public override string script => @"
+        public override void Build()
+        {
+            base.Build();
+
+            name = "if-node";
+            title = "If node";
+            script = @"
 function start()
 {
     var operator = node.field('operator');
@@ -49,18 +54,11 @@ function start()
     node.execnode(output_name);
 }
 ";
-        public override Node Node()
-        {
-            var node = base.Node();
-
-            node.SetField("operator", "=");
-            node.SetField("valueA", "test");
-            node.SetField("valueB", "test");
-
-            node.SetField("next_true", new List<Field>());
-            node.SetField("next_false", new List<Field>());
-
-            return node;
+            AddField(new NodeField() { name = "operator", defaultValue = "=", fieldType = FieldType.@string });
+            AddField(new NodeField() { name = "valueA", defaultValue = "test", fieldType = FieldType.@string });
+            AddField(new NodeField() { name = "valueB", defaultValue = "test", fieldType = FieldType.@string });
+            AddField(new NodeField() { name = "next_true", fieldType = FieldType.output });
+            AddField(new NodeField() { name = "next_false", fieldType = FieldType.output });
         }
     }
 }

@@ -1,14 +1,18 @@
 ﻿using blueprint.modules.blueprint.core;
 using blueprint.modules.blueprint.core.blocks;
 using blueprint.modules.blueprint.core.fields;
+using blueprint.modules.node.types;
 
 namespace blueprint.modules.node.builtinnodes
 {
     public class HttpRequestNode : NodeBuilder
     {
-        public override string name => "http-request-node";
-        public override string title => "HttpRequest node";
-        public override string script => @"
+        public override void Build()
+        {
+            base.Build();
+            name = "http-request-node";
+            title = "HttpRequest node";
+            script = @"
 function start()
 {
     var url = node.field('url');
@@ -33,14 +37,8 @@ function callback_result(x)
     node.next();
 }
 ";
-
-        public override Node Node()
-        {
-            var node = base.Node();
-            node.SetField("method", "GET");
-            node.SetField("next", new List<Field>());
-
-            return node;
+            AddField(new NodeField() { name = "method", fieldType = FieldType.@string, defaultValue = "GET", required = true });
+            AddField(new NodeField() { name = "next", fieldType = FieldType.output });
         }
 
     }

@@ -19,6 +19,7 @@ using blueprint.srtool;
 using System.Net.WebSockets;
 using System.Collections.Concurrent;
 using Microsoft.AspNetCore.Http;
+using blueprint.modules.node.response;
 namespace blueprint.modules.blueprint
 {
     public partial class BlueprintModule : Module<BlueprintModule>
@@ -418,13 +419,13 @@ namespace blueprint.modules.blueprint
             var referenceIds = blueprint.nodes.Select(i => i.reference_id).OrderedDistinct().ToList();
             if (referenceIds.Count > 0)
             {
-                var referenceNodes = await NodeModule.Instance.Find_by_ids(referenceIds);
+                var referenceNodes = await NodeModule.Instance.List(referenceIds);
 
                 foreach (var n in blueprint.nodes)
                 {
                     var reference = referenceNodes.FirstOrDefault(i => i.id == n.reference_id);
                     if (reference != null && reference.script != null)
-                        n.script = new Script(reference.script.code);
+                        n.script = new Script(reference.script);
                 }
             }
         }
@@ -488,7 +489,7 @@ namespace blueprint.modules.blueprint
 
             var referenceIds = changedBlueprint.nodes.Select(i => i.reference_id).Distinct().ToList();
 
-            var referenceNodes = await NodeModule.Instance.Find_by_ids(referenceIds);
+            var referenceNodes = await NodeModule.Instance.List(referenceIds);
 
             foreach (var changedBlock in changedBlueprint.blocks)
             {
@@ -505,7 +506,6 @@ namespace blueprint.modules.blueprint
                     var mainNode = mainBlock as Node;
                     mainNode.fields = editNode.fields;
                     UpsertNode(mainNode, editNode, referenceNode, isAdded);
-
                     changedBlocks.Add(mainNode);
                 }
                 else
@@ -519,31 +519,28 @@ namespace blueprint.modules.blueprint
 
             }
         }
-        private void UpsertNode(Node main, Node edited, Node reference, bool isAdded)
+        private void UpsertNode(Node main, Node edited, NodeResponse reference, bool isAdded)
         {
             if (reference != null)
             {
-                if (reference.HasComponent<Webhook>() && !main.HasComponent<Webhook>())
+                if (reference.components != null)
                 {
-                    var refComponent = reference.GetComponent<Webhook>();
-                    var component = main.GetComponent<Webhook>();
+                    var webhook = reference.components.FirstOrDefault(i => i.name == "Webhook");
+                    if (webhook != null && !main.HasComponent<Webhook>())
+                    {
+                        var component = main.AddComponent<Webhook>();
 
-                    if (component == null)
-                        component = main.AddComponent<Webhook>();
+                        if (isAdded)
+                            component.token = Utility.CalculateMD5Hash(Guid.NewGuid().ToString()).ToLower();
+                    }
 
-
-                    component.name = refComponent.name;
-                    if (isAdded)
-                        component.token = Utility.CalculateMD5Hash(Guid.NewGuid().ToString()).ToLower();
-                }
-                else
-                if (reference.HasComponent<Cron>() && !main.HasComponent<Cron>())
-                {
-                    var refComponent = reference.GetComponent<Cron>();
-                    var component = main.AddComponent<Cron>();
-                    component.name = refComponent.name;
-                    component.expressionParam = refComponent.expressionParam;
-                    component.callback = refComponent.callback;
+                    var cron = reference.components.FirstOrDefault(i => i.name == "Cron");
+                    if (cron != null && !main.HasComponent<Cron>())
+                    {
+                        var component = main.AddComponent<Cron>();
+                        component.expressionParam = cron.param1;
+                        component.callback = cron.param2;
+                    }
                 }
             }
         }

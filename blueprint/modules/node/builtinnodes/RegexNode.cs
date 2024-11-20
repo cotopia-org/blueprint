@@ -1,13 +1,18 @@
 ﻿using blueprint.modules.blueprint.core;
 using blueprint.modules.blueprint.core.blocks;
+using blueprint.modules.node.types;
 
 namespace blueprint.modules.node.builtinnodes
 {
     public class RegexNode : NodeBuilder
     {
-        public override string name => "regex-node";
-        public override string title => "Regex node";
-        public override string script => @"                  
+
+        public override void Build()
+        {
+            base.Build();
+            name = "regex-node";
+            title = "Regex node";
+            script = @"                  
 
 function start()
 {
@@ -16,7 +21,7 @@ function start()
     var text = node.field('text', ' ');
     
     //var regex = new RegExp(regexPattern);  
-    let regex = /\b\w+\b/g;
+    let regex = /\b\w+\b/g;d
     var matchItems = text.match(regex);
 
     var result = { matches: matchItems || [] };
@@ -24,12 +29,10 @@ function start()
     node.result = result;
     node.next();
 }";
-        public override Node Node()
-        {
-            var node = base.Node();
-            return node;
+            AddField(new NodeField() { name = "pattern", fieldType = FieldType.@string });
+            AddField(new NodeField() { name = "flags", fieldType = FieldType.@string });
+            AddField(new NodeField() { name = "text", fieldType = FieldType.@string });
+            AddField(new NodeField() { name = "next", fieldType = FieldType.output });
         }
-
-
     }
 }

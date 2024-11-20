@@ -1,14 +1,19 @@
 ﻿using blueprint.modules.blueprint.core;
 using blueprint.modules.blueprint.core.blocks;
 using blueprint.modules.blueprint.core.fields;
+using blueprint.modules.node.types;
 
 namespace blueprint.modules.node.builtinnodes
 {
     public class HubNode : NodeBuilder
     {
-        public override string name => "hub-node";
-        public override string title => "Hub node";
-        public override string script => @"
+        public override void Build()
+        {
+            base.Build();
+
+            name = "hub-node";
+            title = "Hub node";
+            script = @"
 function start()
 {
     var type = node.field('type','all');
@@ -72,13 +77,8 @@ function start()
     }
 }
 ";
-        public override Node Node()
-        {
-            var node = base.Node();
-            node.SetField("type", "all");
-            node.SetField("next", new List<Field>());
-
-            return node;
+            AddField(new NodeField() { name = "type", fieldType = FieldType.@string, defaultValue = "all", required = true });
+            AddField(new NodeField() { name = "next", fieldType = FieldType.output });
         }
     }
 

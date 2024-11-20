@@ -1,12 +1,17 @@
 ﻿using blueprint.modules.blueprint.core;
+using blueprint.modules.node.types;
 
 namespace blueprint.modules.node.builtinnodes
 {
     public class GeoJSNode : NodeBuilder
     {
-        public override string name => "geojs.io-node";
-        public override string title => "Geo ip info";
-        public override string script => @"
+        public override void Build()
+        {
+            base.Build();
+
+            name = "geojs.io-node";
+            title = "Geo ip info";
+            script = @"
 function start()
 {
       var ipAddress = node.field('ipAddress');
@@ -23,5 +28,8 @@ function callback_result(x)
     node.next();
 }
 ";
+            AddField(new NodeField() { name = "ipAddress", fieldType = FieldType.@string });
+            AddField(new NodeField() { name = "next", fieldType = FieldType.output });
+        }
     }
 }

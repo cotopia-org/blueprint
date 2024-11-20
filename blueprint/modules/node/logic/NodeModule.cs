@@ -155,14 +155,16 @@ namespace blueprint.modules.node.logic
                 {
                     var baseClass = (NodeBuilder)Activator.CreateInstance(type);
 
-                    var node = baseClass.Node();
+                    baseClass.Build();
+
                     var dbItem = new database.node();
                     dbItem._id = baseClass.id;
                     dbItem.name = baseClass.name;
 
                     dbItem.title = baseClass.title;
-                    dbItem.data = BlueprintSnapshot.JsonSnapshot(node).ToString(Newtonsoft.Json.Formatting.None);
-                    dbItem.script = node.script.code;
+                    dbItem.script = baseClass.script;
+                    dbItem.components = baseClass.components;
+                    dbItem.fields = baseClass.fields;
 
                     dbItem.updateDateTime = new DateTime(2020, 1, 1);
                     dbItem.createDateTime = new DateTime(2020, 1, 1);
@@ -208,13 +210,14 @@ namespace blueprint.modules.node.logic
             dbItem.account_id = fromAccountId;
             dbItem.script = request.script;
             dbItem.fields = request.fields;
-            var node = new blueprint.core.blocks.Node();
-            node.name = request.name;
-            node.script = new Script(request.script);
-            node.coordinate = new blueprint.core.Coordinate();
 
-            var nodeSnapshot = BlueprintSnapshot.JsonSnapshot(node);
-            dbItem.data = nodeSnapshot.ToString(Newtonsoft.Json.Formatting.None);
+            //var node = new blueprint.core.blocks.Node();
+            //node.name = request.name;
+            //node.script = new Script(request.script);
+            //node.coordinate = new blueprint.core.Coordinate();
+
+            //var nodeSnapshot = BlueprintSnapshot.JsonSnapshot(node);
+            //dbItem.data = nodeSnapshot.ToString(Newtonsoft.Json.Formatting.None);
 
             await dbContext.ReplaceOneAsync(i => i._id == dbItem._id, dbItem, new ReplaceOptions() { IsUpsert = true });
 
@@ -260,7 +263,6 @@ namespace blueprint.modules.node.logic
                     name = i.name,
                     description = i.description,
                     fields = i.fields,
-                    data = i.data?.ToJObject(),
                     createDateTime = i.createDateTime,
                     updateDateTime = i.updateDateTime,
                 },
@@ -295,47 +297,6 @@ namespace blueprint.modules.node.logic
             }
 
             await dbContext.DeleteOneAsync(i => i._id == id);
-        }
-        public async Task<blueprint.core.blocks.Node> Find_by_name(string name)
-        {
-            return (await Find_by_name(new string[] { name })).FirstOrDefault();
-        }
-        public async Task<List<blueprint.core.blocks.Node>> Find_by_name(string[] names)
-        {
-            var dbItems = await dbContext.AsQueryable().Where(i => names.Contains(i.name)).ToListAsync();
-
-            var result = new List<blueprint.core.blocks.Node>();
-            foreach (var dbItem in dbItems)
-            {
-                var nodeJson = JObject.Parse(dbItem.data);
-                var node = blueprint.core.BlueprintSnapshot.LoadNode(null, nodeJson);
-                node.reference_id = dbItem._id;
-
-                result.Add(node);
-            }
-            return result;
-        }
-        public async Task<blueprint.core.blocks.Node> Find_by_id(string id)
-        {
-            return (await Find_by_ids(new List<string>() { id })).FirstOrDefault();
-        }
-        public async Task<List<blueprint.core.blocks.Node>> Find_by_ids(List<string> ids)
-        {
-            if (ids.Count == 0)
-                return new List<blueprint.core.blocks.Node>();
-
-            var dbItems = await dbContext.AsQueryable().Where(i => ids.Contains(i._id)).ToListAsync();
-
-            var result = new List<blueprint.core.blocks.Node>();
-            foreach (var i in dbItems)
-            {
-                var nodeJson = JObject.Parse(i.data);
-                var node = blueprint.core.BlueprintSnapshot.LoadNode(null, nodeJson);
-                node.reference_id = i._id;
-                node.id = i._id;
-                result.Add(node);
-            }
-            return result;
         }
     }
 }

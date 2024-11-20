@@ -1,24 +1,24 @@
 ﻿
 using blueprint.modules.blueprint.core;
 using blueprint.modules.blueprint.core.blocks;
+using blueprint.modules.node.types;
 namespace blueprint.modules.node.builtinnodes
 {
     public class RelayNode : NodeBuilder
     {
-        public override string name => "relay-node";
-        public override string title => "Relay node";
-        public override string script => @"
+        public override void Build()
+        {
+            base.Build();
+            name = "relay-node";
+            title = "Relay node";
+            script = @"
 function start()
 {
     node.next();
 }
 ";
-        public override Node Node()
-        {
-            var node = base.Node();
-            node.SetField("case", "-");
+            AddField(new NodeField() { name = "next", fieldType = FieldType.output });
 
-            return node;
         }
     }
 }
