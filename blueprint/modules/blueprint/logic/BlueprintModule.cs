@@ -387,7 +387,7 @@ namespace blueprint.modules.blueprint
                 }
 
                 var referenceNodes = await NodeModule.Instance.List(ids, fromAccountId);
-                data.ForEach(acc => { acc.res.referenceNodes = referenceNodes; });
+                data.ForEach(acc => { acc.res.references = referenceNodes; });
             }
 
             return data.Select(i => i.res).ToList();

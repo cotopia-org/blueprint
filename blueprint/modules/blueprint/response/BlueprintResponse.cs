@@ -15,7 +15,7 @@ namespace blueprint.modules.blueprint.response
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public JObject blueprint { get; set; }
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public List<NodeResponse> referenceNodes { get; set; }
+        public List<NodeResponse> references { get; set; }
         public DateTime updateDateTime { get; set; }
         public DateTime createDateTime { get; set; }
     }

@@ -18,7 +18,10 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.Converters.
                Add(new JsonStringEnumConverter());
     })
-    .AddNewtonsoftJson();
+    .AddNewtonsoftJson(options =>
+    {
+        options.SerializerSettings.Converters.Add(new Newtonsoft.Json.Converters.StringEnumConverter());
+    });
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(builder =>

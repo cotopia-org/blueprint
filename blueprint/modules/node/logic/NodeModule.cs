@@ -263,6 +263,8 @@ namespace blueprint.modules.node.logic
                     name = i.name,
                     description = i.description,
                     fields = i.fields,
+                    components = i.components,
+                    script = i.script,
                     createDateTime = i.createDateTime,
                     updateDateTime = i.updateDateTime,
                 },
