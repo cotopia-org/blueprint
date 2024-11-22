@@ -25,7 +25,7 @@ function func1()
    node.next();
 }
 ";
-            AddField(new NodeField() { name = "delay", fieldType = FieldType.@int });
+            AddField(new NodeField() { name = "delay", fieldType = FieldType.number });
             AddField(new NodeField() { name = "next", fieldType = FieldType.output });
         }
     }

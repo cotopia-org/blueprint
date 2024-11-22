@@ -2,6 +2,6 @@
 {
     public enum FieldType
     {
-        @string, @int, @bool, @array, @output
+        @string, number, @bool, @array, @output
     }
 }

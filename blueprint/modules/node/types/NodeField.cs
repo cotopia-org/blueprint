@@ -5,6 +5,7 @@ namespace blueprint.modules.node.types
     public class NodeField
     {
         public string name { get; set; }
+        public string title { get; set; }
         public string description { get; set; }
         [BsonRepresentation(MongoDB.Bson.BsonType.String)]
         public FieldType fieldType { get; set; }

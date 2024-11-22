@@ -20,6 +20,7 @@ function start()
     node.next();
 }";
             AddField(new NodeField() { name = "content", defaultValue = "OK", fieldType = FieldType.@string });
+            AddField(new NodeField() { name = "status", defaultValue = "200", fieldType = FieldType.number, required = true });
             AddField(new NodeField() { name = "next", fieldType = FieldType.output });
         }
 
