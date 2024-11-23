@@ -6,13 +6,11 @@ using blueprint.modules._global;
 using blueprint.modules.blueprintProcess.logic;
 using blueprint.modules.schedule;
 
-
 await SystemModule.Instance.RunAsync();
-
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers()
     .AddJsonOptions(
-    jsonOptions => jsonOptions.JsonSerializerOptions.PropertyNamingPolicy = null)
+    options => options.JsonSerializerOptions.PropertyNamingPolicy = null)
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.Converters.
@@ -22,7 +20,6 @@ builder.Services.AddControllers()
     {
         options.SerializerSettings.Converters.Add(new Newtonsoft.Json.Converters.StringEnumConverter());
     });
-
 // Add CORS services
 builder.Services.AddCors(options =>
 {
@@ -32,7 +29,6 @@ builder.Services.AddCors(options =>
             .AllowAnyMethod()
             .AllowAnyHeader());
 });
-
 
 builder.Services.AddRazorPages();
 #region Swagger
@@ -73,14 +69,10 @@ builder.WebHost.UseUrls(ConfigModule.GetString("net.host"));
 var app = builder.Build();
 app.UseMiddleware<IAsyncErrorMiddleware>();
 app.UseCors("AllowAllOrigins");
-// Configure the HTTP request pipeline.
-//if (app.Environment.IsDevelopment())
-//{
 app.UseSwaggerUI(c =>
 {
     c.ConfigObject.AdditionalItems.Add("persistAuthorization", "true");
 });
-
 if (ConfigModule.GetBool("swagger.active", false))
 {
     app.UseSwagger();
