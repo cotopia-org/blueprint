@@ -12,7 +12,7 @@ namespace blueprint.modules.node.builtinnodes
         {
             base.Build();
             name = "switch-node";
-            title = "Switch node";
+            title = "Switch";
             script = @"
 function start()
 {
@@ -28,17 +28,17 @@ function start()
     }
 }
 ";
-            AddField(new NodeField() { name = "case", fieldType = FieldType.@string });
+            AddField(new NodeField() { name = "case", type = FieldType.@string });
             AddField(new NodeField()
             {
                 name = "items",
-                fieldType = FieldType.array,
+                type = FieldType.array,
                 fields = new List<NodeField>() {
-                    new NodeField() { name = "name", fieldType = FieldType.@string },
-                    new NodeField() { name = "next", fieldType = FieldType.output }
+                    new NodeField() { name = "name", type = FieldType.@string },
+                    new NodeField() { name = "next", type = FieldType.output }
                      }
             });
-            AddField(new NodeField() { name = "next_default", fieldType = FieldType.output });
+            AddField(new NodeField() { name = "next_default", type = FieldType.output });
         }
     }
 }

@@ -14,7 +14,7 @@ namespace blueprint.modules.node.builtinnodes
         {
             base.Build();
             name = "wait-node";
-            title = "Wait node";
+            title = "Wait";
             script = @"
 function start()
 {
@@ -25,8 +25,8 @@ function func1()
    node.next();
 }
 ";
-            AddField(new NodeField() { name = "delay", fieldType = FieldType.number });
-            AddField(new NodeField() { name = "next", fieldType = FieldType.output });
+            AddField(new NodeField() { name = "delay", type = FieldType.integer });
+            AddField(new NodeField() { name = "next", type = FieldType.output });
         }
     }
 }

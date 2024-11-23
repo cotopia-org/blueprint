@@ -22,15 +22,18 @@ builder.Services.AddControllers()
     {
         options.SerializerSettings.Converters.Add(new Newtonsoft.Json.Converters.StringEnumConverter());
     });
+
+// Add CORS services
 builder.Services.AddCors(options =>
 {
-    options.AddDefaultPolicy(builder =>
-    {
-        builder.AllowAnyOrigin()
-               .AllowAnyMethod()
-               .AllowAnyHeader();
-    });
+    options.AddPolicy("AllowAllOrigins",
+        builder => builder
+            .AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader());
 });
+
+
 builder.Services.AddRazorPages();
 #region Swagger
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -69,7 +72,7 @@ builder.Services.AddScoped<AuthRequire>();
 builder.WebHost.UseUrls(ConfigModule.GetString("net.host"));
 var app = builder.Build();
 app.UseMiddleware<IAsyncErrorMiddleware>();
-app.UseCors();
+app.UseCors("AllowAllOrigins");
 // Configure the HTTP request pipeline.
 //if (app.Environment.IsDevelopment())
 //{

@@ -12,7 +12,7 @@ namespace blueprint.modules.node.builtinnodes
             base.Build();
 
             name = "if-node";
-            title = "If node";
+            title = "If";
             script = @"
 function start()
 {
@@ -54,11 +54,11 @@ function start()
     node.execnode(output_name);
 }
 ";
-            AddField(new NodeField() { name = "operator", defaultValue = "=", fieldType = FieldType.@string });
-            AddField(new NodeField() { name = "valueA", defaultValue = "test", fieldType = FieldType.@string });
-            AddField(new NodeField() { name = "valueB", defaultValue = "test", fieldType = FieldType.@string });
-            AddField(new NodeField() { name = "next_true", fieldType = FieldType.output });
-            AddField(new NodeField() { name = "next_false", fieldType = FieldType.output });
+            AddField(new NodeField() { name = "operator", defaultValue = "=", type = FieldType.@string });
+            AddField(new NodeField() { name = "valueA", defaultValue = "test", type = FieldType.@string });
+            AddField(new NodeField() { name = "valueB", defaultValue = "test", type = FieldType.@string });
+            AddField(new NodeField() { name = "next_true", type = FieldType.output });
+            AddField(new NodeField() { name = "next_false", type = FieldType.output });
         }
     }
 }

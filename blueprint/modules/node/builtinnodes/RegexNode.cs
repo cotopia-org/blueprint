@@ -11,7 +11,7 @@ namespace blueprint.modules.node.builtinnodes
         {
             base.Build();
             name = "regex-node";
-            title = "Regex node";
+            title = "Regex";
             script = @"                  
 
 function start()
@@ -29,10 +29,10 @@ function start()
     node.result = result;
     node.next();
 }";
-            AddField(new NodeField() { name = "pattern", fieldType = FieldType.@string });
-            AddField(new NodeField() { name = "flags", fieldType = FieldType.@string });
-            AddField(new NodeField() { name = "text", fieldType = FieldType.@string });
-            AddField(new NodeField() { name = "next", fieldType = FieldType.output });
+            AddField(new NodeField() { name = "pattern", type = FieldType.@string });
+            AddField(new NodeField() { name = "flags", type = FieldType.@string });
+            AddField(new NodeField() { name = "text", type = FieldType.@string });
+            AddField(new NodeField() { name = "next", type = FieldType.output });
         }
     }
 }

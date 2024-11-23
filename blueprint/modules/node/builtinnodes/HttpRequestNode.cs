@@ -11,7 +11,7 @@ namespace blueprint.modules.node.builtinnodes
         {
             base.Build();
             name = "http-request-node";
-            title = "HttpRequest node";
+            title = "HttpRequest";
             script = @"
 function start()
 {
@@ -37,8 +37,8 @@ function callback_result(x)
     node.next();
 }
 ";
-            AddField(new NodeField() { name = "method", fieldType = FieldType.@string, defaultValue = "GET", required = true });
-            AddField(new NodeField() { name = "next", fieldType = FieldType.output });
+            AddField(new NodeField() { name = "method", type = FieldType.@string, defaultValue = "GET", required = true });
+            AddField(new NodeField() { name = "next", type = FieldType.output });
         }
 
     }

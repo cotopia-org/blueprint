@@ -28,8 +28,8 @@ function callback_result(x)
     node.next();
 }
 ";
-            AddField(new NodeField() { name = "ipAddress", fieldType = FieldType.@string });
-            AddField(new NodeField() { name = "next", fieldType = FieldType.output });
+            AddField(new NodeField() { name = "ipAddress", type = FieldType.@string });
+            AddField(new NodeField() { name = "next", type = FieldType.output });
         }
     }
 }

@@ -10,14 +10,14 @@ namespace blueprint.modules.node.builtinnodes
         {
             base.Build();
             name = "relay-node";
-            title = "Relay node";
+            title = "Relay";
             script = @"
 function start()
 {
     node.next();
 }
 ";
-            AddField(new NodeField() { name = "next", fieldType = FieldType.output });
+            AddField(new NodeField() { name = "next", type = FieldType.output });
 
         }
     }

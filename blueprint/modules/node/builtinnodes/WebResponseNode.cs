@@ -10,7 +10,7 @@ namespace blueprint.modules.node.builtinnodes
         {
             base.Build();
             name = "web-response-node";
-            title = "web response node";
+            title = "Web response";
             script = @"
 function start()
 {
@@ -19,9 +19,9 @@ function start()
     node.webresponse(status,content)
     node.next();
 }";
-            AddField(new NodeField() { name = "content", defaultValue = "OK", fieldType = FieldType.@string });
-            AddField(new NodeField() { name = "status", defaultValue = "200", fieldType = FieldType.number, required = true });
-            AddField(new NodeField() { name = "next", fieldType = FieldType.output });
+            AddField(new NodeField() { name = "content", defaultValue = "OK", type = FieldType.@string });
+            AddField(new NodeField() { name = "status", defaultValue = "200", type = FieldType.@integer, required = true });
+            AddField(new NodeField() { name = "next", type = FieldType.output });
         }
 
 

@@ -14,7 +14,7 @@ namespace blueprint.modules.node.builtinnodes
             base.Build();
 
             name = "log-node";
-            title = "Log node";
+            title = "Log";
             script = @"
 function start()
 {
@@ -27,8 +27,8 @@ function start()
     node.next();
 }
 ";
-            AddField(new NodeField() { name = "text", defaultValue = "Test", fieldType = FieldType.@string, required = true });
-            AddField(new NodeField() { name = "next", fieldType = FieldType.output });
+            AddField(new NodeField() { name = "text", defaultValue = "Test", type = FieldType.@string, required = true });
+            AddField(new NodeField() { name = "next", type = FieldType.output });
         }
     }
 }

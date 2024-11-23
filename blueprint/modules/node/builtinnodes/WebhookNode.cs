@@ -12,14 +12,14 @@ namespace blueprint.modules.node.builtinnodes
         {
             base.Build();
             name = "webhook-node";
-            title = "Webhook node";
+            title = "Webhook";
             script = @"
 function start()
 {
     node.next();
 }";
             AddComponent(new database.Component() { name = "Webhook" });
-            AddField(new NodeField() { name = "next", fieldType = FieldType.output });
+            AddField(new NodeField() { name = "next", type = FieldType.output });
         }
     }
 }

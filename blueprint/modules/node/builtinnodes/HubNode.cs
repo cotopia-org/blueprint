@@ -12,7 +12,7 @@ namespace blueprint.modules.node.builtinnodes
             base.Build();
 
             name = "hub-node";
-            title = "Hub node";
+            title = "Hub";
             script = @"
 function start()
 {
@@ -77,8 +77,8 @@ function start()
     }
 }
 ";
-            AddField(new NodeField() { name = "type", fieldType = FieldType.@string, defaultValue = "all", required = true });
-            AddField(new NodeField() { name = "next", fieldType = FieldType.output });
+            AddField(new NodeField() { name = "type", type = FieldType.@string, defaultValue = "all", required = true });
+            AddField(new NodeField() { name = "next", type = FieldType.output });
         }
     }
 
