@@ -32,7 +32,6 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddRazorPages();
 #region Swagger
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen((c) =>
 {
