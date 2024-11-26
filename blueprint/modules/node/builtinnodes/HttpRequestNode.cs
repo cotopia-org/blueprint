@@ -37,6 +37,7 @@ function callback_result(x)
     node.next();
 }
 ";
+            AddField(new NodeField() { name = "url", type = FieldType.@string, defaultValue = "https://domain-name", required = true });
             AddField(new NodeField() { name = "method", type = FieldType.@string, defaultValue = "GET", required = true });
             AddField(new NodeField() { name = "next", type = FieldType.output });
         }
