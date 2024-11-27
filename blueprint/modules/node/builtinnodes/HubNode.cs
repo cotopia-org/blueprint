@@ -77,7 +77,22 @@ function start()
     }
 }
 ";
-            AddField(new NodeField() { name = "type", type = FieldType.@string, defaultValue = "all", required = true });
+            AddField(new NodeField()
+            {
+                name = "type",
+                type = FieldType.@string,
+                defaultValue = "all",
+                required = true
+            ,
+                listValue = new List<EnumValue>()
+                {
+                    new EnumValue(){ value = "all" , display = "ALL"},
+                    new EnumValue(){ value = "step"},
+                    new EnumValue(){ value = "random"},
+                    new EnumValue(){ value = "unique-random"}
+                }
+            });
+            AddField(new NodeField() { name = "reverse", type = FieldType.@bool, defaultValue = "false" });
             AddField(new NodeField() { name = "next", type = FieldType.output });
         }
     }

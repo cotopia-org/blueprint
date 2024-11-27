@@ -54,7 +54,20 @@ function start()
     node.execnode(output_name);
 }
 ";
-            AddField(new NodeField() { name = "operator", defaultValue = "=", type = FieldType.@string });
+            AddField(new NodeField()
+            {
+                name = "operator",
+                defaultValue = "=",
+                type = FieldType.@string,
+                listValue = new List<EnumValue>() {
+                new EnumValue() { value = "=" },
+                new EnumValue() { value = ">" },
+                new EnumValue() { value = ">=" },
+                new EnumValue() { value = "<" },
+                new EnumValue() { value = "<=" },
+                new EnumValue() { value = "!=" },
+                 }
+            });
             AddField(new NodeField() { name = "valueA", defaultValue = "test", type = FieldType.@string });
             AddField(new NodeField() { name = "valueB", defaultValue = "test", type = FieldType.@string });
             AddField(new NodeField() { name = "next_true", type = FieldType.output });
