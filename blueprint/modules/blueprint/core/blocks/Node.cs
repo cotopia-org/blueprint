@@ -14,6 +14,7 @@ namespace blueprint.modules.blueprint.core.blocks
     public class Node : Block
     {
         public Node from { get; set; }
+        public string from_id { get; set; }
         public Script script { get; set; }
         // public Dictionary<string, Field> fields { get; set; }
         public Field fields { get; set; }
@@ -59,6 +60,11 @@ namespace blueprint.modules.blueprint.core.blocks
         public void CallStart(Node fromNode)
         {
             from = fromNode;
+            if (fromNode != null)
+                from_id = fromNode.id;
+            else
+                from_id = null;
+
             OnCall?.Invoke(this);
             var scriptInput = new ScriptInput();
             scriptInput.AddHostObject("node", this.Runtime());

@@ -6,7 +6,7 @@ namespace blueprint.modules.webhook.controller
     [Tags("Webhook")]
     public class webhookController : ControllerBase
     {
-        [Route("v1/webhooks/{token}")]
+        [Route("wh/{token}")]
         [HttpGet]
         [ProducesResponseType(200)]
         public async Task<IActionResult> Get([FromRoute] string token)

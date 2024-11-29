@@ -3,6 +3,8 @@ using blueprint.modules.blueprintlog.logic;
 using System.Net;
 using Newtonsoft.Json.Linq;
 using srtool;
+using Jint;
+using Jint.Native.Object;
 namespace blueprint.modules.blueprint.runtime
 {
     public class Node
@@ -75,8 +77,8 @@ namespace blueprint.modules.blueprint.runtime
                 try
                 {
                     var json = node.result;
-                    var result = JObject.Parse(json).ToObject<object>();
-                    return result;
+                     var result = JObject.Parse(json).ToObject<object>();
+                     return result;
                 }
                 catch
                 {

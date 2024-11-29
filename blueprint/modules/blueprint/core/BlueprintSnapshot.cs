@@ -63,7 +63,7 @@ namespace blueprint.modules.blueprint.core
         {
             var result = new JObject();
             result["type"] = "node";
-
+            result["from_id"] = node.from_id;
             if (node.reference_id == null)
             {
                 if (node.script != null)
@@ -313,6 +313,9 @@ namespace blueprint.modules.blueprint.core
             var node = new blocks.Node();
             node.parent = fromObject;
 
+            if (data["from_id"] != null)
+                node.from_id = (string)data["reference_id"];
+
             if (data["reference_id"] != null)
                 node.reference_id = (string)data["reference_id"];
 
@@ -370,6 +373,10 @@ namespace blueprint.modules.blueprint.core
                     blueprint.blocks.Add(LoadBlock(blueprint, i));
                 }
 
+            foreach (var node in blueprint.nodes)
+            {
+                node.from = blueprint.nodes.FirstOrDefault(i => i.id == node.from_id);
+            }
             return blueprint;
         }
         public static Field LoadField(object fromObject, JToken data)

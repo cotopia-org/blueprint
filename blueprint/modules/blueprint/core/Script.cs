@@ -65,7 +65,7 @@ namespace blueprint.modules.blueprint.core
             {
                 foreach (var hostObject in scriptInput.hostObjects)
                     engine.SetValue(hostObject.Key, hostObject.Value);
-                engine.SetValue("httprequest", typeof(httprequest));
+                    engine.SetValue("httprequest", typeof(httprequest));
                 // Execute the JavaScript code
                 if (expression)
                 {

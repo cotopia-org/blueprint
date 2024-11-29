@@ -17,20 +17,25 @@ function start()
 {
     var url = node.field('url');
     var method = node.field('method');
+    var jsonResult = node.field('jsonResult');
     switch(method)
     {
         case 'GET':
-          httprequest.get(url,callback_result);
+          httprequest.get(url,(x)=>{callback_result(x,jsonResult);});
         break;
         case 'DELETE':
-          httprequest.delete(url,callback_result);
+          httprequest.delete(url,(x)=>{callback_result(x,jsonResult);});
         break;
     }
 }
-function callback_result(x)
+function callback_result(x, jsonResult)
 {
     let result = {};
-    result.content = x.content;
+    if( jsonResult)
+        result.content =  JSON.parse(x.content);
+    else
+        result.content = x.content;
+
     result.statusCode = x.statusCode;
 
     node.result = result;
@@ -38,7 +43,30 @@ function callback_result(x)
 }
 ";
             AddField(new NodeField() { name = "url", type = FieldType.@string, defaultValue = "https://domain-name", required = true });
-            AddField(new NodeField() { name = "method", type = FieldType.@string, defaultValue = "GET", required = true });
+            AddField(new NodeField() { name = "jsonResult", type = FieldType.@bool, defaultValue = "false", required = true });
+            AddField(new NodeField()
+            {
+                name = "method",
+                type = FieldType.@string,
+                defaultValue = "GET",
+                required = true,
+                listValue = new List<EnumValue>() {
+                    new EnumValue() { value = "GET" },
+                    new EnumValue() { value = "POST" },
+                    new EnumValue() { value = "PUT" },
+                    new EnumValue() { value = "DELETE" },
+                     }
+            });
+            AddField(new NodeField()
+            {
+                name = "parameters",
+                type = FieldType.array,
+                fields = new List<NodeField>() {
+                    new NodeField() { name = "name", type = FieldType.@string, required = true },
+                    new NodeField() { name = "value", type = FieldType.@string, required = true },
+                     }
+            });
+
             AddField(new NodeField() { name = "next", type = FieldType.output });
         }
 
