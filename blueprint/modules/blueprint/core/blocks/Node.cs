@@ -96,6 +96,8 @@ namespace blueprint.modules.blueprint.core.blocks
         }
         public void ExecuteNode(string address, int position)
         {
+            if (position < 0)
+                position = 0;
             var field = GetField(address);
             if (field != null && field is List<Field> fieldArray)
             {
@@ -266,7 +268,10 @@ namespace blueprint.modules.blueprint.core.blocks
             }
             catch
             {
-                Console.WriteLine(message.ToString());
+                if (message != null)
+                    Console.WriteLine(message.ToString());
+                else
+                    Console.WriteLine("null");
             }
         }
 

@@ -20,6 +20,7 @@ namespace blueprint.modules.node.database
         public string description { get; set; }
         public List<NodeField> fields { get; set; }
         public List<Component> components { get; set; }
+        public bool inputConnection { get; set; }
         public string? script { get; set; }
         public DateTime updateDateTime { get; set; }
         public DateTime createDateTime { get; set; }

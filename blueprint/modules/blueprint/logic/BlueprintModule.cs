@@ -117,7 +117,6 @@ namespace blueprint.modules.blueprint
                 var item = await dbContext.AsQueryable().Where(i => i.index_tokens.Contains(index_token)).FirstOrDefaultAsync();
                 return item;
             }, new CacheSetting() { key = $"webhook_blueprint_{index_token}", timeLife = TimeSpan.FromSeconds(60) });
-
             if (dbItem == null)
             {
                 var appE = new AppException(System.Net.HttpStatusCode.NotFound);
@@ -287,11 +286,11 @@ namespace blueprint.modules.blueprint
                 {
                     if (node.HasComponent<Cron>())
                     {
-                        var pulseComponents = node.GetComponents<Cron>();
+                        var cronComponents = node.GetComponents<Cron>();
 
-                        foreach (var pulse in pulseComponents)
+                        foreach (var cron in cronComponents)
                         {
-                            var _sm_id = $"pulse:{id}:{pulse.node.id}:{pulse.name}";
+                            var _sm_id = $"blueprint:{id}:cron:{cron.node.id}>{cron.name}";
 
                             ScheduleModule.Instance.Remove(_sm_id);
                         }
@@ -531,7 +530,7 @@ namespace blueprint.modules.blueprint
                         var component = main.AddComponent<Webhook>();
 
                         if (isAdded)
-                            component.token = Utility.CalculateMD5Hash(Guid.NewGuid().ToString()).ToLower();
+                            component.token = Utility.CalculateMD5Hash(Guid.NewGuid().ToString()).Substring(0, 12).ToString();
                     }
 
                     var cron = reference.components.FirstOrDefault(i => i.name == "Cron");

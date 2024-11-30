@@ -20,6 +20,7 @@ function start()
 }";
             AddComponent(new database.Component() { name = "Webhook" });
             AddField(new NodeField() { name = "next", type = FieldType.output });
+            inputConnection = false;
         }
     }
 }

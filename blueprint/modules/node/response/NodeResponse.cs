@@ -17,7 +17,7 @@ namespace blueprint.modules.node.response
         public List<NodeField> fields { get; set; }
         public AccountResponse creator { get; set; }
         public FileResponse icon_media { get; set; }
-
+        public bool inputConnection{get; set; }
         public DateTime updateDateTime { get; set; }
         public DateTime createDateTime { get; set; }
     }

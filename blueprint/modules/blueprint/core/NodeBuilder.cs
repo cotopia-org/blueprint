@@ -11,8 +11,9 @@ namespace blueprint.modules.blueprint.core
         public string name { get; set; }
         public string title { get; set; }
         public string script { get; set; }
+        public bool inputConnection { get; set; } = true;
         public List<NodeField> fields { get; set; }
-        public  List<Component> components { get; set; }
+        public List<Component> components { get; set; }
         public virtual void Build()
         {
             components = new List<Component>();

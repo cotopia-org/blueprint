@@ -55,7 +55,7 @@ namespace blueprint.modules.node.logic
                     dbItem.script = baseClass.script;
                     dbItem.components = baseClass.components;
                     dbItem.fields = baseClass.fields;
-
+                    dbItem.inputConnection = baseClass.inputConnection;
                     dbItem.updateDateTime = new DateTime(2020, 1, 1);
                     dbItem.createDateTime = new DateTime(2020, 1, 1);
 
@@ -154,6 +154,7 @@ namespace blueprint.modules.node.logic
                     description = i.description,
                     fields = i.fields,
                     components = i.components,
+                    inputConnection = i.inputConnection,
                     script = i.script,
                     createDateTime = i.createDateTime,
                     updateDateTime = i.updateDateTime,

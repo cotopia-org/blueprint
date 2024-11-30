@@ -25,18 +25,20 @@ function start()
         case 'step':
         {
             var count = node.field_count('next');
-            var step = node.get_static_data('step',-1);
-            var reverse = node.field('reverse', false);
-
-            if(reverse)
-                step --;
-            else
+            if( count > 0)
+            {
+                var step = node.get_static_data('step',-1);
+                var reverse = node.field('reverse', false);
                 step ++;
 
-            var position = Math.floor(step % count);
+                var position = Math.floor(step % count);
 
-            node.set_static_data('step',step);
-            node.execnode('next',position);
+                if(reverse)
+                position = count - 1 - position;
+
+                node.set_static_data('step',step);
+                node.execnode('next',position);
+            }
         }
         break;
         case 'random':
