@@ -183,7 +183,6 @@ namespace blueprint.modules.blueprint
         public async Task<BlueprintResponse> Upsert(string id, BlueprintRequest request, string fromAccountId)
         {
             database.blueprint_model item;
-
             if (id != null)
             {
                 item = await dbContext.AsQueryable().FirstOrDefaultAsync(i => i._id == id);
@@ -434,14 +433,14 @@ namespace blueprint.modules.blueprint
             var addBlockIds = new List<string>();
             var removedBlockIds = new List<string>();
 
-            foreach (var block in changedBlueprint.nodes)
+            foreach (var block in changedBlueprint.blocks)
             {
                 if (!mainBlueprint.blocks.Exists(i => i.id == block.id))
                 {
                     addBlockIds.Add(block.id);
                 }
             }
-            foreach (var block in mainBlueprint.nodes)
+            foreach (var block in mainBlueprint.blocks)
             {
                 if (!changedBlueprint.blocks.Exists(i => i.id == block.id))
                 {
@@ -463,7 +462,6 @@ namespace blueprint.modules.blueprint
                 if (changeBlock is StickyNote _stickyNode)
                 {
                     newBlock = new StickyNote();
-                    _stickyNode.text = ((StickyNote)changeBlock).text;
                 }
 
                 if (newBlock != null)

@@ -243,6 +243,7 @@ namespace blueprint.modules.blueprint.core
             var result = new JObject();
             result["id"] = item.id;
             result["type"] = "sticky-note";
+            result["text"] = item.text;
             result["coordinate"] = item.coordinate.Snapshot();
             return result;
         }
@@ -272,6 +273,7 @@ namespace blueprint.modules.blueprint.core
                     block = LoadVariable(fromObject, data);
                     break;
                 case "sticky-note":
+                    block = LoadStickyNote(fromObject, data);
                     break;
             }
 
@@ -307,6 +309,15 @@ namespace blueprint.modules.blueprint.core
             variable.value = (string)data["value"];
 
             return variable;
+        }
+        public static blocks.StickyNote LoadStickyNote(object fromObject, JObject data)
+        {
+            var block = new blocks.StickyNote();
+            block.parent = fromObject;
+            if (data["text"] != null)
+                block.text = (string)data["text"];
+                
+            return block;
         }
         public static blocks.Node LoadNode(object fromObject, JObject data)
         {
