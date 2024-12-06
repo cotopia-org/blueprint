@@ -22,7 +22,8 @@ namespace blueprint.modules.blueprint.core.blocks
         public Dictionary<string, object> data { get; set; }
         public string nodeResult { get; set; }
         public Dictionary<string, object> static_data { get; set; }
-        public event Action<Node> OnCall;
+        public event Action<Node> OnStart;
+        public event Action<Node> OnResult;
         public event Action<Log> OnAddLog;
 
         public Node() : base()
@@ -65,7 +66,7 @@ namespace blueprint.modules.blueprint.core.blocks
             else
                 from_id = null;
 
-            OnCall?.Invoke(this);
+            OnStart?.Invoke(this);
             var scriptInput = new ScriptInput();
             scriptInput.AddHostObject("node", this.Runtime());
             script?.Invoke("start", scriptInput);
@@ -89,6 +90,7 @@ namespace blueprint.modules.blueprint.core.blocks
                         node.CallStart(this);
                 }
             }
+            OnResult?.Invoke(this);
         }
         public Node find_byname(string name)
         {
@@ -107,6 +109,7 @@ namespace blueprint.modules.blueprint.core.blocks
                 if (node != null)
                     node.CallStart(this);
             }
+            OnResult?.Invoke(this);
         }
         public int GetFieldArraySize(string address)
         {

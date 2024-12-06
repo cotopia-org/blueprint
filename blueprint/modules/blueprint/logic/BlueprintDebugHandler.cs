@@ -1,4 +1,5 @@
 ﻿using blueprint.modules.blueprint.core;
+using blueprint.modules.blueprint.core.blocks;
 using blueprint.srtool;
 using srtool;
 namespace blueprint.modules.blueprint.logic
@@ -16,7 +17,7 @@ namespace blueprint.modules.blueprint.logic
         public void Bind(Blueprint blueprint)
         {
             this.blueprint = blueprint;
-            connection.Send(new { topic = "listening", time = time, data = new { blueprint = blueprint.JsonSnapshot() } });
+            connection.Send(new { type = "listening", time = time, data = new { blueprint = blueprint.JsonSnapshot() } });
 
         }
         public void Bind(WSConnection connection)
@@ -32,7 +33,8 @@ namespace blueprint.modules.blueprint.logic
             {
                 foreach (var node in process.blueprint.nodes)
                 {
-                    node.OnCall -= Node_OnCall;
+                    node.OnStart -= Node_OnStart;
+                    node.OnResult -= Node_OnResult;
                     node.OnAddLog -= Node_OnAddLog;
 
                 }
@@ -45,23 +47,28 @@ namespace blueprint.modules.blueprint.logic
             this.process = process;
             foreach (var i in this.process.blueprint.nodes)
             {
-                i.OnCall += Node_OnCall;
+                i.OnStart += Node_OnStart;
                 i.OnAddLog += Node_OnAddLog;
+                i.OnResult += Node_OnResult;
 
             }
-            connection.Send(new { topic = "bind-process", time = time, data = new { process = new { id = process.id }, blueprint = blueprint.JsonSnapshot() } });
+            connection.Send(new { type = "bind-process", time = time, data = new { process = new { id = process.id }, blueprint = blueprint.JsonSnapshot() } });
+        }
+
+        private void Node_OnResult(Node node)
+        {
+            connection.Send(new { type = "node", subType = "result", time = time, data = new { nodeId = node.from.id, result = node.from.result?.ConvertToJson() } });
+
         }
 
         private void Node_OnAddLog(runtime.Log log)
         {
-            connection.Send(new { topic = "console", time = time, type = "add-log", log = new { type = log.type, message = log.message, node_id = log.node_id } });
+            connection.Send(new { type = "console", time = time, subType = "add-log", log = new { type = log.type, message = log.message, node_id = log.node_id } });
         }
 
-        private void Node_OnCall(core.blocks.Node node)
+        private void Node_OnStart(core.blocks.Node node)
         {
-            connection.Send(new { topic = "call-node", time = time, data = new { nodeId = node.id, fromNodeId = node.from?.id } });
-            if (node.from != null)
-                connection.Send(new { topic = "update-node", time = time, data = new { node = new { id = node.from.id, result = node.from.result?.ConvertToJson() } } });
+            connection.Send(new { type = "node", subType = "start", time = time, data = new { nodeId = node.id, fromNodeId = node.from?.id } });
         }
     }
 }

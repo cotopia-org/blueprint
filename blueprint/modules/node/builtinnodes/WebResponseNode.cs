@@ -17,6 +17,11 @@ function start()
     var content = node.field('content','OK');
     var status = node.field('status',200);
     node.webresponse(status,content)
+    
+    let result = {};
+    result.content = content;
+    result.statusCode = status;
+    node.result = result;
     node.next();
 }";
             AddField(new NodeField() { name = "content", defaultValue = "OK", type = FieldType.@string });
