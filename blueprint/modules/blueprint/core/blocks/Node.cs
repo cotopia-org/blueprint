@@ -67,6 +67,7 @@ namespace blueprint.modules.blueprint.core.blocks
                 from_id = null;
 
             OnStart?.Invoke(this);
+
             var scriptInput = new ScriptInput();
             scriptInput.AddHostObject("node", this.Runtime());
             script?.Invoke("start", scriptInput);
@@ -79,6 +80,8 @@ namespace blueprint.modules.blueprint.core.blocks
         }
         public void ExecuteNode(string address)
         {
+            OnResult?.Invoke(this);
+
             var arrayField = GetField(address);
             if (arrayField != null && arrayField is List<Field> fields)
             {
@@ -90,7 +93,6 @@ namespace blueprint.modules.blueprint.core.blocks
                         node.CallStart(this);
                 }
             }
-            OnResult?.Invoke(this);
         }
         public Node find_byname(string name)
         {
@@ -98,6 +100,8 @@ namespace blueprint.modules.blueprint.core.blocks
         }
         public void ExecuteNode(string address, int position)
         {
+            OnResult?.Invoke(this);
+
             if (position < 0)
                 position = 0;
             var field = GetField(address);
@@ -109,7 +113,6 @@ namespace blueprint.modules.blueprint.core.blocks
                 if (node != null)
                     node.CallStart(this);
             }
-            OnResult?.Invoke(this);
         }
         public int GetFieldArraySize(string address)
         {

@@ -57,13 +57,13 @@ namespace blueprint.modules.blueprint.logic
 
         private void Node_OnResult(Node node)
         {
-            connection.Send(new { type = "node", subType = "result", time = time, data = new { nodeId = node.from.id, result = node.from.result?.ConvertToJson() } });
+            connection.Send(new { type = "node", subType = "result", time = time, data = new { nodeId = node.id, result = node.result?.ConvertToJson() } });
 
         }
 
         private void Node_OnAddLog(runtime.Log log)
         {
-            connection.Send(new { type = "console", time = time, subType = "add-log", log = new { type = log.type, message = log.message, node_id = log.node_id } });
+            connection.Send(new { type = "console", subType = "add-log", time = time, log = new { type = log.type, message = log.message, node_id = log.node_id } });
         }
 
         private void Node_OnStart(core.blocks.Node node)

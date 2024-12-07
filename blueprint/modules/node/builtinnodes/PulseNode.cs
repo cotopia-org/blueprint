@@ -21,7 +21,7 @@ function on_pulse()
 }
 ";
             AddComponent(new database.Component() { name = "Cron", param1 = "cronExpression", param2 = "on_pulse" });
-            AddField(new NodeField() { name = "cronExpression", defaultValue = "*/10 * * * *", type = FieldType.@string, required = true });
+            AddField(new NodeField() { name = "cronExpression", defaultValue = "*/10 * * * * *", type = FieldType.@string, required = true });
             AddField(new NodeField() { name = "next", type = FieldType.output });
             inputConnection = false;
         }

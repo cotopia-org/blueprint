@@ -49,7 +49,7 @@ namespace blueprint.modules.blueprint
             }
             if (debugItem != null)
             {
-                debugItems.Remove(debugItem);
+                //debugItems.Remove(debugItem);
                 debugItem.Bind(process);
             }
         }

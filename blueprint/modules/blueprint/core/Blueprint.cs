@@ -89,6 +89,7 @@ namespace blueprint.modules.blueprint.core
                 _WaitForWebResponseToken.Cancel();
         }
         private WebResponse webResponse;
+        private Semaphore semaphore= new Semaphore(1,1);
         private CancellationTokenSource _WaitForWebResponseToken;
         public async Task<WebResponse> WaitForWebResponse(TimeSpan timeout)
         {
@@ -98,6 +99,7 @@ namespace blueprint.modules.blueprint.core
             }
             else
             {
+              //  semaphore.
                 _WaitForWebResponseToken = new CancellationTokenSource();
                 try
                 {
