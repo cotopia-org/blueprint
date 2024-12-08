@@ -56,8 +56,8 @@ namespace blueprint.modules.blueprint.core
 
             var engine = new Engine(options =>
             {
-                options.LimitMemory(20_000_000);
-                options.TimeoutInterval(TimeSpan.FromSeconds(1));
+                options.LimitMemory(200_000_000);
+                options.TimeoutInterval(TimeSpan.FromSeconds(10));
                 options.MaxStatements(5000);
             });
             //{

@@ -57,7 +57,7 @@ namespace blueprint.modules.blueprint.logic
 
         private void Node_OnResult(Node node)
         {
-            connection.Send(new { type = "node", subType = "result", time = time, data = new { nodeId = node.id, result = node.result?.ConvertToJson() } });
+            connection.Send(new { type = "node", subType = "result", time = time, data = new { nodeId = node.id, result = node.result } });
 
         }
 

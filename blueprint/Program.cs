@@ -21,6 +21,7 @@ builder.Services.AddControllers()
         options.SerializerSettings.Converters.Add(new Newtonsoft.Json.Converters.StringEnumConverter());
     });
 // Add CORS services
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAllOrigins",
@@ -77,6 +78,7 @@ if (ConfigModule.GetBool("swagger.active", false))
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
 app.MapRazorPages();
 app.UseRouting();
 app.UseWebSockets();

@@ -76,9 +76,9 @@ namespace blueprint.srtool
                     await webSocket.SendAsync(buffer, WebSocketMessageType.Text, true, CancellationToken.None);
                 }
             }
-            catch (Exception e)
+            catch
             {
-                Console.WriteLine(e.Message);
+              
             }
         }
         public async void Send(string message)

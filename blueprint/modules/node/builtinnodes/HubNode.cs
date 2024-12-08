@@ -37,6 +37,11 @@ function start()
                 position = count - 1 - position;
 
                 node.set_static_data('step',step);
+
+                let result = {};
+                result.step = step;
+                node.result = result;
+
                 node.execnode('next',position);
             }
         }
@@ -52,16 +57,16 @@ function start()
         {
             var count = node.field_count('next');
             
-            var usedIndicesString  = node.get_static_data('usedIndices', '[]');
-            var usedIndices = JSON.parse(usedIndicesString);
+            var calledIndicesString  = node.get_static_data('calledIndices', '[]');
+            var calledIndices = JSON.parse(calledIndicesString);
 
-            if (usedIndices.length >= count) {
-                usedIndices = [];
+            if (calledIndices.length >= count) {
+                calledIndices = [];
             }
 
             var availableIndices = [];
             for (var i = 0; i < count; i++) {
-                if (!usedIndices.includes(i)) {
+                if (!calledIndices.includes(i)) {
                     availableIndices.push(i);
                 }
             }
@@ -69,9 +74,12 @@ function start()
             var randomIndex = Math.floor(Math.random() * availableIndices.length);
             var position = availableIndices[randomIndex];
 
-            usedIndices.push(position);
+            calledIndices.push(position);
 
-            node.set_static_data('usedIndices', JSON.stringify(usedIndices));
+            node.set_static_data('calledIndices', JSON.stringify(calledIndices));
+            let result = {};
+            result.calledIndices = JSON.stringify(calledIndices);
+            node.result = result;
 
             node.execnode('next', position);
         }
