@@ -36,21 +36,28 @@ namespace blueprint.modules.blueprint
             ScheduleModule.Instance.OnAction += Instance_OnAction;
         }
 
-        private void Instance_OnCreateProcess(Process process)
+        private async void Instance_OnCreateProcess(Process process)
         {
-            BlueprintDebugHandler debugItem = null;
-            lock (debugItems)
+            try
             {
-                if (debugItems.Count > 0)
+                BlueprintDebugHandler debugItem = null;
+                lock (debugItems)
                 {
-                    debugItem = debugItems.FirstOrDefault(i => i.id == process.blueprint.id);
+                    if (debugItems.Count > 0)
+                    {
+                        debugItem = debugItems.FirstOrDefault(i => i.id == process.blueprint.id);
 
+                    }
+                }
+                if (debugItem != null)
+                {
+                    //debugItems.Remove(debugItem);
+                    await debugItem.Bind(process);
                 }
             }
-            if (debugItem != null)
+            catch (Exception e)
             {
-                //debugItems.Remove(debugItem);
-                debugItem.Bind(process);
+                Debug.Error(e);
             }
         }
         private async void Indexing()
@@ -579,7 +586,7 @@ namespace blueprint.modules.blueprint
 
             debugHandler.onDisconnect += DebugHandler_onDisconnect;
             debugHandler.Bind(connection);
-            debugHandler.Bind(blueprint);
+            await debugHandler.Bind(blueprint);
             lock (debugItems)
                 debugItems.Add(debugHandler);
         }

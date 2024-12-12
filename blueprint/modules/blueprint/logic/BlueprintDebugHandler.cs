@@ -14,10 +14,10 @@ namespace blueprint.modules.blueprint.logic
         private float time { get { return (float)Math.Round((DateTime.UtcNow - DateTime).TotalSeconds, 5); } }
         public event Action<BlueprintDebugHandler> onDisconnect;
 
-        public void Bind(Blueprint blueprint)
+        public async Task Bind(Blueprint blueprint)
         {
             this.blueprint = blueprint;
-            connection.Send(new { type = "listening", time = time, data = new { blueprint = blueprint.JsonSnapshot() } });
+            await connection.Send(new { type = "listening", time = time, data = new { blueprint = blueprint.JsonSnapshot() } });
 
         }
         public void Bind(WSConnection connection)
@@ -42,7 +42,7 @@ namespace blueprint.modules.blueprint.logic
             onDisconnect?.Invoke(this);
         }
 
-        public void Bind(Process process)
+        public async Task Bind(Process process)
         {
             this.process = process;
             foreach (var i in this.process.blueprint.nodes)
@@ -52,23 +52,42 @@ namespace blueprint.modules.blueprint.logic
                 i.OnResult += Node_OnResult;
 
             }
-            connection.Send(new { type = "bind-process", time = time, data = new { process = new { id = process.id }, blueprint = blueprint.JsonSnapshot() } });
+            await connection.Send(new { type = "bind-process", time = time, data = new { process = new { id = process.id }, blueprint = blueprint.JsonSnapshot() } });
         }
 
-        private void Node_OnResult(Node node)
+        private async void Node_OnResult(Node node)
         {
-            connection.Send(new { type = "node", subType = "result", time = time, data = new { nodeId = node.id, result = node.result } });
-
+            try
+            {
+                await connection.Send(new { type = "node", subType = "result", time = time, data = new { nodeId = node.id, result = node.result } });
+            }
+            catch (Exception ex)
+            {
+                Debug.Error(ex);
+            }
+        }
+        private async void Node_OnAddLog(runtime.Log log)
+        {
+            try
+            {
+                await connection.Send(new { type = "console", subType = "add-log", time = time, log = new { type = log.type, message = log.message, node_id = log.node_id } });
+            }
+            catch (Exception ex)
+            {
+                Debug.Error(ex);
+            }
         }
 
-        private void Node_OnAddLog(runtime.Log log)
+        private async void Node_OnStart(core.blocks.Node node)
         {
-            connection.Send(new { type = "console", subType = "add-log", time = time, log = new { type = log.type, message = log.message, node_id = log.node_id } });
-        }
-
-        private void Node_OnStart(core.blocks.Node node)
-        {
-            connection.Send(new { type = "node", subType = "start", time = time, data = new { nodeId = node.id, fromNodeId = node.from?.id } });
+            try
+            {
+                await connection.Send(new { type = "node", subType = "start", time = time, data = new { nodeId = node.id, fromNodeId = node.from?.id } });
+            }
+            catch (Exception ex)
+            {
+                Debug.Error(ex);
+            }
         }
     }
 }

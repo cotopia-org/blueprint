@@ -65,7 +65,7 @@ namespace blueprint.srtool
 
             Disconnect();
         }
-        public async void Send(object data)
+        public async Task Send(object data)
         {
             try
             {
@@ -78,10 +78,10 @@ namespace blueprint.srtool
             }
             catch
             {
-              
+
             }
         }
-        public async void Send(string message)
+        public async Task Send(string message)
         {
             try
             {
@@ -92,12 +92,11 @@ namespace blueprint.srtool
                     await webSocket.SendAsync(buffer, WebSocketMessageType.Text, true, CancellationToken.None);
                 }
             }
-            catch (Exception e)
+            catch
             {
-                Console.WriteLine(e.Message);
             }
         }
-        public async void Send(byte[] bytes)
+        public async Task Send(byte[] bytes)
         {
             try
             {
@@ -107,10 +106,8 @@ namespace blueprint.srtool
                     await webSocket.SendAsync(buffer, WebSocketMessageType.Binary, true, CancellationToken.None);
                 }
             }
-            catch (Exception e)
+            catch
             {
-                Console.WriteLine(e.Message);
-
             }
         }
 
@@ -122,9 +119,8 @@ namespace blueprint.srtool
                 webSocket.Abort();
                 OnDisconnect?.Invoke(this, new DisconnectInfo() { type = "remote" });
             }
-            catch (Exception e)
+            catch
             {
-                Console.WriteLine(e.Message);
             }
         }
     }
