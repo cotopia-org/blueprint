@@ -147,6 +147,7 @@ namespace blueprint.modules.blueprint
                 appE.AddHint("hint", "Webhook node is not found.");
                 throw appE;
             }
+            IncExecution(dbItem._id);
 
             var queryData = new JObject();
             foreach (var i in context.Request.Query)
@@ -225,7 +226,7 @@ namespace blueprint.modules.blueprint
             item.description = request.description;
 
             item.data_snapshot = mainBlueprint.Snapshot();
-
+            item.node_count = mainBlueprint.nodes.Count();
             foreach (var token in item.index_tokens)
                 SuperCache.Remove($"webhook_blueprint_{token}");
 
@@ -335,6 +336,8 @@ namespace blueprint.modules.blueprint
                 title = i.title,
                 creator = i.creator,
                 description = i.description,
+                nodeCount = i.nodeCount,
+                execCount = i.execCount,
                 id = i.id,
                 run = i.run,
             }).ToList();
@@ -361,6 +364,8 @@ namespace blueprint.modules.blueprint
                     description = i.description,
                     createDateTime = i.createDateTime,
                     updateDateTime = i.updateDateTime,
+                    execCount = i.exec_counter,
+                    nodeCount = i.node_count,
                     run = i.active,
                 },
                 accId = i.account_id,

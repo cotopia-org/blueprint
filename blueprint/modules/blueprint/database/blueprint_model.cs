@@ -18,9 +18,9 @@ namespace blueprint.modules.blueprint.database
         public string data_snapshot { get; set; }
 
         public List<string> index_tokens { get; set; }
-
         public long exec_counter { get; set; }
-
+        public int node_count{get;set; }
+        
         public DateTime createDateTime { get; set; }
         public DateTime updateDateTime { get; set; }
     }

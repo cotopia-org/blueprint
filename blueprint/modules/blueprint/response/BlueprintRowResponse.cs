@@ -9,7 +9,9 @@ namespace blueprint.modules.blueprint.response
         public AccountResponse creator { get; set; }
         public bool run { get; set; }
         public string description { get; set; }
-        public int nodes { get; set; }
+        public int nodeCount { get; set; }
+        public long execCount { get; set; }
+
         public DateTime updateDateTime { get; set; }
         public DateTime createDateTime { get; set; }
     }

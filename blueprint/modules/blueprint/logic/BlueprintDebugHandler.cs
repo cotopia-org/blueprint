@@ -36,12 +36,10 @@ namespace blueprint.modules.blueprint.logic
                     node.OnStart -= Node_OnStart;
                     node.OnResult -= Node_OnResult;
                     node.OnAddLog -= Node_OnAddLog;
-
                 }
             }
             onDisconnect?.Invoke(this);
         }
-
         public async Task Bind(Process process)
         {
             this.process = process;
@@ -50,11 +48,9 @@ namespace blueprint.modules.blueprint.logic
                 i.OnStart += Node_OnStart;
                 i.OnAddLog += Node_OnAddLog;
                 i.OnResult += Node_OnResult;
-
             }
             await connection.Send(new { type = "bind-process", time = time, data = new { process = new { id = process.id }, blueprint = blueprint.JsonSnapshot() } });
         }
-
         private async void Node_OnResult(Node node)
         {
             try
@@ -77,7 +73,6 @@ namespace blueprint.modules.blueprint.logic
                 Debug.Error(ex);
             }
         }
-
         private async void Node_OnStart(core.blocks.Node node)
         {
             try

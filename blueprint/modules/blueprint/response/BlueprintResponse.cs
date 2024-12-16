@@ -16,6 +16,9 @@ namespace blueprint.modules.blueprint.response
         public JObject blueprint { get; set; }
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public List<NodeResponse> references { get; set; }
+        public int nodeCount { get; set; }
+        public long execCount { get; set; }
+
         public DateTime updateDateTime { get; set; }
         public DateTime createDateTime { get; set; }
     }
