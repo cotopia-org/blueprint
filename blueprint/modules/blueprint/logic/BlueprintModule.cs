@@ -238,6 +238,8 @@ namespace blueprint.modules.blueprint
             await dbContext.ReplaceOneAsync(i => i._id == item._id, item, new ReplaceOptions() { IsUpsert = true });
 
             Handle_Cron(id, changedBlocks, removedBlocks, item.active);
+            SuperCache.Remove($"blueprint:{item._id}");
+
             return await Get(item._id, fromAccountId);
         }
         public async Task Delete(string id, string fromAccountId)
@@ -255,6 +257,7 @@ namespace blueprint.modules.blueprint
                 throw AppException.NotFoundObject();
             }
             await dbContext.DeleteOneAsync(i => i._id == id);
+            SuperCache.Remove($"blueprint:{id}");
         }
         private static void Handle_Cron(string id, List<Block> changedBlocks, List<Block> removedBlocks, bool active)
         {

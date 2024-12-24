@@ -31,7 +31,6 @@ namespace blueprint.modules.blueprint.core
             if (item.blocks != null)
                 foreach (var block in item.blocks)
                     jBlocks.Add(block.JsonSnapshot());
-            if (jBlocks.Count > 0)
                 result["blocks"] = jBlocks;
             return result;
         }
