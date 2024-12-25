@@ -259,6 +259,49 @@ namespace blueprint.modules.blueprint
             await dbContext.DeleteOneAsync(i => i._id == id);
             SuperCache.Remove($"blueprint:{id}");
         }
+        public async Task<BlueprintResponse> Duplicate(string id, string fromAccountId)
+        {
+
+            var dbItem = await dbContext.AsQueryable().FirstOrDefaultAsync(i => i._id == id);
+
+            if (dbItem != null)
+            {
+                if (dbItem.account_id != fromAccountId)
+                    throw AppException.ForbiddenAccessObject();
+            }
+            else
+            {
+                throw AppException.NotFoundObject();
+            }
+            var sourceItem = await dbContext.AsQueryable().Where(i => i._id == id).FirstOrDefaultAsync();
+
+            var load = BlueprintSnapshot.LoadBlueprint(sourceItem.data_snapshot);
+            foreach (var n in load.nodes)
+            {
+                if (n.HasComponent<Webhook>())
+                {
+                    n.GetComponent<Webhook>().token = Utility.CalculateMD5Hash(Guid.NewGuid().ToString()).Substring(0, 12).ToString();
+                }
+            }
+
+            var item = new database.blueprint_model();
+            item.account_id = fromAccountId;
+            item.index_tokens = new List<string>();
+            item._id = ObjectId.GenerateNewId().ToString();
+            item.createDateTime = DateTime.UtcNow;
+            item.updateDateTime = DateTime.UtcNow;
+            item.title = sourceItem.title + " Clone";
+            item.node_count = sourceItem.node_count;
+            item.description = sourceItem.description;
+            item.data_snapshot = BlueprintSnapshot.JsonSnapshot(load).ToString(Newtonsoft.Json.Formatting.None);
+            item.index_tokens = new List<string>();
+            item.index_tokens.AddRange(load.FindComponents<Webhook>().Select(i => $"webhook:{i.token}").ToList());
+
+            item.updateDateTime = DateTime.UtcNow;
+            await dbContext.InsertOneAsync(item);
+
+            return await Get(item._id, fromAccountId);
+        }
         private static void Handle_Cron(string id, List<Block> changedBlocks, List<Block> removedBlocks, bool active)
         {
             foreach (var block in changedBlocks)

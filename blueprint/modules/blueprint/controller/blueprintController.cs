@@ -87,5 +87,17 @@ namespace blueprint.modules.blueprint.controller
             await BlueprintModule.Instance.Delete(id, accountId);
             return Ok();
         }
+        [HttpPost]
+        [Route("{id}/duplicate")]
+        [AuthRequire()]
+        [ProducesResponseType(200)]
+        public async Task<IActionResult> Duplicate([FromRoute] string id)
+        {
+            var accountId = await this.GetAccountId();
+            var result = await BlueprintModule.Instance.Duplicate(id, accountId);
+            return Ok(result);
+        }
+
+
     }
 }
