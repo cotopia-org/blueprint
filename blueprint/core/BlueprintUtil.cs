@@ -47,26 +47,34 @@ namespace blueprint.core
         }
         public static async Task<string> GetAccountId(this ControllerBase controller, string bearerToken)
         {
+
             if (string.IsNullOrEmpty(bearerToken))
             {
                 var appE = new AppException(System.Net.HttpStatusCode.Unauthorized);
                 throw appE;
             }
+            try
+            {
+                var sessionId = AuthModule.Instance.JWTHandler.GetClaim(bearerToken, "session_id");
+                var _sessionId = ObjectId.Parse(sessionId);
 
-            var sessionId = AuthModule.Instance.JWTHandler.GetClaim(bearerToken, "session_id");
-            var _sessionId = ObjectId.Parse(sessionId);
+                //var session = await AuthLogic.Instance.signinSession.AsQueryable()
+                //    .Where(i => i._id == _sessionId).FirstOrDefaultAsync(new ExpertQuery() { cacheKey = _sessionId });
+                var session = await AuthModule.Instance.signinSession.Find_Cache("_id", _sessionId);
 
-            //var session = await AuthLogic.Instance.signinSession.AsQueryable()
-            //    .Where(i => i._id == _sessionId).FirstOrDefaultAsync(new ExpertQuery() { cacheKey = _sessionId });
-            var session = await AuthModule.Instance.signinSession.Find_Cache("_id", _sessionId);
+                if (session == null)
+                {
+                    var appE = new AppException(System.Net.HttpStatusCode.Unauthorized);
+                    throw appE;
+                }
 
-            if (session == null)
+                return session.account_id.ToString();
+            }
+            catch
             {
                 var appE = new AppException(System.Net.HttpStatusCode.Unauthorized);
                 throw appE;
             }
-
-            return session.account_id.ToString();
         }
         public static async Task<string> GetAccountId(this ControllerBase controller)
         {

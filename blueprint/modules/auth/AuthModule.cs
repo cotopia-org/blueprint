@@ -174,10 +174,11 @@ namespace blueprint.modules.auth
 
         private string CreateAccessTokenGenerator(string accountId, string sessionId, TimeSpan timeSpan)
         {
-            return $"Bearer {JWTHandler.GenerateToken(accountId, sessionId, DateTime.UtcNow.Add(timeSpan))}";
+            return $"{JWTHandler.GenerateToken(accountId, sessionId, DateTime.UtcNow.Add(timeSpan))}";
         }
         private string CreateAccessTokenGenerator(string accountId, string sessionId)
         {
+            //Bearer  
             return CreateAccessTokenGenerator(accountId, sessionId, TimeSpan.FromHours(24));
         }
 

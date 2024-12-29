@@ -188,6 +188,12 @@ namespace blueprint.modules.blueprint
                 Debug.Error(e);
             }
         }
+        public async Task<BlueprintResponse> ToggleActive(string id, string fromAccountId)
+        {
+            var item = await Get(id, fromAccountId);
+            var res = await Upsert(id, new BlueprintRequest() { active = !item.run, blueprint = item.blueprint, description = item.description, title = item.title }, fromAccountId);
+            return res;
+        }
         public async Task<BlueprintResponse> Upsert(string id, BlueprintRequest request, string fromAccountId)
         {
             database.blueprint_model item;

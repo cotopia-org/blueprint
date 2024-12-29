@@ -97,7 +97,16 @@ namespace blueprint.modules.blueprint.controller
             var result = await BlueprintModule.Instance.Duplicate(id, accountId);
             return Ok(result);
         }
-
+        [HttpPost]
+        [Route("{id}/active-toggle")]
+        [AuthRequire()]
+        [ProducesResponseType(200)]
+        public async Task<IActionResult> ActiveToggle([FromRoute] string id)
+        {
+            var accountId = await this.GetAccountId();
+            var result = await BlueprintModule.Instance.ToggleActive(id, accountId);
+            return Ok(result);
+        }
 
     }
 }
